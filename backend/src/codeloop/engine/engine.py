@@ -156,9 +156,14 @@ class CodeEngine:
         self.pending_end = None
         self.ended_at_s = at_s
         self.outcome = outcome
+        out = EngineOutput(state_changed=True)
+        for fl in self.flags.values():
+            if fl.rule.endswith("_NEEDS_CONFIRMATION") and fl.resolved_at_s is None:
+                fl.resolved_at_s = at_s
+                out.resolved_flags.append(fl)
         if outcome == "rosc":
             self.rhythm_history.append((at_s, Rhythm.SINUS))
-        return EngineOutput(state_changed=True)
+        return out
 
     def apply(self, ev: Event, advance: bool = True) -> EngineOutput:
         """Apply one validated event. Advances time to the event first unless `advance` is

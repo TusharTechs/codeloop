@@ -35,6 +35,7 @@ from .config import Settings
 from .domain.models import Action, Event, EventKind, EventSource, PromptPolicy, Role, Utterance
 from .engine.answers import answer
 from .engine.engine import EngineOutput
+from .engine.metrics import quality_metrics
 from .pipeline import TranscriptPipeline
 from .store import Store
 
@@ -424,6 +425,7 @@ class CodeSession:
                 "p90": lat[int(len(lat) * 0.9)] if lat else None,
             },
             "names": {k: v.value for k, v in self.engine.names.items()},
+            "quality": quality_metrics(self.engine, self.clock),
         }
 
     # ================================================================ controls from the screen
@@ -545,6 +547,7 @@ class CodeSession:
             "conflicts": sum(1 for lp in loops if any(h.state.value == "CONFLICT" for h in lp.history)),
             "prompts_spoken": len(self._spoken),
             "unresolved_flags": len(e.active_flags()),
+            "quality": quality_metrics(e, self.clock),
             "audit_head": self.store.head_hash(self.id),
         }
 

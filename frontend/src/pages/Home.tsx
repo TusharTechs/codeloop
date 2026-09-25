@@ -168,7 +168,10 @@ export function Home({ player }: { player: PcmPlayer }) {
 
       {recent.length > 0 && (
         <section className="recent" aria-label="Recent codes">
-          <h2 style={{ margin: 0, fontSize: 18 }}>Recent codes</h2>
+          <h2 style={{ margin: 0, fontSize: 18, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            Recent codes
+            <a className="btn small" href="#/codes">Codes dashboard</a>
+          </h2>
           {recent.slice(0, 8).map((c) => (
             <a key={c.id} href={c.status === 'active' ? `#/code/${c.id}` : `#/record/${c.id}`}>
               <span className="mono muted">{new Date(c.created_at).toLocaleString()}</span>

@@ -34,6 +34,16 @@ from ..store import Store
 log = logging.getLogger(__name__)
 
 
+class ImmutableStaticFiles(StaticFiles):
+    """Vite gives every built asset a content hash, so it can be cached forever."""
+
+    async def get_response(self, path: str, scope):  # type: ignore[no-untyped-def]
+        resp = await super().get_response(path, scope)
+        if resp.status_code == 200:
+            resp.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        return resp
+
+
 class CreateCode(BaseModel):
     mode: str = "live"  # live | replay
     scenario: str | None = None
@@ -223,14 +233,15 @@ def create_app(settings: Settings | None = None, store: Store | None = None, fac
 
     dist = settings.frontend_dist
     if dist.exists():
-        app.mount("/assets", StaticFiles(directory=dist / "assets"), name="assets")
+        app.mount("/assets", ImmutableStaticFiles(directory=dist / "assets"), name="assets")
 
         @app.get("/{path:path}", include_in_schema=False)
         async def spa(path: str):
             f = dist / path
             if path and f.is_file() and dist in f.resolve().parents:
-                return FileResponse(f)
-            return FileResponse(dist / "index.html")
+                return FileResponse(f, headers={"Cache-Control": "no-cache"})
+            # index.html must never be cached, or a deploy keeps serving the old bundle.
+            return FileResponse(dist / "index.html", headers={"Cache-Control": "no-cache"})
     else:
 
         @app.get("/", include_in_schema=False)

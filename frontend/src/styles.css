@@ -299,3 +299,13 @@ table.t td.mono { white-space: nowrap; }
 .guide-body { font-size: 15px; color: var(--muted); }
 @keyframes guide-in { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .guide-card { animation: none; } }
+
+/* ------------------------------------------------------------------ quality measures */
+.quality { display: grid; gap: 2px; }
+.q-row { display: grid; grid-template-columns: 1fr auto 150px 64px; gap: 12px; align-items: baseline; padding: 7px 0; border-bottom: 1px dashed var(--line); font-size: 15px; }
+.quality.compact .q-row { grid-template-columns: 1fr auto 56px; font-size: 14px; }
+.q-value { font-weight: 700; }
+.q-target { font-size: 13px; }
+.q-status { text-align: right; }
+.dash-agg { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+@media (max-width: 720px) { .q-row { grid-template-columns: 1fr auto 56px; } .q-target { display: none; } }

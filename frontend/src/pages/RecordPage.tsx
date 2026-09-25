@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
 import { Logo } from '../components/Logo'
+import { QualityList } from '../components/Quality'
 import type { CodeRecord } from '../types'
 
 export function RecordPage({ codeId }: { codeId: string }) {
@@ -64,6 +65,14 @@ export function RecordPage({ codeId }: { codeId: string }) {
         {rec.integrity.entries} audit entries, each hash-chained to the one before.
         <div className="hash">head {rec.integrity.head_hash}</div>
       </div>
+
+      <section className="panel">
+        <h3>Resuscitation quality vs targets</h3>
+        <QualityList metrics={rec.quality ?? []} />
+        <div className="faint" style={{ fontSize: 13 }}>
+          Targets: AHA adult ACLS and Get With The Guidelines-Resuscitation. CPR timing is estimated from spoken calls.
+        </div>
+      </section>
 
       {rec.needs_review.length > 0 && (
         <section className="panel">

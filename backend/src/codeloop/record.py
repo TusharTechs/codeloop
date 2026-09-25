@@ -118,6 +118,7 @@ def build_record(store: Store, code_id: str) -> dict[str, Any]:
         "duration": clock(duration_s, 0) if duration_s is not None else None,
         "duration_s": duration_s,
         "administered": sorted(administered, key=lambda x: x["clock"]),
+        "quality": (closed[-1].get("quality") if closed else None) or [],
         "timeline": timeline,
         "loops": list(loops.values()),
         "flags": list(flags.values()),

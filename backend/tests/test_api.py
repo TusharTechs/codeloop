@@ -90,3 +90,15 @@ def test_access_token_is_enforced(replay_dir) -> None:
         with pytest.raises(Exception):  # noqa: B017 - starlette raises on a rejected socket
             with c.websocket_connect(f"/ws/codes/{code['id']}") as ws:
                 ws.receive_json()
+
+
+def test_index_is_never_cached_but_hashed_assets_are(tmp_path) -> None:
+    dist = tmp_path / "dist"
+    (dist / "assets").mkdir(parents=True)
+    (dist / "index.html").write_text("<html></html>")
+    (dist / "assets" / "index-abc123.js").write_text("console.log(1)")
+    settings = Settings(assemblyai_api_key="k", replay_dir=tmp_path, frontend_dist=dist)
+    with TestClient(create_app(settings, Store(":memory:"), factory=fake_session)) as c:
+        assert c.get("/").headers["cache-control"] == "no-cache"
+        assert c.get("/some/route").headers["cache-control"] == "no-cache"
+        assert "immutable" in c.get("/assets/index-abc123.js").headers["cache-control"]

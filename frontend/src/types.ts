@@ -95,6 +95,17 @@ export interface CodeState {
   voice: string
   ears: string
   latency_ms: { p50: number | null; p90: number | null }
+  quality: QualityMetric[]
+}
+
+export interface QualityMetric {
+  key: string
+  label: string
+  value: number | null
+  display: string
+  target: string
+  status: 'met' | 'missed' | 'info' | 'n/a'
+  note: string
 }
 
 export interface SpokenLine {
@@ -156,6 +167,7 @@ export interface CodeRecord {
   duration: string | null
   duration_s: number | null
   administered: { clock: string; what: string; without_order: boolean; closed_loop: boolean }[]
+  quality: QualityMetric[]
   timeline: { clock: string; at_s: number; what: string; kind: string; quote: string; speaker: string | null; role: string | null; source: string; confidence: number | null; unconfirmed: boolean }[]
   loops: Loop[]
   flags: Flag[]

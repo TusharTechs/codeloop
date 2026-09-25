@@ -178,3 +178,10 @@ def test_first_role_for_a_voice_sticks_until_changed_on_screen() -> None:
     assert [f.rule for f in out.flags] == ["ROLE_CONFLICT"]
     e.apply(ev(EventKind.ROLE, 10, role=Role.MEDS, speaker="A", source=EventSource.MANUAL))
     assert e.roles == {"A": Role.MEDS}
+
+
+def test_confirming_the_end_resolves_the_confirmation_flag(engine: CodeEngine) -> None:
+    engine.apply(ev(EventKind.ROSC, 60))
+    out = engine.confirm_end()
+    assert [f.rule for f in out.resolved_flags] == ["ROSC_NEEDS_CONFIRMATION"]
+    assert not engine.active_flags()

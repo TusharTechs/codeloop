@@ -7,6 +7,7 @@ import { Feed } from '../components/Feed'
 import { Guide } from '../components/Guide'
 import { CprRing, EpiWindow, Vitals } from '../components/Protocol'
 import { QuickLog } from '../components/QuickLog'
+import { QualityList } from '../components/Quality'
 import { loopTitle, mmss, num } from '../format'
 import type { CodeEvent, Loop } from '../types'
 import { useCodeSocket } from '../useCodeSocket'
@@ -231,6 +232,10 @@ export function CodeScreen({ codeId, player }: { codeId: string; player: PcmPlay
           <div className="panel">
             <h3>Rhythm · shocks · drugs</h3>
             <Vitals state={state} drift={drift} />
+          </div>
+          <div className="panel">
+            <h3>Quality vs AHA targets</h3>
+            <QualityList metrics={state.quality ?? []} compact />
           </div>
         </section>
 
