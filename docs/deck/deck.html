@@ -47,6 +47,7 @@ table { border-collapse: collapse; width: 100%; font-size: 27px; }
 th { text-align: left; font-family: 'JBM'; font-size: 18px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); padding: 14px 18px; border-bottom: 1px solid var(--line); }
 td { padding: 16px 18px; border-bottom: 1px solid var(--line); color: var(--muted); vertical-align: top; }
 td b { color: var(--text); }
+table.tight td { padding: 12px 18px; font-size: 25px; }
 .pill { display: inline-block; font-family: 'JBM'; font-size: 18px; font-weight: 700; padding: 5px 14px; border-radius: 999px; }
 .pt { color: var(--teal); background: rgba(53,208,181,.12); } .pa { color: var(--amber); background: rgba(245,181,68,.12); } .pr { color: var(--red); background: rgba(255,93,93,.12); } .pv { color: var(--violet); background: rgba(182,156,255,.12); } .pb { color: var(--blue); background: rgba(106,169,255,.12); }
 .arch { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 28px; align-items: stretch; }
@@ -68,7 +69,7 @@ ul { margin: 0; padding-left: 32px; display: grid; gap: 14px; }
   <div class="logo"><svg viewBox="0 0 128 128"><rect width="128" height="128" rx="28" fill="#0b1117" stroke="#243242" stroke-width="2"/><g transform="translate(9.6 9.6) scale(0.85)"><path d="M22 66 H43 L49.5 49 L58 85 L65.5 55 L70.5 66 H106" fill="none" stroke="#e8eef4" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="64" cy="64" r="44" fill="none" stroke="#35d0b5" stroke-width="10"/></g></svg><span>CodeLoop</span></div>
   <h1>Every order heard.<br><em>Every loop closed.</em></h1>
   <p style="font-size:38px;max-width:1400px">The voice recorder for cardiac arrests. It hears the whole resuscitation team, logs every drug, shock and rhythm, runs the ACLS clock and speaks up when an order was never confirmed back.</p>
-  <div class="foot"><span>AssemblyAI Voice Agent Hackathon 2026</span><span>Built on Universal-3.5 Pro Streaming + Voice Agent API</span></div>
+  <div class="foot"><span>AssemblyAI Voice Agent Hackathon 2026</span><span>Built on Universal-3.5 Pro (streaming + async) and the Voice Agent API</span></div>
 </section>
 
 <!-- 2 · Problem -->
@@ -114,11 +115,29 @@ ul { margin: 0; padding-left: 32px; display: grid; gap: 14px; }
   <div class="foot"><span>Real screenshot: the amiodarone read-back conflict caught at 00:59, with CodeLoop's spoken line on the right</span><span>4</span></div>
 </section>
 
+<!-- 5 · After the code -->
+<section class="slide" style="padding-bottom:70px">
+  <div class="kicker">After the code · closing the learning loop</div>
+  <div style="display:grid;grid-template-columns:1fr 1.05fr;gap:64px;align-items:start">
+    <div style="display:grid;gap:26px">
+      <h2 style="font-size:56px">The debrief every mock code <em>should</em> have, in minutes.</h2>
+      <ul style="gap:10px">
+        <li style="font-size:27px"><b>Quality vs AHA targets</b>: first shock, first epinephrine, read-back rate and time, estimated CPR fraction. A dashboard tracks them across codes.</li>
+        <li style="font-size:27px"><b>Second listen</b>: AssemblyAI async Universal-3.5 Pro re-transcribes the whole recording and confirms each live event, or flags it for review. <span class="pill pt">13 of 13 confirmed</span></li>
+        <li style="font-size:27px"><b>Spoken debrief</b>: a hands-free Voice Agent conversation with tool calls. It quotes facts from the record, never computing them, and saves the team's lessons in their own words.</li>
+      </ul>
+      <div class="voice" style="font-size:26px">“The order for epinephrine one milligram went unacknowledged for more than ten seconds. What would help?”</div>
+    </div>
+    <img class="shot" style="height:820px;width:auto;justify-self:end" src="../img/after-code.png" alt="Code Record with quality metrics, second listen and team debrief">
+  </div>
+  <div class="foot"><span>Real output: the tour code's record, and a live debrief on the Voice Agent API</span><span>5</span></div>
+</section>
+
 <!-- 5 · AssemblyAI -->
 <section class="slide">
   <div class="kicker">Why AssemblyAI is load-bearing</div>
-  <h2>Two AssemblyAI connections, each doing a job <em>nothing else could</em>.</h2>
-  <table>
+  <h2>AssemblyAI in four roles, each <em>load-bearing</em>.</h2>
+  <table class="tight">
     <tr><th>Capability</th><th>Without it</th><th>Measured</th></tr>
     <tr><td><b>Universal-3.5 Pro streaming</b> + tight turn detection</td><td>The record lags the code</td><td><span class="pill pt">event latency ≈ 1.2 s</span></td></tr>
     <tr><td><b>Medical Mode + ACLS keyterms + context prompt</b></td><td>Drug names and doses misheard</td><td><span class="pill pt">96% vs 78%</span> critical entities; the dose conflict was <b>missed</b> without them</td></tr>
@@ -126,8 +145,9 @@ ul { margin: 0; padding-left: 32px; display: grid; gap: 14px; }
     <tr><td><b>Word confidence</b></td><td>A misheard dose silently becomes fact</td><td>Below 0.6 → <span class="pill pa">UNCONFIRMED</span>, listed for sign-off</td></tr>
     <tr><td><b>Hindi–English code-switching</b></td><td>Indian teams' real talk lost</td><td>Cross-script phonetic layer maps Devanagari back to English</td></tr>
     <tr><td><b>Voice Agent API</b> (semantic barge-in)</td><td>A bot talks over the team leader</td><td><span class="pill pv">~0.8 s</span> to speak; stops mid-word when interrupted</td></tr>
+    <tr><td><b>Async U3.5 Pro</b> + <b>Voice Agent tools</b>, after the code</td><td>Mishearings go unchecked; a debrief bot invents numbers</td><td>Second listen <span class="pill pt">13 / 13</span>; debrief facts only via <span class="mono">get_code_facts</span></td></tr>
   </table>
-  <div class="foot"><span>CodeLoop</span><span>5</span></div>
+  <div class="foot"><span>CodeLoop</span><span>6</span></div>
 </section>
 
 <!-- 6 · Architecture -->
@@ -140,7 +160,7 @@ ul { margin: 0; padding-left: 32px; display: grid; gap: 14px; }
     <div class="box aai"><span class="pill pv">AssemblyAI · voice</span><h3>Voice Agent API</h3><p>Speaks fixed lines only, waits for a gap in the room, stops when a clinician talks over it. Never hears the room's chatter.</p></div>
   </div>
   <p>Every utterance, event, loop, flag and spoken line → a <b>SHA-256 hash-chained audit log</b>. The Code Record is rebuilt from it, so the screen and the record cannot disagree.</p>
-  <div class="foot"><span>CodeLoop</span><span>6</span></div>
+  <div class="foot"><span>CodeLoop</span><span>7</span></div>
 </section>
 
 <!-- 7 · Safety -->
@@ -161,7 +181,7 @@ ul { margin: 0; padding-left: 32px; display: grid; gap: 14px; }
       <li>Screen-only / timers-only / mute: the team decides how chatty it is</li>
     </ul>
   </div>
-  <div class="foot"><span>Full safety case: docs/safety.md</span><span>7</span></div>
+  <div class="foot"><span>Full safety case: docs/safety.md</span><span>8</span></div>
 </section>
 
 <!-- 8 · Evidence -->
@@ -183,7 +203,7 @@ ul { margin: 0; padding-left: 32px; display: grid; gap: 14px; }
       <li>Limitation: synthetic TTS voices so far. Real-voice testing in a sim centre is milestone one.</li>
     </ul>
   </div>
-  <div class="foot"><span>Protocol and every number: eval/RESULTS.md · 132 automated tests</span><span>8</span></div>
+  <div class="foot"><span>Protocol and every number: eval/RESULTS.md · 141 automated tests</span><span>9</span></div>
 </section>
 
 <!-- 9 · Business -->
@@ -191,7 +211,7 @@ ul { margin: 0; padding-left: 32px; display: grid; gap: 14px; }
   <div class="kicker">Business</div>
   <h2>Start where every hospital already practises: <em>mock codes</em>.</h2>
   <div class="grid3">
-    <div class="stat"><span class="n" style="font-size:46px;font-family:Atkinson">1 · Simulation</span><span class="d">Sim centres and resuscitation committees: debrief timelines and closed-loop scores for every mock code. No patient data, no clinical reliance.</span></div>
+    <div class="stat"><span class="n" style="font-size:46px;font-family:Atkinson">1 · Simulation</span><span class="d">Sim centres and resuscitation committees: quality scores, a second listen and a spoken debrief for every mock code. No patient data, no clinical reliance.</span></div>
     <div class="stat"><span class="n" style="font-size:46px;font-family:Atkinson">2 · Documentation</span><span class="d">Live codes, silent or timers-only. The recorder nurse reviews and signs; FHIR and GWTG-Resuscitation registry export.</span></div>
     <div class="stat"><span class="n" style="font-size:46px;font-family:Atkinson">3 · Real-time assist</span><span class="d">Spoken loop nudges during live codes, after clinical validation and a SaMD regulatory pathway.</span></div>
   </div>
@@ -199,7 +219,7 @@ ul { margin: 0; padding-left: 32px; display: grid; gap: 14px; }
     <p><b>≈ $2.66</b> of AssemblyAI usage per 30-minute code (streaming + Medical Mode + diarization + Voice Focus + Voice Agent), at list prices.</p>
     <p>Per-site subscription for simulation; per-bed for clinical documentation. Expands to trauma, pediatric and neonatal resuscitation, and EMS.</p>
   </div>
-  <div class="foot"><span>CodeLoop</span><span>9</span></div>
+  <div class="foot"><span>CodeLoop</span><span>10</span></div>
 </section>
 
 <!-- 10 · Close -->
