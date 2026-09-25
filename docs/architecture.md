@@ -1,7 +1,7 @@
 # Architecture
 
 ```mermaid
-flowchart LR
+flowchart TB
   subgraph Room
     MIC[Crash-cart tablet mic]
   end

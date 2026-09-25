@@ -1,6 +1,9 @@
-# CodeLoop
+<p align="center">
+  <img src="docs/brand/codeloop-lockup.svg" alt="CodeLoop" width="420">
+</p>
 
-**Every order heard. Every loop closed.**
+<p align="center"><b>Every order heard. Every loop closed.</b><br>
+The voice recorder for cardiac arrests. Built with AssemblyAI Universal-3.5 Pro Streaming and the Voice Agent API.</p>
 
 CodeLoop is a voice agent that works as the recorder at an in-hospital cardiac arrest. A tablet
 on the crash cart listens to the whole resuscitation team. CodeLoop logs every drug, shock and
@@ -76,6 +79,81 @@ The two AssemblyAI connections do different jobs. The **streaming ears** hear th
 **Voice Agent** is CodeLoop's voice. The Voice Agent never hears room chatter: in testing it tried
 to answer unaddressed speech out loud. It receives room audio only while it is speaking, so
 clinicians can interrupt it. See [docs/spike-findings.md](docs/spike-findings.md).
+
+## Architecture
+
+```mermaid
+flowchart TB
+    subgraph ROOM["🏥 Resuscitation room"]
+        TEAM(["Leader · Meds nurse · Compressor"])
+        TAB["Crash-cart tablet<br/>browser mic, echo-cancelled<br/>PCM16 16 kHz"]
+        TEAM -- "orders, read-backs,<br/>questions" --> TAB
+    end
+
+    subgraph AAI["AssemblyAI"]
+        STT["Universal-3.5 Pro Streaming<br/>speaker labels · Medical Mode<br/>ACLS keyterms · Hindi–English<br/>word confidence"]
+        VA["Voice Agent API<br/>fixed lines · turn-taking<br/>semantic barge-in"]
+    end
+
+    subgraph CORE["CodeLoop server"]
+        TURNS["Turn splitter<br/>split by word speaker"]
+        GRAM["Grammar + resolver<br/>events with verbatim quotes"]
+        ENG{{"ACLS engine + loop ledger<br/>deterministic, unit-tested"}}
+        ANS["Answer composer<br/>'CodeLoop, last epi?'"]
+        SCHED["Prompt scheduler<br/>waits for a gap in the room"]
+        AUDIT[("Hash-chained<br/>audit log")]
+        REC["Code Record<br/>rebuilt from the log"]
+    end
+
+    SCREEN["Crash-cart screen<br/>clock · open loops · transcript"]
+
+    TAB == "room audio" ==> STT
+    STT -- "final turns + words" --> TURNS --> GRAM --> ENG
+    GRAM -- "question" --> ANS --> SCHED
+    ENG -- "prompts: unacknowledged,<br/>dose conflict, 2-minute cycle" --> SCHED
+    SCHED -- "say exactly" --> VA
+    VA -- "CodeLoop's voice" --> TAB
+    ENG -- "state, loops, flags" --> SCREEN
+    ENG --> AUDIT --> REC --> SCREEN
+
+    classDef aai fill:#16243a,stroke:#6aa9ff,color:#e8eef4
+    classDef core fill:#10241f,stroke:#35d0b5,color:#e8eef4
+    classDef room fill:#1c2835,stroke:#8d9cad,color:#e8eef4
+    class STT,VA aai
+    class TURNS,GRAM,ENG,ANS,SCHED,AUDIT,REC core
+    class TEAM,TAB,SCREEN room
+```
+
+**How a dose conflict is caught, end to end:**
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant L as Team leader
+    participant N as Meds nurse
+    participant S as AssemblyAI<br/>U3.5 Pro Streaming
+    participant C as CodeLoop engine
+    participant V as AssemblyAI<br/>Voice Agent API
+    participant D as Crash-cart screen
+
+    L->>S: "Amiodarone three hundred milligrams."
+    S->>C: final turn · speaker A · words + confidence
+    C->>D: ORDER amiodarone 300 mg (quote, speaker, 0.98)
+    N->>S: "Amio one fifty, pushing."
+    S->>C: final turn · speaker B
+    C->>C: read-back 150 ≠ ordered 300 → loop CONFLICT
+    C->>D: red card · Confirm 300 / Confirm 150
+    C->>V: say exactly "Check dose. Ordered amiodarone three hundred milligrams, read back one hundred fifty milligrams."
+    V-->>D: CodeLoop speaks (≈0.8 s)
+    L->>S: "No. Three hundred." (talks over CodeLoop)
+    V-->>V: semantic barge-in: stops mid-word
+    S->>C: restated order 300 → conflict resolved
+    N->>S: "Amio three hundred is in."
+    C->>D: GIVEN amiodarone 300 mg · closed loop · dose conflict caught
+    C->>C: every step appended to the hash-chained audit log
+```
+
+Module-level detail: [docs/architecture.md](docs/architecture.md).
 
 ## Safety by design
 

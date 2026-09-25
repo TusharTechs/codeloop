@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="CodeLoop">
+  <!-- A heartbeat held inside a closed loop: every order heard, every loop closed. -->
+  <path d="M22 66 H43 L49.5 49 L58 85 L65.5 55 L70.5 66 H106" fill="none" stroke="#e8eef4" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="64" cy="64" r="44" fill="none" stroke="#35d0b5" stroke-width="10"/>
+</svg>

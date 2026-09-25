@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 128" role="img" aria-label="CodeLoop">
+  <rect width="520" height="128" rx="28" fill="#0b1117"/>
+  <g transform="translate(12 12) scale(0.8125)">
+    <path d="M22 66 H43 L49.5 49 L58 85 L65.5 55 L70.5 66 H106" fill="none" stroke="#e8eef4" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="64" cy="64" r="44" fill="none" stroke="#35d0b5" stroke-width="10"/>
+  </g>
+  <text x="130" y="82" font-family="Atkinson Hyperlegible, Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="56" font-weight="700" fill="#e8eef4">Code<tspan fill="#35d0b5">Loop</tspan></text>
+</svg>
