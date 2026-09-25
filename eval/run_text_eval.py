@@ -37,9 +37,11 @@ def run(path: Path) -> tuple[int, int, int, list, list]:
 
 
 def main() -> int:
-    groups = {"tuning": [], "held-out": []}
+    groups = {"tuning": [], "held-out v1 (seen)": [], "held-out v2": []}
     for p in sorted(SCENARIOS.glob("*.yaml")):
-        groups["held-out" if p.stem.startswith("heldout_") else "tuning"].append(p)
+        key = "held-out v2" if p.stem.startswith("heldout2_") else (
+            "held-out v1 (seen)" if p.stem.startswith("heldout_") else "tuning")
+        groups[key].append(p)
     for name, paths in groups.items():
         TP = FP = FN = OK = N = 0
         print(f"\n== {name} scenarios")

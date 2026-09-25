@@ -1,0 +1,62 @@
+# HELD-OUT v2: written and committed before measurement. Colloquial Indian code talk with
+# Hindi carrying the verbs and numbers ("push kar diya", "teen sau").
+id: heldout2_hinglish
+title: Pulseless VT in colloquial Hinglish with Hindi verbs and Hindi numbers
+cast:
+  leader:     { voice: "Aman",   name: "Dr. Kapoor", distance: 1.0 }
+  meds:       { voice: "Tara",   name: "Anjali",     distance: 0.8 }
+  compressor: { voice: "Rishi",  name: "Rohit",      distance: 0.9 }
+expected_outcomes:
+  - { loop: "epinephrine 1 mg", final_state: DONE }
+  - { loop: "shock 150 J", final_state: DONE }
+  - { loop: "amiodarone 300 mg", final_state: DONE }
+lines:
+  - at: 0.5
+    who: leader
+    say: "Chalo CPR start karo, main lead karta hoon."
+    gold:
+      - { kind: cpr_start }
+      - { kind: role, role: leader }
+  - at: 8.0
+    who: leader
+    say: "Anjali, adrenaline ek mg push karo."
+    gold:
+      - { kind: order, action: drug, drug: epinephrine, dose: 1, unit: mg }
+  - who: meds
+    say: "Ek mg adrenaline push kar diya."
+    gold:
+      - { kind: done, action: drug, drug: epinephrine, dose: 1, unit: mg }
+  - at: 18.0
+    who: leader
+    say: "Rhythm dekho. VT hai, pulse nahi hai."
+    gold:
+      - { kind: rhythm_check }
+      - { kind: rhythm, rhythm: PVT }
+  - who: leader
+    say: "Shock one fifty do."
+    gold:
+      - { kind: order, action: shock, energy_j: 150 }
+  - who: compressor
+    say: "One fifty pe charge ho raha hai. Clear. Shock de diya."
+    gold:
+      - { kind: ack, action: shock, energy_j: 150 }
+      - { kind: done, action: shock, energy_j: 150 }
+  - at: 32.0
+    who: leader
+    say: "Amiodarone teen sau de do."
+    gold:
+      - { kind: order, action: drug, drug: amiodarone, dose: 300, unit: mg }
+  - who: meds
+    say: "Teen sau amio de rahi hoon."
+    gold:
+      - { kind: ack, action: drug, drug: amiodarone, dose: 300, unit: mg }
+  - at: 42.0
+    who: meds
+    say: "Amio chala gaya."
+    gold:
+      - { kind: done, action: drug, drug: amiodarone, dose: 300, unit: mg }
+  - at: 50.0
+    who: compressor
+    say: "CodeLoop, kitne shock hue?"
+    gold:
+      - { kind: question, topic: shocks }

@@ -1,0 +1,72 @@
+# HELD-OUT v2: written and committed before measurement, after the v1 fixes. UK Resuscitation
+# Council phrasing ("adrenaline", "oxygen away"). Do not tune the grammar against this file.
+id: heldout2_uk
+title: UK-style VF arrest with adrenaline, a 150 J shock and a shock-count question
+cast:
+  leader:     { voice: "Daniel", name: "Dr. Hughes", distance: 1.0 }
+  meds:       { voice: "Moira",  name: "Siobhan",    distance: 0.8 }
+  compressor: { voice: "Karen",  name: "Amy",        distance: 0.9 }
+expected_outcomes:
+  - { loop: "shock 150 J", final_state: DONE }
+  - { loop: "epinephrine 1 mg", final_state: DONE }
+  - { loop: "amiodarone 300 mg", final_state: DONE }
+lines:
+  - at: 0.5
+    who: leader
+    say: "Cardiac arrest. Amy, commence chest compressions. I'm the team leader."
+    gold:
+      - { kind: cpr_start }
+      - { kind: role, role: leader }
+  - at: 9.0
+    who: leader
+    say: "Stop for a rhythm check please."
+    gold:
+      - { kind: cpr_pause }
+      - { kind: rhythm_check }
+  - who: leader
+    say: "Ventricular fibrillation. Shock at one hundred and fifty joules."
+    gold:
+      - { kind: rhythm, rhythm: VF }
+      - { kind: order, action: shock, energy_j: 150 }
+  - who: compressor
+    say: "Charging to one fifty. Everyone stand clear, oxygen away. Shocking now."
+    gold:
+      - { kind: ack, action: shock, energy_j: 150 }
+      - { kind: done, action: shock, energy_j: 150 }
+  - who: leader
+    say: "Straight back on the chest."
+    gold:
+      - { kind: cpr_resume }
+  - at: 27.0
+    who: leader
+    say: "Siobhan, adrenaline one milligram IV now please."
+    gold:
+      - { kind: order, action: drug, drug: epinephrine, dose: 1, unit: mg }
+  - who: meds
+    say: "One milligram adrenaline, going in."
+    gold:
+      - { kind: ack, action: drug, drug: epinephrine, dose: 1, unit: mg }
+  - who: meds
+    gap: 2.0
+    say: "Adrenaline's in."
+    gold:
+      - { kind: done, action: drug, drug: epinephrine, dose: 1, unit: mg }
+  - at: 40.0
+    who: leader
+    say: "And amiodarone three hundred milligrams as well."
+    gold:
+      - { kind: order, action: drug, drug: amiodarone, dose: 300, unit: mg }
+  - who: meds
+    say: "Three hundred of amiodarone, drawing it up."
+    gold:
+      - { kind: ack, action: drug, drug: amiodarone, dose: 300, unit: mg }
+  - at: 50.0
+    who: meds
+    say: "Amiodarone's in."
+    gold:
+      - { kind: done, action: drug, drug: amiodarone, dose: 300, unit: mg }
+  - at: 56.0
+    who: leader
+    say: "CodeLoop, how many shocks so far?"
+    gold:
+      - { kind: question, topic: shocks }

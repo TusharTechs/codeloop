@@ -1,0 +1,66 @@
+# HELD-OUT v2: written and committed before measurement. Lidocaine, a dose-less repeat
+# epinephrine order, and a shock order nobody acknowledges.
+id: heldout2_lido
+title: Refractory VF with lidocaine, a dose-less repeat epi order and an ignored shock order
+cast:
+  leader:     { voice: "Rishi",  name: "Dr. Nair",  distance: 1.0 }
+  meds:       { voice: "Karen",  name: "Beth",      distance: 0.8 }
+  compressor: { voice: "Daniel", name: "Chris",     distance: 0.9 }
+expected_outcomes:
+  - { loop: "lidocaine 100 mg", final_state: DONE }
+  - { loop: "epinephrine 1 mg", final_state: DONE }
+  - { loop: "shock 200 J", first_state: UNACKNOWLEDGED }
+lines:
+  - at: 0.5
+    who: leader
+    say: "Still in VF after three shocks. Keep compressing."
+    gold:
+      - { kind: rhythm, rhythm: VF }
+      - { kind: cpr_start }
+  - at: 8.0
+    who: leader
+    say: "Beth, give lidocaine one hundred milligrams."
+    gold:
+      - { kind: order, action: drug, drug: lidocaine, dose: 100, unit: mg }
+  - who: meds
+    say: "Lido one hundred, giving it now."
+    gold:
+      - { kind: ack, action: drug, drug: lidocaine, dose: 100, unit: mg }
+  - who: meds
+    gap: 2.0
+    say: "Lidocaine given."
+    gold:
+      - { kind: done, action: drug, drug: lidocaine, dose: 100, unit: mg }
+  - at: 22.0
+    who: leader
+    say: "Push another epi."
+    gold:
+      - { kind: order, action: drug, drug: epinephrine, unit: mg }
+  - who: meds
+    say: "Epi one milligram, pushing."
+    gold:
+      - { kind: ack, action: drug, drug: epinephrine, dose: 1, unit: mg }
+  - who: meds
+    gap: 1.5
+    say: "Epi pushed."
+    gold:
+      - { kind: done, action: drug, drug: epinephrine, dose: 1, unit: mg }
+  - at: 36.0
+    who: leader
+    say: "Pause. Check the rhythm."
+    gold:
+      - { kind: cpr_pause }
+      - { kind: rhythm_check }
+  - who: leader
+    say: "Still fibrillating. Two hundred joules again."
+    gold:
+      - { kind: order, action: shock, energy_j: 200 }
+  - who: compressor
+    gap: 0.4
+    say: "Do you want me to keep going on the chest?"
+    gold: []
+  - at: 56.0
+    who: meds
+    say: "CodeLoop, what's due?"
+    gold:
+      - { kind: question, topic: due }

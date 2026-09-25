@@ -14,7 +14,13 @@ from codeloop.domain.models import Utterance
 from codeloop.evaluation import check_outcomes, load_scenario, score_line
 from codeloop.pipeline import TranscriptPipeline
 
-SCENARIOS = sorted((Path(__file__).resolve().parents[2] / "eval" / "scenarios").glob("*.yaml"))
+# Scenarios the grammar has been developed against. Fresh held-out sets (heldout2_*) are
+# measured by eval/run_text_eval.py, never asserted here, so they stay honest.
+SCENARIOS = sorted(
+    p
+    for p in (Path(__file__).resolve().parents[2] / "eval" / "scenarios").glob("*.yaml")
+    if not p.stem.startswith("heldout2_")
+)
 
 
 def run(path: Path):
