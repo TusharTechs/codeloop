@@ -22,15 +22,17 @@ lines:
     say: "Code blue. Starting CPR now. I'm leading. Priya, you're on meds. Arjun, you're on compressions."
     gold:
       - { kind: cpr_start }
-      - { kind: role, role: leader, name: "Dr. Rao" }
+      - { kind: role, role: leader }
       - { kind: role, role: meds, name: "Priya" }
       - { kind: role, role: compressor, name: "Arjun" }
   - who: compressor
     say: "On compressions."
-    gold: []
+    gold:
+      - { kind: role, role: compressor }
   - who: meds
     say: "Priya on meds."
-    gold: []
+    gold:
+      - { kind: role, role: meds, name: "Priya" }
   - at: 12.0
     who: leader
     say: "Pads are on. Pause compressions. Rhythm check."
@@ -105,7 +107,9 @@ lines:
     lang: hi
     gold:
       - { kind: question, topic: last_drug, drug: epinephrine }
-  - at: 122.0
+  # The 2-minute cycle started at "Resume compressions" (~24.5 s): CodeLoop warns at ~129.5 s
+  # and calls the rhythm check at ~144.5 s, so the leader pauses just after.
+  - at: 147.0
     who: leader
     say: "Pause compressions. Rhythm check."
     gold:
@@ -125,9 +129,10 @@ lines:
     say: "Resume CPR."
     gold:
       - { kind: cpr_resume }
-  - at: 142.0
+  - at: 168.0
     who: leader
     say: "Hold compressions, pulse check. I've got a pulse. We have ROSC."
     gold:
       - { kind: cpr_pause }
+      - { kind: rhythm_check }
       - { kind: rosc }

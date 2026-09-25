@@ -18,7 +18,7 @@ lines:
     lang: hi
     gold:
       - { kind: cpr_start }
-      - { kind: role, role: leader, name: "Dr. Mehta" }
+      - { kind: role, role: leader }
       - { kind: role, role: meds, name: "Sunita" }
       - { kind: role, role: compressor, name: "Karan" }
   - who: compressor
@@ -67,10 +67,10 @@ lines:
     say: "Wait, cancel that, it's asystole. Dump the charge."
     gold:
       - { kind: cancel, action: shock, energy_j: 200 }
+      - { kind: rhythm, rhythm: ASYSTOLE }
   - who: compressor
     say: "Charge dumped. Back on the chest."
-    gold:
-      - { kind: cpr_resume }
+    gold: []  # compressions never stopped for the charge, so there is nothing to resume
   - at: 52.0
     who: leader
     say: "Sunita, amiodarone mat dena, it's not indicated here."
