@@ -26,3 +26,17 @@ spikes/results/
 data/
 *.db-wal
 *.db-shm
+
+# certificates and keys (never commit; corporate TLS-inspection CAs stay on the local machine)
+*.pem
+*.crt
+*.cer
+*.der
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.csr
+*ca-bundle*
+*ca_bundle*

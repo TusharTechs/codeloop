@@ -14,3 +14,10 @@ docs/research
 *.db
 *.db-wal
 *.db-shm
+*.pem
+*.crt
+*.cer
+*.der
+*.key
+*.p12
+*.pfx

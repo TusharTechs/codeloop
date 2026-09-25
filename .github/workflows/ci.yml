@@ -6,6 +6,17 @@ on:
   pull_request:
 
 jobs:
+  no-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Refuse certificates, private keys and proxy CA material
+        run: |
+          if git ls-files | grep -iE '\.(pem|crt|cer|der|key|p12|pfx|jks|keystore|csr)$|ca[-_]bundle'; then
+            echo "certificate or key file tracked"; exit 1; fi
+          if git grep -IE -e '-----BEGIN [A-Z ]*(CERTIFICATE|PRIVATE KEY)-----'; then
+            echo "certificate or private key content tracked"; exit 1; fi
+
   backend:
     runs-on: ubuntu-latest
     defaults:
