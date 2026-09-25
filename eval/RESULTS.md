@@ -28,12 +28,12 @@ honest measurement.
 | Held-out, first measurement (frozen grammar) | Precision | Recall | Loop outcomes |
 |---|---|---|---|
 | Text (perfect transcripts) | 1.00 | 0.80 | 6 / 8 |
-| Live AssemblyAI | 0.95 | 0.70 | 5 / 8 |
+| Live AssemblyAI | 0.97 | 0.71 | 5 / 8 |
 
 | After general grammar rules (no longer held-out) | Precision | Recall | Loop outcomes |
 |---|---|---|---|
 | Text | 1.00 | 1.00 | 8 / 8 |
-| Live AssemblyAI | 0.98 | 0.93 | 8 / 8 |
+| Live AssemblyAI | 0.97 | 0.93 | 8 / 8 |
 
 Precision held at 0.93 or above on every live capture. When CodeLoop is unsure, it misses an event
 rather than inventing one, which is the right failure mode for a medical record.
