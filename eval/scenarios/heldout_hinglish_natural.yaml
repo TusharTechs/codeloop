@@ -1,0 +1,63 @@
+# HELD-OUT: natural Indian-hospital code talk. Indian-English voices, Hindi glue words in
+# Latin script, drug names and numbers in English. Written after the grammar was frozen.
+id: heldout_hinglish_natural
+title: VF arrest in natural Hinglish with adrenaline, a magnesium order and a shock
+cast:
+  leader:     { voice: "Aman",   name: "Dr. Iyer", distance: 1.0 }
+  meds:       { voice: "Tara",   name: "Meena",    distance: 0.8 }
+  compressor: { voice: "Rishi",  name: "Sameer",   distance: 0.9 }
+expected_outcomes:
+  - { loop: "shock 200 J", final_state: DONE }
+  - { loop: "epinephrine 1 mg", final_state: DONE }
+  - { loop: "magnesium sulfate 2 g", first_state: UNACKNOWLEDGED }
+lines:
+  - at: 0.5
+    who: leader
+    say: "Guys, compressions shuru karo. Main lead kar raha hoon."
+    gold:
+      - { kind: cpr_start }
+      - { kind: role, role: leader }
+  - at: 9.0
+    who: leader
+    say: "Rhythm check karte hain. Pause."
+    gold:
+      - { kind: rhythm_check }
+      - { kind: cpr_pause }
+  - who: leader
+    say: "VF hai. Shock do, two hundred joules."
+    gold:
+      - { kind: rhythm, rhythm: VF }
+      - { kind: order, action: shock, energy_j: 200 }
+  - who: compressor
+    say: "Two hundred charging. Sab clear. Shock delivered."
+    gold:
+      - { kind: ack, action: shock, energy_j: 200 }
+      - { kind: done, action: shock, energy_j: 200 }
+  - who: leader
+    say: "Compressions continue karo."
+    gold:
+      - { kind: cpr_resume }
+  - at: 26.0
+    who: leader
+    say: "Meena, adrenaline one mg de do."
+    gold:
+      - { kind: order, action: drug, drug: epinephrine, dose: 1, unit: mg }
+  - who: meds
+    say: "Adrenaline one mg de rahi hoon."
+    gold:
+      - { kind: ack, action: drug, drug: epinephrine, dose: 1, unit: mg }
+  - at: 34.0
+    who: meds
+    say: "Adrenaline chala gaya."
+    gold:
+      - { kind: done, action: drug, drug: epinephrine, dose: 1, unit: mg }
+  - at: 40.0
+    who: leader
+    say: "Magnesium two gram bhi de do."
+    gold:
+      - { kind: order, action: drug, drug: magnesium_sulfate, dose: 2, unit: g }
+  - at: 58.0
+    who: meds
+    say: "CodeLoop, adrenaline kab diya tha?"
+    gold:
+      - { kind: question, topic: last_drug, drug: epinephrine }

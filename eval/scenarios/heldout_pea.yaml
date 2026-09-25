@@ -1,0 +1,61 @@
+# HELD-OUT: written after the grammar was frozen; phrasing deliberately differs from the
+# tuning scenarios. Do not tune the grammar against this file without writing a new one.
+id: heldout_pea
+title: PEA arrest with an order given without read-back and a cancelled bicarbonate
+cast:
+  leader:     { voice: "Daniel", name: "Dr. Shaw", distance: 1.0 }
+  meds:       { voice: "Moira",  name: "Nora",     distance: 0.8 }
+  compressor: { voice: "Rishi",  name: "Vikram",   distance: 0.9 }
+expected_outcomes:
+  - { loop: "epinephrine 1 mg", final_state: DONE }
+  - { loop: "sodium bicarbonate 50 mEq", final_state: CANCELLED }
+lines:
+  - at: 0.5
+    who: leader
+    say: "He's pulseless. Let's get compressions going. I'll lead."
+    gold:
+      - { kind: cpr_start }
+      - { kind: role, role: leader }
+  - who: compressor
+    say: "Compressing."
+    gold: []
+  - at: 9.0
+    who: leader
+    say: "Hands off, check rhythm."
+    gold:
+      - { kind: cpr_pause }
+      - { kind: rhythm_check }
+  - who: leader
+    say: "Organized activity but no pulse. That's PEA. Back on the chest."
+    gold:
+      - { kind: rhythm, rhythm: PEA }
+      - { kind: cpr_resume }
+  - at: 18.0
+    who: leader
+    say: "Nora, push one of epi."
+    gold:
+      - { kind: order, action: drug, drug: epinephrine, dose: 1, unit: mg }
+  - at: 24.0
+    who: meds
+    say: "Epi's in."
+    gold:
+      - { kind: done, action: drug, drug: epinephrine, dose: 1, unit: mg }
+  - at: 33.0
+    who: leader
+    say: "Let's also give fifty of bicarb."
+    gold:
+      - { kind: order, action: drug, drug: sodium_bicarbonate, dose: 50, unit: mEq }
+  - who: meds
+    say: "Fifty of bicarb, drawing it up."
+    gold:
+      - { kind: ack, action: drug, drug: sodium_bicarbonate, dose: 50, unit: mEq }
+  - at: 42.0
+    who: leader
+    say: "Actually, hold the bicarb for now."
+    gold:
+      - { kind: cancel, action: drug, drug: sodium_bicarbonate, dose: 50, unit: mEq }
+  - at: 52.0
+    who: meds
+    say: "CodeLoop, how long since the last epi?"
+    gold:
+      - { kind: question, topic: last_drug, drug: epinephrine }

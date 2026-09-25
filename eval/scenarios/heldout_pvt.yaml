@@ -1,0 +1,67 @@
+# HELD-OUT: written after the grammar was frozen. Two orders in one breath, an energy
+# read-back conflict, and an unacknowledged epinephrine order.
+id: heldout_pvt
+title: Pulseless VT with a double order, an energy read-back conflict and an ignored epi order
+cast:
+  leader:     { voice: "Karen",  name: "Dr. Lee",  distance: 1.0 }
+  meds:       { voice: "Aman",   name: "Rahul",    distance: 0.8 }
+  compressor: { voice: "Daniel", name: "Tom",      distance: 0.9 }
+expected_outcomes:
+  - { loop: "shock 150 J", first_state: CONFLICT, final_state: DONE }
+  - { loop: "amiodarone 300 mg", final_state: DONE }
+  - { loop: "epinephrine 1 mg", first_state: UNACKNOWLEDGED }
+lines:
+  - at: 0.5
+    who: leader
+    say: "No pulse, start CPR. I'm running this code."
+    gold:
+      - { kind: cpr_start }
+      - { kind: role, role: leader }
+  - at: 8.0
+    who: leader
+    say: "Stop compressions, rhythm check."
+    gold:
+      - { kind: cpr_pause }
+      - { kind: rhythm_check }
+  - who: leader
+    say: "Pulseless V-tach. Charge to one fifty and give amiodarone three hundred."
+    gold:
+      - { kind: rhythm, rhythm: PVT }
+      - { kind: order, action: shock, energy_j: 150 }
+      - { kind: order, action: drug, drug: amiodarone, dose: 300, unit: mg }
+  - who: compressor
+    say: "Charging to one twenty."
+    gold:
+      - { kind: ack, action: shock, energy_j: 120 }
+  - who: leader
+    say: "One fifty, not one twenty."
+    gold:
+      - { kind: order, action: shock, energy_j: 150, restatement: true }
+  - who: compressor
+    say: "Charging one fifty. Stand clear. Shocking."
+    gold:
+      - { kind: ack, action: shock, energy_j: 150 }
+      - { kind: done, action: shock, energy_j: 150 }
+  - who: meds
+    gap: 1.0
+    say: "Amiodarone three hundred drawing up."
+    gold:
+      - { kind: ack, action: drug, drug: amiodarone, dose: 300, unit: mg }
+  - who: leader
+    say: "Continue CPR."
+    gold:
+      - { kind: cpr_resume }
+  - at: 34.0
+    who: meds
+    say: "Amiodarone given."
+    gold:
+      - { kind: done, action: drug, drug: amiodarone, dose: 300, unit: mg }
+  - at: 40.0
+    who: leader
+    say: "Next, epinephrine one milligram please."
+    gold:
+      - { kind: order, action: drug, drug: epinephrine, dose: 1, unit: mg }
+  - at: 58.0
+    who: compressor
+    say: "I need a swap on compressions soon."
+    gold: []
