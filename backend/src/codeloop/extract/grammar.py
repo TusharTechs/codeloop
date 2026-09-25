@@ -21,6 +21,8 @@ from functools import partial
 from ..domain.formulary import Formulary
 from ..domain.models import Action, EventKind, Rhythm, Role, Utterance
 from .numbers import NumberSpan, parse_numbers
+from .phonetic import has_devanagari, token_matches
+from .phonetic import key as phonetic_key
 
 
 class Cue(StrEnum):
@@ -60,7 +62,8 @@ class Tok:
     end: int
 
 
-_TOKEN_RE = re.compile(r"[0-9]+(?:\.[0-9]+)?|[A-Za-zऀ-ॿ]+(?:'[A-Za-z]+)?")
+# Latin words, numbers, and Devanagari U+0900–U+097F excluding the danda "।" / double danda "॥".
+_TOKEN_RE = re.compile("[0-9]+(?:\\.[0-9]+)?|[A-Za-zऀ-ॣ०-ॿ]+(?:'[A-Za-z]+)?")
 _CLAUSE_SPLIT = re.compile(r"[.?!;।]+")
 
 # Cue phrases, matched on whole tokens. Order within each list does not matter.
@@ -356,6 +359,73 @@ GENERIC_ACK_CUES = [
 ]
 
 
+# Short Hindi function words are too short for phonetic matching; map them explicitly to the
+# romanized forms the cue lists use.
+HINDI_LEXICON = {
+    "दो": "do",
+    "दे": "de",
+    "दी": "de",
+    "दिया": "diya",
+    "हो": "ho",
+    "है": "hai",
+    "हैं": "hai",
+    "एक": "ek",
+    "मैं": "main",
+    "हूँ": "hoon",
+    "हूं": "hoon",
+    "रही": "rahi",
+    "रहा": "raha",
+    "गया": "gaya",
+    "गयी": "gayi",
+    "कर": "kar",
+    "करो": "karo",
+    "मत": "mat",
+    "देना": "dena",
+    "नहीं": "nahi",
+    "आप": "aap",
+    "देखो": "dekho",
+    "कब": "kab",
+    "क्या": "kya",
+    "था": "tha",
+    "थी": "thi",
+    "में": "mein",
+    "इन": "in",
+    "तीन": "teen",
+    "सौ": "sau",
+    "दो सौ": "do sau",
+    "सीपीआर": "cpr",
+    "मेड्स": "meds",
+    "लेड": "lead",
+    "मेन": "main",
+    "कोड": "code",
+    "ब्लू": "blue",
+    "एपी": "epi",
+    "ईपी": "epi",
+    "एपि": "epi",
+    "जूल्स": "joules",
+    "पल्स": "pulse",
+}
+# Sound-matching must never manufacture a negation or a cancel: these are matched only
+# when spelled out.
+PHONETIC_DENYLIST = {
+    "don't",
+    "not",
+    "no",
+    "nahi",
+    "belay",
+    "hands",
+    "off",
+    "hold",
+    "scratch",
+    "stop",
+    "dump",
+    "dumped",
+    "cancel",
+    "mat",
+    "wait",
+}
+
+
 def tokenize(text: str) -> list[Tok]:
     return [Tok(m.group(0), m.group(0).lower().replace("’", "'"), m.start(), m.end()) for m in _TOKEN_RE.finditer(text)]
 
@@ -386,12 +456,61 @@ class Grammar:
         self._rhythm_aliases = sorted(
             ((a.split(), r) for a, r in formulary.rhythm_aliases.items()), key=lambda x: -len(x[0])
         )
+        self._vocab = self._build_vocab()
 
     # -------------------------------------------------------------- public
+
+    def _build_vocab(self) -> list[str]:
+        """Every English word the grammar can match, for canonicalising Devanagari tokens."""
+        words: set[str] = set()
+        phrase_lists = [
+            DONE_CUES,
+            ACK_CUES,
+            ORDER_CUES,
+            CANCEL_CUES,
+            CPR_START_CUES,
+            CPR_RESUME_CUES,
+            CPR_PAUSE_CUES,
+            RHYTHM_CHECK_CUES,
+            ROSC_CUES,
+            TERMINATE_CUES,
+            SELF_LEAD_CUES,
+            WAKE_WORDS,
+            GENERIC_ACK_CUES,
+        ]
+        for phrases in phrase_lists:
+            for ph in phrases:
+                words.update(w for w in ph.split() if not has_devanagari(w))
+        words.update(SHOCK_WORDS | set(UNIT_WORDS) | set(ROLE_WORDS) | QUESTION_WORDS)
+        for alias, _ in self._drug_aliases:
+            words.update(alias)
+        for alias, _ in self._rhythm_aliases:
+            words.update(alias)
+        # Only words with at least two consonants are safe to match by sound.
+        return sorted(
+            w
+            for w in words
+            if not has_devanagari(w) and w not in PHONETIC_DENYLIST and len(phonetic_key(w).replace("V", "")) >= 2
+        )
+
+    def canonical(self, token: str) -> str:
+        """Map a Devanagari token to the English/romanized vocabulary word it renders."""
+        if not has_devanagari(token):
+            return token
+        if token in HINDI_LEXICON:
+            return HINDI_LEXICON[token]
+        k = phonetic_key(token)
+        exact = [w for w in self._vocab if phonetic_key(w) == k]
+        if exact:
+            return exact[0] if len(exact) == 1 else token  # ambiguous: leave it alone
+        fuzzy = [w for w in self._vocab if token_matches(token, w)]
+        return fuzzy[0] if len(fuzzy) == 1 else token
 
     def extract(self, utt: Utterance) -> list[Candidate]:
         text = utt.text
         tokens = tokenize(text)
+        for t in tokens:
+            t.norm = self.canonical(t.norm)
         conf = self._token_confidences(utt, tokens)
         times = self._token_times(utt, tokens)
         out: list[Candidate] = []
