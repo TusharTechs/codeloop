@@ -62,3 +62,23 @@ Design decisions:
 - The deterministic grammar is therefore the primary extractor, and it runs with no network. LLM
   extraction is an optional second opinion (tool-calling schema), merged with the grammar output.
   When the two disagree on a value, the event is marked UNCONFIRMED.
+
+## 4. Voice Agent API, redesigned path (spike 2b)
+
+Questions were sent as text: `conversation.message(role=user)` then `reply.create`. Room audio was
+forwarded to the agent only while it was speaking.
+
+| Test | Result |
+|---|---|
+| Message + reply sent back-to-back | Agent never saw the question ("I am ready. Please proceed…") |
+| Message, 0.5 s gap, reply | `get_code_state` called, but the answer used the **wrong fact** ("The last recorded rhythm is V-fib.") |
+| Question carried in `reply.create` instructions | Tool called; the same wrong fact, for English, Hinglish and "what's due" |
+| Barge-in with gated audio | Interrupted mid-sentence. The agent then answered the interruption ("Check the screen."), an unsolicited reply the client must mute |
+| 20–60 s of silence | Never spoke unprompted |
+
+**Decision: questions are answered deterministically.** The ears transcribe the question, and
+`engine/answers.py` classifies it (last drug, what's due, shocks, rhythm, code time, roles) and builds
+the sentence from engine state. The Voice Agent speaks it verbatim via `reply.create("Say exactly: …")`.
+No generative model ever chooses a number that is spoken during a code. The Voice Agent API supplies
+what it is best at: sub-second speech, turn-taking and semantic barge-in. Unrecognised questions get
+"Check the screen."
