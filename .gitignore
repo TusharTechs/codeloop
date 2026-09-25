@@ -40,3 +40,6 @@ data/
 *.csr
 *ca-bundle*
 *ca_bundle*
+
+# Demo video script stays local
+docs/video-script.md
