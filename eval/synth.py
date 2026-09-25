@@ -150,7 +150,7 @@ def cpr_windows(lines: list[dict], total_s: float) -> list[tuple[float, float]]:
     return windows
 
 
-def synth(path: Path, noise: str, rate: int, seed: int) -> Path:
+def synth(path: Path, noise: str, rate: int, seed: int, out_dir: Path = OUT) -> Path:
     spec = yaml.safe_load(path.read_text())
     rng = np.random.default_rng(seed)
     comp_db, mon_db, alarm_db, room_db, wet = NOISE_PROFILES[noise]
@@ -199,7 +199,7 @@ def synth(path: Path, noise: str, rate: int, seed: int) -> Path:
         mix *= db(-1) / peak
 
     stem = f"{spec['id']}.{noise}"
-    wav_path = OUT / f"{stem}.wav"
+    wav_path = out_dir / f"{stem}.wav"
     write_wav(wav_path, mix)
     gold = {
         "id": spec["id"],
@@ -210,7 +210,7 @@ def synth(path: Path, noise: str, rate: int, seed: int) -> Path:
         "expected_outcomes": spec.get("expected_outcomes", []),
         "lines": [{k: v for k, v in p.items() if k not in ("at", "gap")} for p in placed],
     }
-    (OUT / f"{stem}.gold.json").write_text(json.dumps(gold, indent=2, ensure_ascii=False))
+    (out_dir / f"{stem}.gold.json").write_text(json.dumps(gold, indent=2, ensure_ascii=False))
     return wav_path
 
 
@@ -224,14 +224,15 @@ def main() -> int:
     ap.add_argument("--noise", choices=list(NOISE_PROFILES), action="append")
     ap.add_argument("--rate", type=int, default=185, help="speaking rate, words per minute")
     ap.add_argument("--seed", type=int, default=7)
+    ap.add_argument("--out", type=Path, default=OUT, help="output directory")
     args = ap.parse_args()
     paths = sorted(SCENARIOS.glob("*.yaml")) if args.all else args.scenarios
     if not paths:
         ap.error("give scenario paths or --all")
     for p in paths:
         for noise in args.noise or ["none", "ward"]:
-            out = synth(p, noise, args.rate, args.seed)
-            print(f"wrote {out.relative_to(ROOT.parent)}")
+            out = synth(p, noise, args.rate, args.seed, args.out)
+            print(f"wrote {out}")
     return 0
 
 

@@ -186,6 +186,35 @@ class CodeEngine:
     def assign_role(self, speaker: str, role: Role) -> None:
         self.roles[speaker] = role
 
+    def confirm_loop(self, loop_id: str, value: float | None, at_s: float, by: str = "screen") -> EngineOutput:
+        """A clinician resolves a conflict or confirms a low-confidence value on screen."""
+        lp = self.loops.get(loop_id)
+        if lp is None:
+            return EngineOutput()
+        out = EngineOutput(state_changed=True)
+        lp.needs_confirmation = False
+        if value is not None and not self._same(value, lp.ordered_value):
+            old = lp.ordered_value
+            lp.ordered_value = value
+            note = f"value confirmed as {fmt_num(value)} (was {fmt_num(old)}) by {by}"
+        else:
+            note = f"value confirmed by {by}"
+        lp.heard_value = None
+        if lp.state == LoopState.CONFLICT:
+            self._transition(lp, LoopState.ACKNOWLEDGED, at_s, None, note)
+            out.resolved_flags += self._resolve_flags(lp, at_s, {"LOOP_CONFLICT"})
+        else:
+            lp.history.append(LoopTransition(at_s=at_s, state=lp.state, note=note))
+        # The record must show what was actually given if the confirmed value differs.
+        for a in self.given:
+            if a.loop_id == lp.id and value is not None:
+                a.dose = value
+        for s in self.shocks:
+            if s.loop_id == lp.id and value is not None:
+                s.energy_j = value
+        out.loops.append(lp)
+        return out
+
     def role_of(self, speaker: str | None) -> Role | None:
         return self.roles.get(speaker) if speaker else None
 

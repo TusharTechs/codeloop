@@ -35,13 +35,15 @@ You receive questions from the resuscitation team as text. Rules:
 - If the tool fails or does not contain the answer, say exactly: "Check the screen."
 - Never recommend treatment or doses. You record and keep time; the team leader decides."""
 
-TOOLS = [{
-    "type": "function",
-    "name": "get_code_state",
-    "description": "Current state of the code with ready-to-speak sentences. Call before answering "
-                   "any question about times, doses, drugs, shocks, rhythm, or what is due.",
-    "parameters": {"type": "object", "properties": {}, "required": []},
-}]
+TOOLS = [
+    {
+        "type": "function",
+        "name": "get_code_state",
+        "description": "Current state of the code with ready-to-speak sentences. Call before answering "
+        "any question about times, doses, drugs, shocks, rhythm, or what is due.",
+        "parameters": {"type": "object", "properties": {}, "required": []},
+    }
+]
 
 CODE_STATE = {
     "say": {
@@ -55,8 +57,10 @@ CODE_STATE = {
         "clock": "Code time four minutes two seconds.",
     },
     "clock_s": 242,
-    "last_drugs": {"epinephrine": {"dose": "1", "unit": "mg", "seconds_ago": 190},
-                   "amiodarone": {"dose": "300", "unit": "mg", "seconds_ago": 172}},
+    "last_drugs": {
+        "epinephrine": {"dose": "1", "unit": "mg", "seconds_ago": 190},
+        "amiodarone": {"dose": "300", "unit": "mg", "seconds_ago": 172},
+    },
     "epinephrine_window": {"state": "open"},
     "open_orders": [],
 }
@@ -79,9 +83,15 @@ async def ask(s: GatedSession, text: str) -> None:
 
 async def ask_instr(s: GatedSession, text: str) -> None:
     """(b) carry the question in the reply instructions."""
-    await s.ws.send(json.dumps({"type": "reply.create", "instructions":
-        f'A team member just asked: "{text}". Call get_code_state, then answer in one short sentence '
-        "using the say strings verbatim."}))
+    await s.ws.send(
+        json.dumps(
+            {
+                "type": "reply.create",
+                "instructions": f'A team member just asked: "{text}". Call get_code_state, then answer in one short sentence '
+                "using the say strings verbatim.",
+            }
+        )
+    )
 
 
 async def main() -> None:
@@ -90,16 +100,23 @@ async def main() -> None:
     v1.CODE_STATE = CODE_STATE  # the tool handler in Session reads this module global
     results: dict[str, dict] = {}
     stop = tts24("Got it, pausing now.", "Rishi")
-    async with websockets.connect(URL, additional_headers={"Authorization": f"Bearer {api_key()}"},
-                                  max_size=None) as ws:
+    async with websockets.connect(
+        URL, additional_headers={"Authorization": f"Bearer {api_key()}"}, max_size=None
+    ) as ws:
         s = GatedSession(ws)
-        await ws.send(json.dumps({"type": "session.update", "session": {
-            "system_prompt": SYSTEM_PROMPT,
-            "tools": TOOLS,
-            "input": {"format": {"encoding": "audio/pcm"},
-                      "turn_detection": {"interrupt_response": True}},
-            "output": {"voice": "michael"},
-        }}))
+        await ws.send(
+            json.dumps(
+                {
+                    "type": "session.update",
+                    "session": {
+                        "system_prompt": SYSTEM_PROMPT,
+                        "tools": TOOLS,
+                        "input": {"format": {"encoding": "audio/pcm"}, "turn_detection": {"interrupt_response": True}},
+                        "output": {"voice": "michael"},
+                    },
+                }
+            )
+        )
         recv = asyncio.create_task(s.receive())
         pump = asyncio.create_task(s.pump_audio())
         await asyncio.wait_for(s.ready.wait(), 15)
@@ -122,16 +139,24 @@ async def main() -> None:
 
         async def barge():
             t = s.now()
-            await ws.send(json.dumps({"type": "reply.create", "instructions":
-                'Say exactly: "Epinephrine one milligram ordered forty seconds ago and not acknowledged. '
-                'Please confirm who is drawing it up and read back the dose."'}))
+            await ws.send(
+                json.dumps(
+                    {
+                        "type": "reply.create",
+                        "instructions": 'Say exactly: "Epinephrine one milligram ordered forty seconds ago and not acknowledged. '
+                        'Please confirm who is drawing it up and read back the dose."',
+                    }
+                )
+            )
             if await s.wait_for(lambda e: e.get("type") == "reply.audio", 10, t):
                 await asyncio.sleep(1.2)
                 await s.speech.put(stop)  # room audio is forwarded while the agent speaks
+
         await test("B1_barge_in", barge)
 
         async def silence():
             await asyncio.sleep(20)
+
         await test("S1_silence_20s", silence)
 
         await ws.send(json.dumps({"type": "session.end"}))

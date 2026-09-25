@@ -65,9 +65,13 @@ def evaluate(raw_path: Path) -> dict:
     return {
         "capture": raw_path.name,
         "params": raw.get("params", {}),
-        "events": {"tp": tp, "fp": fp + unassigned, "fn": fn,
-                   "precision": round(tp / max(1, tp + fp + unassigned), 3),
-                   "recall": round(tp / max(1, tp + fn), 3)},
+        "events": {
+            "tp": tp,
+            "fp": fp + unassigned,
+            "fn": fn,
+            "precision": round(tp / max(1, tp + fp + unassigned), 3),
+            "recall": round(tp / max(1, tp + fn), 3),
+        },
         "outcomes": [{"expected": e, "ok": ok, "detail": d} for e, ok, d in outcomes],
         "outcomes_met": f"{sum(ok for _, ok, _ in outcomes)}/{len(outcomes)}",
         "prompts": rep.prompts,
@@ -89,8 +93,10 @@ def main() -> None:
     for r in reports:
         e = r["events"]
         print(f"\n{r['capture']}")
-        print(f"  events     precision {e['precision']:.2f}  recall {e['recall']:.2f}  "
-              f"(tp {e['tp']}, fp {e['fp']}, fn {e['fn']})")
+        print(
+            f"  events     precision {e['precision']:.2f}  recall {e['recall']:.2f}  "
+            f"(tp {e['tp']}, fp {e['fp']}, fn {e['fn']})"
+        )
         print(f"  outcomes   {r['outcomes_met']}")
         for o in r["outcomes"]:
             print(f"    {'✓' if o['ok'] else '✗'} {o['expected']}  — {o['detail']}")

@@ -1,0 +1,246 @@
+{
+  "id": "asystole_hinglish",
+  "title": "Asystole arrest in Hinglish with a rhythm-consistency catch and a cancelled order",
+  "noise": "ward",
+  "duration_s": 64.211,
+  "cast": {
+    "leader": {
+      "voice": "Aman",
+      "name": "Dr. Mehta",
+      "distance": 1.0
+    },
+    "meds": {
+      "voice": "Lekha",
+      "name": "Sunita",
+      "distance": 0.8
+    },
+    "compressor": {
+      "voice": "Rishi",
+      "name": "Karan",
+      "distance": 0.9
+    }
+  },
+  "expected_outcomes": [
+    {
+      "loop": "epinephrine 1 mg",
+      "final_state": "DONE"
+    },
+    {
+      "flag": "RHYTHM_NONSHOCKABLE_CHARGE"
+    },
+    {
+      "loop": "shock 200 J",
+      "final_state": "CANCELLED"
+    }
+  ],
+  "lines": [
+    {
+      "who": "leader",
+      "say": "Code blue, CPR start karo. Main lead kar raha hoon. Sunita, meds aap dekho. Karan, compressions.",
+      "lang": "hi",
+      "gold": [
+        {
+          "kind": "cpr_start"
+        },
+        {
+          "kind": "role",
+          "role": "leader"
+        },
+        {
+          "kind": "role",
+          "role": "meds",
+          "name": "Sunita"
+        },
+        {
+          "kind": "role",
+          "role": "compressor",
+          "name": "Karan"
+        }
+      ],
+      "start": 0.5,
+      "end": 5.687,
+      "voice": "Aman",
+      "speaker_name": "Dr. Mehta"
+    },
+    {
+      "who": "compressor",
+      "say": "Compressions start.",
+      "gold": [],
+      "start": 6.287,
+      "end": 7.446,
+      "voice": "Rishi",
+      "speaker_name": "Karan"
+    },
+    {
+      "who": "leader",
+      "say": "Pause. Rhythm check. Asystole hai. Compressions continue karo.",
+      "lang": "hi",
+      "gold": [
+        {
+          "kind": "cpr_pause"
+        },
+        {
+          "kind": "rhythm_check"
+        },
+        {
+          "kind": "rhythm",
+          "rhythm": "ASYSTOLE"
+        },
+        {
+          "kind": "cpr_resume"
+        }
+      ],
+      "start": 10.0,
+      "end": 13.631,
+      "voice": "Aman",
+      "speaker_name": "Dr. Mehta"
+    },
+    {
+      "who": "leader",
+      "say": "Epi ek milligram de do.",
+      "lang": "hi",
+      "gold": [
+        {
+          "kind": "order",
+          "action": "drug",
+          "drug": "epinephrine",
+          "dose": 1,
+          "unit": "mg"
+        }
+      ],
+      "start": 14.231,
+      "end": 15.52,
+      "voice": "Aman",
+      "speaker_name": "Dr. Mehta"
+    },
+    {
+      "who": "meds",
+      "say": "Epi ek milligram, de rahi hoon.",
+      "lang": "hi",
+      "gold": [
+        {
+          "kind": "ack",
+          "action": "drug",
+          "drug": "epinephrine",
+          "dose": 1,
+          "unit": "mg"
+        }
+      ],
+      "start": 16.12,
+      "end": 18.264,
+      "voice": "Lekha",
+      "speaker_name": "Sunita"
+    },
+    {
+      "who": "compressor",
+      "say": "Need to switch compressors soon.",
+      "gold": [],
+      "start": 17.864,
+      "end": 19.641,
+      "voice": "Rishi",
+      "speaker_name": "Karan"
+    },
+    {
+      "who": "meds",
+      "say": "Epi ek milligram in ho gaya.",
+      "lang": "hi",
+      "gold": [
+        {
+          "kind": "done",
+          "action": "drug",
+          "drug": "epinephrine",
+          "dose": 1,
+          "unit": "mg"
+        }
+      ],
+      "start": 24.0,
+      "end": 25.699,
+      "voice": "Lekha",
+      "speaker_name": "Sunita"
+    },
+    {
+      "who": "leader",
+      "say": "Charge to two hundred.",
+      "gold": [
+        {
+          "kind": "order",
+          "action": "shock",
+          "energy_j": 200
+        }
+      ],
+      "start": 34.0,
+      "end": 34.866,
+      "voice": "Aman",
+      "speaker_name": "Dr. Mehta"
+    },
+    {
+      "who": "compressor",
+      "say": "Charging two hundred.",
+      "gold": [
+        {
+          "kind": "ack",
+          "action": "shock",
+          "energy_j": 200
+        }
+      ],
+      "start": 35.466,
+      "end": 36.617,
+      "voice": "Rishi",
+      "speaker_name": "Karan"
+    },
+    {
+      "who": "leader",
+      "say": "Wait, cancel that, it's asystole. Dump the charge.",
+      "gold": [
+        {
+          "kind": "cancel",
+          "action": "shock",
+          "energy_j": 200
+        },
+        {
+          "kind": "rhythm",
+          "rhythm": "ASYSTOLE"
+        }
+      ],
+      "start": 38.117,
+      "end": 40.833,
+      "voice": "Aman",
+      "speaker_name": "Dr. Mehta"
+    },
+    {
+      "who": "compressor",
+      "say": "Charge dumped. Back on the chest.",
+      "gold": [],
+      "start": 41.433,
+      "end": 43.559,
+      "voice": "Rishi",
+      "speaker_name": "Karan"
+    },
+    {
+      "who": "leader",
+      "say": "Sunita, amiodarone mat dena, it's not indicated here.",
+      "lang": "hi",
+      "gold": [],
+      "start": 52.0,
+      "end": 55.146,
+      "voice": "Aman",
+      "speaker_name": "Dr. Mehta"
+    },
+    {
+      "who": "meds",
+      "say": "CodeLoop, next epi kab due hai?",
+      "lang": "hi",
+      "gold": [
+        {
+          "kind": "question",
+          "topic": "next_due",
+          "drug": "epinephrine"
+        }
+      ],
+      "start": 60.0,
+      "end": 62.211,
+      "voice": "Lekha",
+      "speaker_name": "Sunita"
+    }
+  ]
+}

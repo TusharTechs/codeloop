@@ -404,6 +404,15 @@ HINDI_LEXICON = {
     "एपि": "epi",
     "जूल्स": "joules",
     "पल्स": "pulse",
+    "पॉज": "pause",
+    "पॉज़": "pause",
+    "पौज": "pause",
+    "रिज्यूम": "resume",
+    "रिज़्यूम": "resume",
+    "रेज़्यूम": "resume",
+    "शॉक": "shock",
+    "चार्ज": "charge",
+    "क्लियर": "clear",
 }
 # Sound-matching must never manufacture a negation or a cancel: these are matched only
 # when spelled out.

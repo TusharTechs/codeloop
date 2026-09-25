@@ -33,8 +33,15 @@ URL = "wss://streaming.assemblyai.com/v3/ws"
 CHUNK_MS = 100
 
 
-def build_params(variant: str, sample_rate: int, max_speakers: int, langs: list[str],
-                 min_silence: int | None = None, max_silence: int | None = None, prompt_extra: str = "") -> dict:
+def build_params(
+    variant: str,
+    sample_rate: int,
+    max_speakers: int,
+    langs: list[str],
+    min_silence: int | None = None,
+    max_silence: int | None = None,
+    prompt_extra: str = "",
+) -> dict:
     p: dict[str, object] = {
         "speech_model": "universal-3-5-pro",
         "sample_rate": sample_rate,
@@ -61,8 +68,16 @@ def build_params(variant: str, sample_rate: int, max_speakers: int, langs: list[
     return p
 
 
-async def run(wav: Path, variant: str, max_speakers: int, langs: list[str], speed: float,
-              min_silence: int | None = None, max_silence: int | None = None, prompt_extra: str = "") -> dict:
+async def run(
+    wav: Path,
+    variant: str,
+    max_speakers: int,
+    langs: list[str],
+    speed: float,
+    min_silence: int | None = None,
+    max_silence: int | None = None,
+    prompt_extra: str = "",
+) -> dict:
     pcm, sr = read_pcm16(wav)
     params = build_params(variant, sr, max_speakers, langs, min_silence, max_silence, prompt_extra)
     url = f"{URL}?{urlencode(params)}"
@@ -93,8 +108,12 @@ async def run(wav: Path, variant: str, max_speakers: int, langs: list[str], spee
             while True:
                 await asyncio.sleep(15)
                 finals = sum(1 for m in messages if m.get("type") == "Turn" and m.get("end_of_turn"))
-                print(f"  … {time.perf_counter() - (t0 or time.perf_counter()):5.0f}s sent, "
-                      f"{len(messages)} msgs, {finals} final turns", file=sys.stderr, flush=True)
+                print(
+                    f"  … {time.perf_counter() - (t0 or time.perf_counter()):5.0f}s sent, "
+                    f"{len(messages)} msgs, {finals} final turns",
+                    file=sys.stderr,
+                    flush=True,
+                )
 
         audio_s = len(pcm) / 2 / sr
         prog = asyncio.create_task(progress())
@@ -259,8 +278,18 @@ def main() -> None:
     gold_path = args.wav.parent / args.wav.name.replace(".wav", ".gold.json")
     gold = json.loads(gold_path.read_text())
     langs = [x for x in args.langs.split(",") if x]
-    result = asyncio.run(run(args.wav, args.variant, args.max_speakers, langs, args.speed,
-                             args.min_silence, args.max_silence, args.prompt_extra))
+    result = asyncio.run(
+        run(
+            args.wav,
+            args.variant,
+            args.max_speakers,
+            langs,
+            args.speed,
+            args.min_silence,
+            args.max_silence,
+            args.prompt_extra,
+        )
+    )
     errors = [
         m
         for m in result["messages"]

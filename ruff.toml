@@ -7,6 +7,8 @@ ignore = ["RUF001", "RUF002", "RUF003"]
 
 [lint.per-file-ignores]
 "backend/tests/**" = ["E501"]
+"spikes/**" = ["E501"]
+"scripts/**" = ["E501"]
 
 [lint.isort]
 known-first-party = ["codeloop"]
