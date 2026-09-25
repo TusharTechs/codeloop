@@ -14,6 +14,7 @@ ENV PYTHONUNBUFFERED=1 \
     UV_LINK_MODE=copy \
     UV_COMPILE_BYTECODE=1 \
     DATABASE_PATH=/data/codeloop.db \
+    AUDIO_DIR=/data/audio \
     REPLAY_DIR=/app/demo/scenarios \
     FRONTEND_DIST=/app/frontend/dist \
     HOST=0.0.0.0 \
