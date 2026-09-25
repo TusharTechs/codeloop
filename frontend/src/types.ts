@@ -187,6 +187,7 @@ export interface CodeRecord {
   administered: { clock: string; what: string; without_order: boolean; closed_loop: boolean }[]
   quality: QualityMetric[]
   second_listen: SecondListen | null
+  debrief: { notes: { kind: string; note: string }[]; summary: string | null; held: boolean }
   timeline: { clock: string; at_s: number; what: string; kind: string; quote: string; speaker: string | null; role: string | null; source: string; confidence: number | null; unconfirmed: boolean }[]
   loops: Loop[]
   flags: Flag[]

@@ -41,6 +41,11 @@ export function RecordPage({ codeId }: { codeId: string }) {
         <span className="pill" style={{ marginLeft: 'auto' }}>
           {rec.code.mode === 'replay' ? `Replay · ${rec.code.scenario}` : 'Live code'}
         </span>
+        {rec.code.status === 'ended' && (
+          <a className="btn primary small noprint" href={`#/debrief/${rec.code.id}`}>
+            Spoken debrief
+          </a>
+        )}
         <button className="btn small noprint" onClick={() => window.print()}>
           Print
         </button>
@@ -130,6 +135,21 @@ export function RecordPage({ codeId }: { codeId: string }) {
               )}
             </>
           )}
+        </section>
+      )}
+
+      {rec.debrief?.notes.length > 0 && (
+        <section className="panel">
+          <h3>Team debrief <span className="muted" style={{ textTransform: 'none', letterSpacing: 0 }}>the team's words, from the spoken debrief</span></h3>
+          {rec.debrief.notes.map((n, i) => (
+            <div key={i}>
+              <span className={`chip ${n.kind === 'went_well' ? 'ack' : n.kind === 'system_issue' ? 'bad' : 'warn'}`}>
+                {({ went_well: 'Keep', to_change: 'Change', action_item: 'Action', system_issue: 'System issue' } as Record<string, string>)[n.kind] ?? n.kind}
+              </span>{' '}
+              {n.note}
+            </div>
+          ))}
+          {rec.debrief.summary && <div className="muted"><b>Summary.</b> {rec.debrief.summary}</div>}
         </section>
       )}
 

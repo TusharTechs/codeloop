@@ -309,3 +309,6 @@ table.t td.mono { white-space: nowrap; }
 .q-status { text-align: right; }
 .dash-agg { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
 @media (max-width: 720px) { .q-row { grid-template-columns: 1fr auto 56px; } .q-target { display: none; } }
+.grid2-debrief { display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--gap); align-items: start; }
+.grid2-debrief .panel { align-content: start; }
+@media (max-width: 900px) { .grid2-debrief { grid-template-columns: 1fr; } }

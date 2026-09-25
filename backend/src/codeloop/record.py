@@ -139,6 +139,11 @@ def build_record(store: Store, code_id: str) -> dict[str, Any]:
         "administered": sorted(administered, key=lambda x: x["clock"]),
         "quality": (closed[-1].get("quality") if closed else None) or [],
         "second_listen": second,
+        "debrief": {
+            "notes": [e.payload for e in entries if e.kind == "debrief_note"],
+            "summary": next((e.payload["summary"] for e in reversed(entries) if e.kind == "debrief_summary"), None),
+            "held": any(e.kind == "debrief_started" for e in entries),
+        },
         "timeline": timeline,
         "loops": list(loops.values()),
         "flags": list(flags.values()),

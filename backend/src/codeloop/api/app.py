@@ -12,6 +12,7 @@ WebSocket /ws/codes/{id}
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 import logging
 import secrets
@@ -27,6 +28,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from ..config import Settings, get_settings
+from ..debrief import DebriefSession
 from ..record import build_record
 from ..session import CodeSession
 from ..store import Store
@@ -246,6 +248,40 @@ def create_app(settings: Settings | None = None, store: Store | None = None, fac
             pass
         finally:
             s.unsubscribe(ws)
+
+    @app.websocket("/ws/debrief/{code_id}")
+    async def debrief_socket(ws: WebSocket, code_id: str, token: str | None = None) -> None:
+        """Spoken post-code debrief: browser mic <-> AssemblyAI Voice Agent (see debrief.py)."""
+        try:
+            check_token(token)
+        except HTTPException:
+            await ws.close(code=4401, reason="Access code required")
+            return
+        meta = store.get_code(code_id)
+        if meta is None or meta["status"] != "ended":
+            await ws.close(code=4404, reason="Debrief is available once the code has ended")
+            return
+        await ws.accept()
+        session = DebriefSession(code_id, settings, store, ws.send_json, ws.send_bytes)
+        try:
+            await session.start()
+            while True:
+                msg = await ws.receive()
+                if msg["type"] == "websocket.disconnect":
+                    break
+                if msg.get("bytes") is not None:
+                    session.feed_audio(msg["bytes"])
+                elif msg.get("text") and json.loads(msg["text"]).get("type") == "end":
+                    break
+        except WebSocketDisconnect:
+            pass
+        except Exception as e:
+            log.exception("debrief failed")
+            with contextlib.suppress(Exception):
+                await ws.send_json({"type": "error", "message": f"Debrief could not start: {e}"})
+        finally:
+            await session.close()
+            await asyncio.to_thread(store.append, code_id, "debrief_ended", {})
 
     dist = settings.frontend_dist
     if dist.exists():

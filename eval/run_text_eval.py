@@ -24,8 +24,9 @@ def run(path: Path) -> tuple[int, int, int, list, list]:
     tp = fp = fn = 0
     misses = []
     for i, line in enumerate(spec["lines"]):
-        utt = Utterance(id=f"u{i}", turn_order=i, text=line["say"], start_s=line["start"], end_s=line["end"],
-                        speaker=line["who"])
+        utt = Utterance(
+            id=f"u{i}", turn_order=i, text=line["say"], start_s=line["start"], end_s=line["end"], speaker=line["who"]
+        )
         s = score_line(line["say"], line.get("gold", []), pipe.process(utt).events)
         tp += len(s.gold) - len(s.missed)
         fn += len(s.missed)
@@ -39,8 +40,11 @@ def run(path: Path) -> tuple[int, int, int, list, list]:
 def main() -> int:
     groups = {"tuning": [], "held-out v1 (seen)": [], "held-out v2": []}
     for p in sorted(SCENARIOS.glob("*.yaml")):
-        key = "held-out v2" if p.stem.startswith("heldout2_") else (
-            "held-out v1 (seen)" if p.stem.startswith("heldout_") else "tuning")
+        key = (
+            "held-out v2"
+            if p.stem.startswith("heldout2_")
+            else ("held-out v1 (seen)" if p.stem.startswith("heldout_") else "tuning")
+        )
         groups[key].append(p)
     for name, paths in groups.items():
         TP = FP = FN = OK = N = 0
@@ -49,13 +53,15 @@ def main() -> int:
             tp, fp, fn, outcomes, misses = run(p)
             ok = sum(1 for _, good, _ in outcomes if good)
             TP, FP, FN, OK, N = TP + tp, FP + fp, FN + fn, OK + ok, N + len(outcomes)
-            print(f"  {p.stem:28s} P {tp / max(1, tp + fp):.2f}  R {tp / max(1, tp + fn):.2f}  outcomes {ok}/{len(outcomes)}")
+            prec, rec = tp / max(1, tp + fp), tp / max(1, tp + fn)
+            print(f"  {p.stem:28s} P {prec:.2f}  R {rec:.2f}  outcomes {ok}/{len(outcomes)}")
             for say, missed, extra in misses:
                 print(f"      {say!r}: missed {missed} extra {extra}")
             for exp, good, detail in outcomes:
                 if not good:
                     print(f"      ✗ {exp}: {detail}")
-        print(f"  TOTAL                        P {TP / max(1, TP + FP):.2f}  R {TP / max(1, TP + FN):.2f}  outcomes {OK}/{N}")
+        prec, rec = TP / max(1, TP + FP), TP / max(1, TP + FN)
+        print(f"  {'TOTAL':28s} P {prec:.2f}  R {rec:.2f}  outcomes {OK}/{N}")
     return 0
 
 
