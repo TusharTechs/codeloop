@@ -10,6 +10,11 @@ Code Record is ready for review.
 
 Built for the AssemblyAI Voice Agent Hackathon 2026, and designed to become a real product.
 
+![CodeLoop catching an amiodarone read-back conflict during a mock code](docs/img/conflict.png)
+*A real screenshot from a replayed mock code streamed through AssemblyAI. The leader ordered
+amiodarone 300 mg and the read-back was 150 mg. CodeLoop turned the order red, offered one-tap
+confirmation and said "Check dose…" out loud.*
+
 > CodeLoop records and keeps time. It never recommends treatment. It is not a medical device,
 > and it is intended first for simulation and training.
 

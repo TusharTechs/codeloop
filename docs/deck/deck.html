@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CodeLoop deck</title>
+<style>
+@font-face { font-family: 'Atkinson'; font-weight: 400; src: url('../../frontend/node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Atkinson'; font-weight: 700; src: url('../../frontend/node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'JBM'; font-weight: 500; src: url('../../frontend/node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff2') format('woff2'); }
+@font-face { font-family: 'JBM'; font-weight: 700; src: url('../../frontend/node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-700-normal.woff2') format('woff2'); }
+@page { size: 1920px 1080px; margin: 0; }
+:root {
+  --bg: #0b1117; --panel: #111a23; --panel2: #16212c; --line: #243242; --text: #e8eef4; --muted: #8d9cad; --faint: #5d6c7d;
+  --teal: #35d0b5; --amber: #f5b544; --red: #ff5d5d; --blue: #6aa9ff; --violet: #b69cff;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Atkinson', system-ui, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.slide { width: 1920px; height: 1080px; padding: 96px 120px; position: relative; overflow: hidden; page-break-after: always; display: flex; flex-direction: column; gap: 36px; background: var(--bg); }
+.slide:last-child { page-break-after: auto; }
+.kicker { font-family: 'JBM'; font-size: 22px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--teal); font-weight: 700; }
+h1 { font-size: 124px; line-height: 1.02; margin: 0; letter-spacing: -0.02em; }
+h2 { font-size: 68px; line-height: 1.08; margin: 0; letter-spacing: -0.01em; max-width: 1500px; }
+h1 em, h2 em { font-style: normal; color: var(--teal); }
+p, li { font-size: 32px; line-height: 1.45; color: var(--muted); margin: 0; }
+b { color: var(--text); }
+.mono { font-family: 'JBM'; font-variant-numeric: tabular-nums; }
+.foot { position: absolute; left: 120px; right: 120px; bottom: 48px; display: flex; justify-content: space-between; font-size: 20px; color: var(--faint); font-family: 'JBM'; }
+.logo { display: flex; align-items: center; gap: 20px; }
+.logo svg { width: 84px; height: 84px; }
+.logo span { font-size: 44px; font-weight: 700; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+.stat { background: var(--panel); border: 1px solid var(--line); border-radius: 22px; padding: 36px; display: grid; gap: 14px; }
+.stat .n { font-family: 'JBM'; font-weight: 700; font-size: 96px; line-height: 1; color: var(--text); }
+.stat .d { font-size: 28px; color: var(--muted); line-height: 1.35; }
+.stat .s { font-size: 20px; color: var(--faint); }
+.shot { border-radius: 18px; border: 1px solid var(--line); box-shadow: 0 30px 80px rgba(0,0,0,.45); width: 100%; display: block; }
+.loopflow { display: flex; gap: 22px; align-items: stretch; }
+.step { flex: 1; border-radius: 18px; padding: 28px 30px; background: var(--panel2); border: 2px solid var(--line); display: grid; gap: 10px; }
+.step .k { font-family: 'JBM'; font-size: 20px; letter-spacing: .1em; font-weight: 700; color: var(--faint); text-transform: uppercase; }
+.step .q { font-size: 30px; color: var(--text); }
+.step.teal { border-color: rgba(53,208,181,.6); background: rgba(53,208,181,.08); } .step.teal .k { color: var(--teal); }
+.step.amber { border-color: rgba(245,181,68,.7); background: rgba(245,181,68,.10); } .step.amber .k { color: var(--amber); }
+.step.red { border-color: rgba(255,93,93,.7); background: rgba(255,93,93,.10); } .step.red .k { color: var(--red); }
+.voice { border-left: 6px solid var(--violet); padding: 14px 24px; background: rgba(182,156,255,.10); border-radius: 0 14px 14px 0; font-size: 30px; color: var(--text); font-weight: 700; }
+table { border-collapse: collapse; width: 100%; font-size: 27px; }
+th { text-align: left; font-family: 'JBM'; font-size: 18px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); padding: 14px 18px; border-bottom: 1px solid var(--line); }
+td { padding: 16px 18px; border-bottom: 1px solid var(--line); color: var(--muted); vertical-align: top; }
+td b { color: var(--text); }
+.pill { display: inline-block; font-family: 'JBM'; font-size: 18px; font-weight: 700; padding: 5px 14px; border-radius: 999px; }
+.pt { color: var(--teal); background: rgba(53,208,181,.12); } .pa { color: var(--amber); background: rgba(245,181,68,.12); } .pr { color: var(--red); background: rgba(255,93,93,.12); } .pv { color: var(--violet); background: rgba(182,156,255,.12); } .pb { color: var(--blue); background: rgba(106,169,255,.12); }
+.arch { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 28px; align-items: stretch; }
+.box { border: 2px solid var(--line); background: var(--panel); border-radius: 20px; padding: 28px; display: grid; gap: 12px; align-content: start; }
+.box h3 { margin: 0; font-size: 32px; }
+.box p { font-size: 25px; }
+.box.aai { border-color: rgba(106,169,255,.6); }
+.box.core { border-color: rgba(53,208,181,.6); }
+ul { margin: 0; padding-left: 32px; display: grid; gap: 14px; }
+.big-quote { font-size: 54px; line-height: 1.2; color: var(--text); font-weight: 700; max-width: 1500px; }
+.ecg { position: absolute; right: -40px; top: 160px; opacity: .10; }
+</style>
+</head>
+<body>
+
+<!-- 1 · Title -->
+<section class="slide" style="justify-content:center">
+  <svg class="ecg" width="1100" height="500" viewBox="0 0 1100 500"><path d="M0 260h260l60-150 90 300 70-230 50 80h570" fill="none" stroke="#35d0b5" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <div class="logo"><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#111a23" stroke="#243242"/><path d="M8 34h12l5-12 8 24 6-18 4 6h13" fill="none" stroke="#35d0b5" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>CodeLoop</span></div>
+  <h1>Every order heard.<br><em>Every loop closed.</em></h1>
+  <p style="font-size:38px;max-width:1400px">The voice recorder for cardiac arrests. It hears the whole resuscitation team, logs every drug, shock and rhythm, runs the ACLS clock and speaks up when an order was never confirmed back.</p>
+  <div class="foot"><span>AssemblyAI Voice Agent Hackathon 2026</span><span>Built on Universal-3.5 Pro Streaming + Voice Agent API</span></div>
+</section>
+
+<!-- 2 · Problem -->
+<section class="slide">
+  <div class="kicker">The problem</div>
+  <h2>A code is run entirely by voice, and <em>orders get lost</em>.</h2>
+  <div class="grid3">
+    <div class="stat"><span class="n">26%</span><span class="d">of 387 spoken orders in 89 filmed resuscitations were closed-loop (repeated back).</span><span class="s">El-Shafy et al., J Surg Educ 2018</span></div>
+    <div class="stat"><span class="n">3.6×</span><span class="d">faster completion of orders that <b>were</b> closed-loop.</span><span class="s">Same study, HR 3.6 (95% CI 2.5–5.3)</span></div>
+    <div class="stat"><span class="n">κ 0.27</span><span class="d">agreement between hospital records and observers on epinephrine timing.</span><span class="s">J Clin Med 2023, cardiac ICU arrests</span></div>
+  </div>
+  <p style="max-width:1600px">Hands are on the chest, the airway and the syringes. Someone must stop patient care to write. Tap-based recorder apps still need free hands, and <b>nothing notices an order that nobody confirmed</b>.</p>
+  <div class="foot"><span>CodeLoop</span><span>2</span></div>
+</section>
+
+<!-- 3 · What it does -->
+<section class="slide">
+  <div class="kicker">What CodeLoop does</div>
+  <h2>Every order becomes a loop that must close.</h2>
+  <div class="loopflow">
+    <div class="step teal"><span class="k">1 · Ordered</span><span class="q">“Give one milligram of epinephrine.”</span></div>
+    <div class="step teal"><span class="k">2 · Read back</span><span class="q">“Epi one milligram, drawing up.”</span></div>
+    <div class="step teal"><span class="k">3 · Given</span><span class="q">“Epi's in.”</span></div>
+  </div>
+  <div class="grid2">
+    <div style="display:grid;gap:18px">
+      <div class="step amber"><span class="k">Silence for 10 s → amber · 15 s → spoken</span><span class="q">Nobody confirmed the order.</span></div>
+      <div class="voice">“Epinephrine one milligram ordered. Not acknowledged.”</div>
+    </div>
+    <div style="display:grid;gap:18px">
+      <div class="step red"><span class="k">Different value read back → red</span><span class="q">Ordered 300 mg · read back 150 mg</span></div>
+      <div class="voice">“Check dose. Ordered amiodarone three hundred milligrams, read back one hundred fifty milligrams.”</div>
+    </div>
+  </div>
+  <p>It also runs the ACLS clock out loud: 2-minute cycles, the epinephrine window, shocks and a shockable-rhythm check. It answers <b>“CodeLoop, last epi kab diya tha?”</b> from its own record.</p>
+  <div class="foot"><span>CodeLoop</span><span>3</span></div>
+</section>
+
+<!-- 4 · Product -->
+<section class="slide" style="padding-bottom:70px">
+  <div class="kicker">The crash-cart screen · live replay through AssemblyAI</div>
+  <img class="shot" style="width:auto;max-width:100%;height:800px;align-self:center" src="../img/conflict.png" alt="CodeLoop code screen with a dose conflict">
+  <div class="foot"><span>Real screenshot: the amiodarone read-back conflict caught at 00:59, with CodeLoop's spoken line on the right</span><span>4</span></div>
+</section>
+
+<!-- 5 · AssemblyAI -->
+<section class="slide">
+  <div class="kicker">Why AssemblyAI is load-bearing</div>
+  <h2>Two AssemblyAI connections, each doing a job <em>nothing else could</em>.</h2>
+  <table>
+    <tr><th>Capability</th><th>Without it</th><th>Measured</th></tr>
+    <tr><td><b>Universal-3.5 Pro streaming</b> + tight turn detection</td><td>The record lags the code</td><td><span class="pill pt">event latency ≈ 1.2 s</span></td></tr>
+    <tr><td><b>Medical Mode + ACLS keyterms + context prompt</b></td><td>Drug names and doses misheard</td><td><span class="pill pt">96% vs 78%</span> critical entities; the dose conflict was <b>missed</b> without them</td></tr>
+    <tr><td><b>Word-level speaker labels</b></td><td>Order and read-back look like one person</td><td>Turns split at word-level speaker changes</td></tr>
+    <tr><td><b>Word confidence</b></td><td>A misheard dose silently becomes fact</td><td>Below 0.6 → <span class="pill pa">UNCONFIRMED</span>, listed for sign-off</td></tr>
+    <tr><td><b>Hindi–English code-switching</b></td><td>Indian teams' real talk lost</td><td>Cross-script phonetic layer maps Devanagari back to English</td></tr>
+    <tr><td><b>Voice Agent API</b> (semantic barge-in)</td><td>A bot talks over the team leader</td><td><span class="pill pv">~0.8 s</span> to speak; stops mid-word when interrupted</td></tr>
+  </table>
+  <div class="foot"><span>CodeLoop</span><span>5</span></div>
+</section>
+
+<!-- 6 · Architecture -->
+<section class="slide">
+  <div class="kicker">How it works</div>
+  <h2>Models understand speech. <em>Deterministic code decides.</em></h2>
+  <div class="arch">
+    <div class="box aai"><span class="pill pb">AssemblyAI · ears</span><h3>U3.5 Pro Streaming</h3><p>Room audio from a crash-cart tablet. Speaker labels, Medical Mode, ACLS keyterms, far-field Voice Focus, English + Hindi.</p></div>
+    <div class="box core"><span class="pill pt">CodeLoop core</span><h3>Grammar → resolver → ACLS engine</h3><p>Every event quotes the exact words it came from. Loops, timers, flags and every spoken number come from unit-tested, replayable code. <b>The model never picks a dose.</b></p></div>
+    <div class="box aai"><span class="pill pv">AssemblyAI · voice</span><h3>Voice Agent API</h3><p>Speaks fixed lines only, waits for a gap in the room, stops when a clinician talks over it. Never hears the room's chatter.</p></div>
+  </div>
+  <p>Every utterance, event, loop, flag and spoken line → a <b>SHA-256 hash-chained audit log</b>. The Code Record is rebuilt from it, so the screen and the record cannot disagree.</p>
+  <div class="foot"><span>CodeLoop</span><span>6</span></div>
+</section>
+
+<!-- 7 · Safety -->
+<section class="slide">
+  <div class="kicker">Safety by design</div>
+  <h2>Built so that being wrong is <em>visible</em>, not silent.</h2>
+  <div class="grid2">
+    <ul>
+      <li><b>Low ASR confidence</b> on a dose → UNCONFIRMED, never a fact</li>
+      <li><b>Read-back differs</b> → red card, one-tap confirm, spoken check</li>
+      <li><b>A misheard “ROSC”</b> only pauses timers; a human ends the code</li>
+      <li><b>CodeLoop's own voice</b> is recognised and never logged as the team</li>
+    </ul>
+    <ul>
+      <li><b>Never recommends treatment</b>: it reminds timing, never what to give</li>
+      <li><b>Answers come from the record</b>: a managed LLM chose the wrong fact in testing, so answers are composed deterministically</li>
+      <li><b>Tamper-evident record</b> with integrity check and head hash</li>
+      <li>Screen-only / timers-only / mute: the team decides how chatty it is</li>
+    </ul>
+  </div>
+  <div class="foot"><span>Full safety case: docs/safety.md</span><span>7</span></div>
+</section>
+
+<!-- 8 · Evidence -->
+<section class="slide">
+  <div class="kicker">Evidence, measured honestly</div>
+  <h2>Held-out mock codes, committed <em>before</em> they were measured.</h2>
+  <div class="grid2">
+    <table>
+      <tr><th>Live AssemblyAI</th><th>Precision</th><th>Recall</th><th>Loops</th></tr>
+      <tr><td>Held-out set 1, first run</td><td class="mono">0.97</td><td class="mono">0.71</td><td class="mono">5 / 8</td></tr>
+      <tr><td>Held-out set 2, first run</td><td class="mono">0.82</td><td class="mono">0.56</td><td class="mono">7 / 9</td></tr>
+      <tr><td><b>Both, after general fixes</b></td><td class="mono"><b>0.96</b></td><td class="mono"><b>0.88</b></td><td class="mono"><b>16 / 17</b></td></tr>
+      <tr><td>VF demo, production config</td><td class="mono">0.97</td><td class="mono">0.91</td><td class="mono">3 / 3</td></tr>
+    </table>
+    <ul>
+      <li>Each fresh set found real bugs, including <b>“one hundred and fifty joules” → two shocks</b>. Fixed with general rules plus a regression test.</li>
+      <li>When unsure, CodeLoop <b>misses</b> rather than invents: precision stays high.</li>
+      <li>Remaining misses are mostly recognition errors (“two hundred” heard as “100”), exactly what the read-back loop exists to catch.</li>
+      <li>Limitation: synthetic TTS voices so far. Real-voice testing in a sim centre is milestone one.</li>
+    </ul>
+  </div>
+  <div class="foot"><span>Protocol and every number: eval/RESULTS.md · 132 automated tests</span><span>8</span></div>
+</section>
+
+<!-- 9 · Business -->
+<section class="slide">
+  <div class="kicker">Business</div>
+  <h2>Start where every hospital already practises: <em>mock codes</em>.</h2>
+  <div class="grid3">
+    <div class="stat"><span class="n" style="font-size:46px;font-family:Atkinson">1 · Simulation</span><span class="d">Sim centres and resuscitation committees: debrief timelines and closed-loop scores for every mock code. No patient data, no clinical reliance.</span></div>
+    <div class="stat"><span class="n" style="font-size:46px;font-family:Atkinson">2 · Documentation</span><span class="d">Live codes, silent or timers-only. The recorder nurse reviews and signs; FHIR and GWTG-Resuscitation registry export.</span></div>
+    <div class="stat"><span class="n" style="font-size:46px;font-family:Atkinson">3 · Real-time assist</span><span class="d">Spoken loop nudges during live codes, after clinical validation and a SaMD regulatory pathway.</span></div>
+  </div>
+  <div class="grid2">
+    <p><b>≈ $2.66</b> of AssemblyAI usage per 30-minute code (streaming + Medical Mode + diarization + Voice Focus + Voice Agent), at list prices.</p>
+    <p>Per-site subscription for simulation; per-bed for clinical documentation. Expands to trauma, pediatric and neonatal resuscitation, and EMS.</p>
+  </div>
+  <div class="foot"><span>CodeLoop</span><span>9</span></div>
+</section>
+
+<!-- 10 · Close -->
+<section class="slide" style="justify-content:center">
+  <svg class="ecg" width="1100" height="500" viewBox="0 0 1100 500"><path d="M0 260h260l60-150 90 300 70-230 50 80h570" fill="none" stroke="#35d0b5" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <div class="big-quote">Codes are loud, fast and hands-full.<br>CodeLoop is the recorder that <span style="color:var(--teal)">never looks away</span>.</div>
+  <h2 style="font-size:84px">Every order heard. <em>Every loop closed.</em></h2>
+  <p class="mono" style="font-size:28px">github.com/TusharTechs/codeloop · live demo: see submission</p>
+  <div class="foot"><span>Tushar Agarwal</span><span>Not a medical device · simulation and training first</span></div>
+</section>
+
+</body>
+</html>
