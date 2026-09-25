@@ -1,0 +1,16 @@
+.git
+.env
+.env.*
+**/node_modules
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+frontend/dist
+spikes/results
+eval/audio
+data
+docs/research
+*.db
+*.db-wal
+*.db-shm
