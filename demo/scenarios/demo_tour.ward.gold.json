@@ -1,0 +1,316 @@
+{
+  "id": "demo_tour",
+  "title": "Quick tour (80 s): unacknowledged epi, a dose conflict, a question and ROSC",
+  "noise": "ward",
+  "duration_s": 84.712,
+  "cast": {
+    "leader": {
+      "voice": "Rishi",
+      "name": "Dr. Rao",
+      "distance": 1.0
+    },
+    "meds": {
+      "voice": "Tara",
+      "name": "Priya",
+      "distance": 0.8
+    },
+    "compressor": {
+      "voice": "Daniel",
+      "name": "Arjun",
+      "distance": 0.9
+    }
+  },
+  "expected_outcomes": [
+    {
+      "loop": "shock 200 J",
+      "final_state": "DONE"
+    },
+    {
+      "loop": "epinephrine 1 mg",
+      "first_state": "UNACKNOWLEDGED",
+      "final_state": "DONE"
+    },
+    {
+      "loop": "amiodarone 300 mg",
+      "first_state": "CONFLICT",
+      "final_state": "DONE"
+    }
+  ],
+  "lines": [
+    {
+      "who": "leader",
+      "say": "Code blue. Starting CPR now. I'm leading. Priya, you're on meds. Arjun, you're on compressions.",
+      "gold": [
+        {
+          "kind": "cpr_start"
+        },
+        {
+          "kind": "role",
+          "role": "leader"
+        },
+        {
+          "kind": "role",
+          "role": "meds",
+          "name": "Priya"
+        },
+        {
+          "kind": "role",
+          "role": "compressor",
+          "name": "Arjun"
+        }
+      ],
+      "start": 0.5,
+      "end": 7.414,
+      "voice": "Rishi",
+      "speaker_name": "Dr. Rao"
+    },
+    {
+      "who": "leader",
+      "say": "Pause compressions. Rhythm check.",
+      "gold": [
+        {
+          "kind": "cpr_pause"
+        },
+        {
+          "kind": "rhythm_check"
+        }
+      ],
+      "start": 9.0,
+      "end": 10.96,
+      "voice": "Rishi",
+      "speaker_name": "Dr. Rao"
+    },
+    {
+      "who": "leader",
+      "say": "That's V-fib. Charge to two hundred joules.",
+      "gold": [
+        {
+          "kind": "rhythm",
+          "rhythm": "VF"
+        },
+        {
+          "kind": "order",
+          "action": "shock",
+          "energy_j": 200
+        }
+      ],
+      "start": 11.56,
+      "end": 14.283,
+      "voice": "Rishi",
+      "speaker_name": "Dr. Rao"
+    },
+    {
+      "who": "compressor",
+      "say": "Charging to two hundred. Everybody clear. Shock delivered.",
+      "gold": [
+        {
+          "kind": "ack",
+          "action": "shock",
+          "energy_j": 200
+        },
+        {
+          "kind": "done",
+          "action": "shock",
+          "energy_j": 200
+        }
+      ],
+      "start": 14.883,
+      "end": 18.506,
+      "voice": "Daniel",
+      "speaker_name": "Arjun"
+    },
+    {
+      "who": "leader",
+      "say": "Resume compressions.",
+      "gold": [
+        {
+          "kind": "cpr_resume"
+        }
+      ],
+      "start": 19.106,
+      "end": 20.448,
+      "voice": "Rishi",
+      "speaker_name": "Dr. Rao"
+    },
+    {
+      "who": "leader",
+      "say": "Give one milligram of epinephrine.",
+      "gold": [
+        {
+          "kind": "order",
+          "action": "drug",
+          "drug": "epinephrine",
+          "dose": 1,
+          "unit": "mg"
+        }
+      ],
+      "start": 24.0,
+      "end": 25.998,
+      "voice": "Rishi",
+      "speaker_name": "Dr. Rao"
+    },
+    {
+      "who": "compressor",
+      "say": "Is the IV line working?",
+      "gold": [],
+      "start": 26.998,
+      "end": 28.458,
+      "voice": "Daniel",
+      "speaker_name": "Arjun"
+    },
+    {
+      "who": "meds",
+      "say": "Sorry. Epi, one milligram, drawing up now.",
+      "gold": [
+        {
+          "kind": "ack",
+          "action": "drug",
+          "drug": "epinephrine",
+          "dose": 1,
+          "unit": "mg"
+        }
+      ],
+      "start": 42.0,
+      "end": 44.851,
+      "voice": "Tara",
+      "speaker_name": "Priya"
+    },
+    {
+      "who": "meds",
+      "say": "Epi one milligram is in.",
+      "gold": [
+        {
+          "kind": "done",
+          "action": "drug",
+          "drug": "epinephrine",
+          "dose": 1,
+          "unit": "mg"
+        }
+      ],
+      "start": 46.351,
+      "end": 47.698,
+      "voice": "Tara",
+      "speaker_name": "Priya"
+    },
+    {
+      "who": "leader",
+      "say": "Amiodarone three hundred milligrams.",
+      "gold": [
+        {
+          "kind": "order",
+          "action": "drug",
+          "drug": "amiodarone",
+          "dose": 300,
+          "unit": "mg"
+        }
+      ],
+      "start": 50.0,
+      "end": 52.132,
+      "voice": "Rishi",
+      "speaker_name": "Dr. Rao"
+    },
+    {
+      "who": "meds",
+      "say": "Amio one fifty, pushing.",
+      "gold": [
+        {
+          "kind": "ack",
+          "action": "drug",
+          "drug": "amiodarone",
+          "dose": 150,
+          "unit": "mg"
+        }
+      ],
+      "start": 52.732,
+      "end": 54.095,
+      "voice": "Tara",
+      "speaker_name": "Priya"
+    },
+    {
+      "who": "leader",
+      "say": "No. Three hundred. Three zero zero.",
+      "gold": [
+        {
+          "kind": "order",
+          "action": "drug",
+          "drug": "amiodarone",
+          "dose": 300,
+          "unit": "mg",
+          "restatement": true
+        }
+      ],
+      "start": 57.5,
+      "end": 60.037,
+      "voice": "Rishi",
+      "speaker_name": "Dr. Rao"
+    },
+    {
+      "who": "meds",
+      "say": "Three hundred of amiodarone, pushing now.",
+      "gold": [
+        {
+          "kind": "ack",
+          "action": "drug",
+          "drug": "amiodarone",
+          "dose": 300,
+          "unit": "mg"
+        }
+      ],
+      "start": 60.637,
+      "end": 62.812,
+      "voice": "Tara",
+      "speaker_name": "Priya"
+    },
+    {
+      "who": "meds",
+      "say": "Amio three hundred is in.",
+      "gold": [
+        {
+          "kind": "done",
+          "action": "drug",
+          "drug": "amiodarone",
+          "dose": 300,
+          "unit": "mg"
+        }
+      ],
+      "start": 64.312,
+      "end": 65.582,
+      "voice": "Tara",
+      "speaker_name": "Priya"
+    },
+    {
+      "who": "meds",
+      "say": "CodeLoop, when was the last epi?",
+      "gold": [
+        {
+          "kind": "question",
+          "topic": "last_drug",
+          "drug": "epinephrine"
+        }
+      ],
+      "start": 70.0,
+      "end": 71.627,
+      "voice": "Tara",
+      "speaker_name": "Priya"
+    },
+    {
+      "who": "leader",
+      "say": "Hold compressions, pulse check. I've got a pulse. We have ROSC.",
+      "gold": [
+        {
+          "kind": "cpr_pause"
+        },
+        {
+          "kind": "rhythm_check"
+        },
+        {
+          "kind": "rosc"
+        }
+      ],
+      "start": 78.0,
+      "end": 82.712,
+      "voice": "Rishi",
+      "speaker_name": "Dr. Rao"
+    }
+  ]
+}

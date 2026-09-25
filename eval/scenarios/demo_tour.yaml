@@ -1,0 +1,95 @@
+# Quick tour for judges: every catch CodeLoop makes, in about 80 seconds. (The 2-minute CPR
+# cycle prompt needs a real 2 minutes; the full VF scenario shows it.)
+id: demo_tour
+title: "Quick tour (80 s): unacknowledged epi, a dose conflict, a question and ROSC"
+cast:
+  leader:     { voice: "Rishi",  name: "Dr. Rao", distance: 1.0 }
+  meds:       { voice: "Tara",   name: "Priya",   distance: 0.8 }
+  compressor: { voice: "Daniel", name: "Arjun",   distance: 0.9 }
+expected_outcomes:
+  - { loop: "shock 200 J", final_state: DONE }
+  - { loop: "epinephrine 1 mg", first_state: UNACKNOWLEDGED, final_state: DONE }
+  - { loop: "amiodarone 300 mg", first_state: CONFLICT, final_state: DONE }
+lines:
+  - at: 0.5
+    who: leader
+    say: "Code blue. Starting CPR now. I'm leading. Priya, you're on meds. Arjun, you're on compressions."
+    gold:
+      - { kind: cpr_start }
+      - { kind: role, role: leader }
+      - { kind: role, role: meds, name: "Priya" }
+      - { kind: role, role: compressor, name: "Arjun" }
+  - at: 9.0
+    who: leader
+    say: "Pause compressions. Rhythm check."
+    gold:
+      - { kind: cpr_pause }
+      - { kind: rhythm_check }
+  - who: leader
+    say: "That's V-fib. Charge to two hundred joules."
+    gold:
+      - { kind: rhythm, rhythm: VF }
+      - { kind: order, action: shock, energy_j: 200 }
+  - who: compressor
+    say: "Charging to two hundred. Everybody clear. Shock delivered."
+    gold:
+      - { kind: ack, action: shock, energy_j: 200 }
+      - { kind: done, action: shock, energy_j: 200 }
+  - who: leader
+    say: "Resume compressions."
+    gold:
+      - { kind: cpr_resume }
+  - at: 24.0
+    who: leader
+    say: "Give one milligram of epinephrine."
+    gold:
+      - { kind: order, action: drug, drug: epinephrine, dose: 1, unit: mg }
+  - who: compressor
+    gap: 1.0
+    say: "Is the IV line working?"
+    gold: []
+  - at: 42.0
+    who: meds
+    say: "Sorry. Epi, one milligram, drawing up now."
+    gold:
+      - { kind: ack, action: drug, drug: epinephrine, dose: 1, unit: mg }
+  - who: meds
+    gap: 1.5
+    say: "Epi one milligram is in."
+    gold:
+      - { kind: done, action: drug, drug: epinephrine, dose: 1, unit: mg }
+  - at: 50.0
+    who: leader
+    say: "Amiodarone three hundred milligrams."
+    gold:
+      - { kind: order, action: drug, drug: amiodarone, dose: 300, unit: mg }
+  - who: meds
+    say: "Amio one fifty, pushing."
+    gold:
+      - { kind: ack, action: drug, drug: amiodarone, dose: 150, unit: mg }
+  - at: 57.5
+    who: leader
+    say: "No. Three hundred. Three zero zero."
+    gold:
+      - { kind: order, action: drug, drug: amiodarone, dose: 300, unit: mg, restatement: true }
+  - who: meds
+    say: "Three hundred of amiodarone, pushing now."
+    gold:
+      - { kind: ack, action: drug, drug: amiodarone, dose: 300, unit: mg }
+  - who: meds
+    gap: 1.5
+    say: "Amio three hundred is in."
+    gold:
+      - { kind: done, action: drug, drug: amiodarone, dose: 300, unit: mg }
+  - at: 70.0
+    who: meds
+    say: "CodeLoop, when was the last epi?"
+    gold:
+      - { kind: question, topic: last_drug, drug: epinephrine }
+  - at: 78.0
+    who: leader
+    say: "Hold compressions, pulse check. I've got a pulse. We have ROSC."
+    gold:
+      - { kind: cpr_pause }
+      - { kind: rhythm_check }
+      - { kind: rosc }

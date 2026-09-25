@@ -4,6 +4,7 @@ import type { PcmPlayer } from '../audio/player'
 import { Logo } from '../components/Logo'
 import { LoopCard } from '../components/LoopCard'
 import { Feed } from '../components/Feed'
+import { Guide } from '../components/Guide'
 import { CprRing, EpiWindow, Vitals } from '../components/Protocol'
 import { QuickLog } from '../components/QuickLog'
 import { loopTitle, mmss, num } from '../format'
@@ -13,7 +14,8 @@ import { useCodeSocket } from '../useCodeSocket'
 const OPEN_ORDER: Record<string, number> = { CONFLICT: 0, UNACKNOWLEDGED: 1, ORDERED: 2, ACKNOWLEDGED: 3 }
 
 export function CodeScreen({ codeId, player }: { codeId: string; player: PcmPlayer }) {
-  const { view, send, sendAudio } = useCodeSocket(codeId, player)
+  const { view, send, sendAudio, dismiss } = useCodeSocket(codeId, player)
+  const [guideOn, setGuideOn] = useState<boolean | null>(null)
   const state = view.state
   const [, setTick] = useState(0)
   const stateAt = useRef(performance.now())
@@ -82,6 +84,7 @@ export function CodeScreen({ codeId, player }: { codeId: string; player: PcmPlay
   }
 
   const pending = state.status.endsWith('pending_confirmation')
+  const showGuide = guideOn ?? state.mode === 'replay'
   const statusLabel = state.status === 'ended' ? `Ended · ${state.outcome ?? ''}` : pending ? 'Confirm ROSC' : state.status === 'not_started' ? 'Listening' : 'Code time'
 
   return (
@@ -124,6 +127,14 @@ export function CodeScreen({ codeId, player }: { codeId: string; player: PcmPlay
           <span className="l">{statusLabel}</span>
         </div>
         <div className="right noprint">
+          <button
+            className={`btn small ${showGuide ? '' : 'ghost'}`}
+            onClick={() => setGuideOn(!showGuide)}
+            aria-pressed={showGuide}
+            title="Plain-language captions explaining each catch"
+          >
+            Guide {showGuide ? 'on' : 'off'}
+          </button>
           {state.muted ? (
             <button className="btn warn small" onClick={() => send({ type: 'unmute' })}>
               Voice muted · unmute
@@ -204,6 +215,8 @@ export function CodeScreen({ codeId, player }: { codeId: string; player: PcmPlay
           </div>
         )}
       </div>
+
+      {showGuide && <Guide items={view.guide} dismiss={dismiss} />}
 
       <main className="grid">
         <section className="col" aria-label="Protocol">

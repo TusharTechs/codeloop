@@ -68,5 +68,7 @@ export function useCodeSocket(codeId: string, player: PcmPlayer) {
     if (ws.current?.readyState === WebSocket.OPEN) ws.current.send(pcm)
   }, [])
 
-  return { view, send, sendAudio }
+  const dismiss = useCallback((id: string) => dispatch({ type: 'dismiss', id }), [])
+
+  return { view, send, sendAudio, dismiss }
 }

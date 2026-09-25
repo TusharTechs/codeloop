@@ -82,7 +82,8 @@ class SessionManager:
 
 def list_scenarios(replay_dir: Path) -> list[dict]:
     out = []
-    for gold in sorted(replay_dir.glob("*.gold.json")):
+    # The quick tour is listed first: it is what a first-time visitor should watch.
+    for gold in sorted(replay_dir.glob("*.gold.json"), key=lambda p: (not p.name.startswith("demo_tour"), p.name)):
         stem = gold.name.removesuffix(".gold.json")
         if not (replay_dir / f"{stem}.wav").exists():
             continue

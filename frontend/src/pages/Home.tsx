@@ -126,7 +126,10 @@ export function Home({ player }: { player: PcmPlayer }) {
             <p>A recorded mock code streams through the real pipeline (live AssemblyAI, real engine) at real-time speed. Turn your sound on.</p>
             {scenarios.map((s) => (
               <div className="scenario" key={s.id}>
-                <span className="t">{s.title}</span>
+                <span className="t">
+                  {s.id.startsWith('demo_tour') && <span className="pill ok" style={{ marginRight: 8 }}>Start here</span>}
+                  {s.title}
+                </span>
                 <span className="s">
                   {mmss(s.duration_s)} · {Object.values(s.cast).join(', ')} · {s.noise === 'ward' ? 'alarms and compressions in the background' : s.noise}
                 </span>
