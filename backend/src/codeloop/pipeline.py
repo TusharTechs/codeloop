@@ -39,10 +39,13 @@ class TranscriptPipeline:
         res.candidates = [c for c, _ in cands]
         if extra:
             cands = merge_candidates(cands, extra)
+        # Everything said in one utterance is applied before timers run, so an order and its
+        # read-back in the same breath never produce a transient "not acknowledged".
         for i, (c, source) in enumerate(sorted(cands, key=lambda x: x[0].char_span)):
             for ev in self.resolver.resolve(c, utt, self.engine, f"{utt.id}:{i}", source):
                 res.events.append(ev)
-                res.output.extend(self.engine.apply(ev))
+                res.output.extend(self.engine.apply(ev, advance=False))
+        res.output.extend(self.engine.advance(max(utt.end_s, self.engine.now_s)))
         return res
 
     def advance(self, now_s: float) -> EngineOutput:

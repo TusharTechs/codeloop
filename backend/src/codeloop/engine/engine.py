@@ -159,9 +159,10 @@ class CodeEngine:
             self.rhythm_history.append((at_s, Rhythm.SINUS))
         return EngineOutput(state_changed=True)
 
-    def apply(self, ev: Event) -> EngineOutput:
-        """Apply one validated event. Advances time to the event first."""
-        out = self.advance(max(ev.at_s, self.now_s))
+    def apply(self, ev: Event, advance: bool = True) -> EngineOutput:
+        """Apply one validated event. Advances time to the event first unless `advance` is
+        False (events from one utterance are applied together; see TranscriptPipeline)."""
+        out = self.advance(max(ev.at_s, self.now_s)) if advance else EngineOutput()
         self.events.append(ev)
         if self.started_at_s is None and ev.kind not in (EventKind.ROLE, EventKind.QUESTION):
             self.started_at_s = ev.at_s

@@ -223,3 +223,37 @@ def test_bare_completion_with_two_candidates_is_unconfirmed() -> None:
     ):
         res = p.process(Utterance(id=f"u{i}", turn_order=i, text=text, start_s=t - 1, end_s=t, speaker=who))
     assert res.events[-1].kind == "done" and res.events[-1].unconfirmed
+
+
+def test_order_and_readback_in_one_long_utterance_never_flag_unacknowledged() -> None:
+    from codeloop.domain.models import Utterance, Word
+    from codeloop.pipeline import TranscriptPipeline
+
+    p = TranscriptPipeline()
+    p.process(Utterance(id="u0", turn_order=0, text="Starting CPR.", start_s=0, end_s=1, speaker="A"))
+    text = "Give one milligram of epinephrine. Uh the line is in the left arm and we are drawing. Epi one milligram, drawing up now."
+    words = [
+        Word(text=w, start_ms=int(5000 + i * 700), end_ms=int(5000 + i * 700 + 500), confidence=0.95)
+        for i, w in enumerate(text.split())
+    ]
+    res = p.process(
+        Utterance(id="u1", turn_order=1, text=text, start_s=5, end_s=words[-1].end_ms / 1000, speaker="A", words=words)
+    )
+    assert not [f for f in res.output.flags if f.rule == "LOOP_UNACKNOWLEDGED"]
+    lp = next(iter(p.engine.loops.values()))
+    assert lp.state == LoopState.ACKNOWLEDGED
+
+
+def test_devanagari_words_keep_their_asr_confidence() -> None:
+    from codeloop.domain.formulary import default_formulary
+    from codeloop.domain.models import Utterance, Word
+    from codeloop.extract.grammar import Grammar
+
+    g = Grammar(default_formulary())
+    text = "एपी एक मिलीग्राम दे दो"
+    words = [
+        Word(text=w, start_ms=i * 400, end_ms=i * 400 + 300, confidence=c)
+        for i, (w, c) in enumerate(zip(text.split(), [0.9, 0.41, 0.95, 0.9, 0.9], strict=True))
+    ]
+    cands = g.extract(Utterance(id="u", turn_order=0, text=text, start_s=0, end_s=2, words=words))
+    assert cands[0].drug == "epinephrine" and cands[0].value_confidence == 0.41

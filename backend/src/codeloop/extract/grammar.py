@@ -454,6 +454,10 @@ HINDI_LEXICON = {
     "जूल्स": "joules",
     "पल्स": "pulse",
     "पॉज": "pause",
+    "नेक्स्ट": "next",
+    "ड्यू": "due",
+    "दूँ": "due",
+    "लास्ट": "last",
     "पॉज़": "pause",
     "पौज": "pause",
     "रिज्यूम": "resume",
@@ -577,10 +581,12 @@ class Grammar:
     def extract(self, utt: Utterance) -> list[Candidate]:
         text = utt.text
         tokens = tokenize(text)
-        for t in tokens:
-            t.norm = self.canonical(t.norm)
+        # Align with the ASR's words in the original script first, then canonicalise
+        # Devanagari renderings to the English vocabulary.
         conf = self._token_confidences(utt, tokens)
         times = self._token_times(utt, tokens)
+        for t in tokens:
+            t.norm = self.canonical(t.norm)
         out: list[Candidate] = []
         whole = [t.norm for t in tokens]
         is_question_to_agent = _has(whole, WAKE_WORDS) is not None
