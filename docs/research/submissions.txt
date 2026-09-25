@@ -1,0 +1,184 @@
+BASE=https://lablab.ai/ai-hackathons/assemblyai-voice-agent-hackathon/
+# Leaderboard order (rank by lablab "event points"; top by community votes: SAUTI 11, Siberia 9, CyberVoice 9, KiaOra 5, MockMate 5, AegisVoice OS 4 ...)
+kisii-unversity-code-union/sauti-ai-voice-to-action | SAUTI AI: Voice-to-Action
+frantal-company/siberia-voice-agent | Siberia Voice Agent
+rangers/cybervoice-ai | CyberVoice AI
+lastminute/campusflow-campus-ops-voice-desk | CampusFlow — Campus Ops Voice Desk
+shinydatatech/kiaora-dispatch | KiaOra Dispatch
+twin-masters/mockmate-ai-voice-interview-coach | MockMate — AI Voice Interview Coach
+sahariar-dev/aegisvoice-os-autonomous-voice-fraud-guardian | AegisVoice OS
+happygolucky/voicewaiter-ai-voice-restaurant-ordering-system | VoiceWaiter
+web-walker/hyperion-warroom-ai-agent | Hyperion WarRoom AI Agent
+boloride/boloride | BoloRide
+farmvoice-ai/farmvoice-ai-voice-agent | FarmVoice
+playhead/playhead | Playhead
+voxsales-ai-voice-agent/voxsales-ai-voice-agent | VoxSales
+monster/saakshi-consent-you-can-prove | Saakshi - Consent You Can Prove
+vibemarketing-studio/brand-studio-agent-build-your-brand-by-voice | Brand Studio Agent
+revenueflow/revenueflow-whatsapp-voice-receptionist | RevenueFlow
+ninjas/stick | STICK
+assembly-voice/voicedesk-ai | VoiceDesk AI
+bloodfang-ronin/liora | Liora
+testteam/aegisor | AegisOR
+speaktodebug/speaktodebug | SpeakToDebug
+termin8ors/kwik-112-ai-voice-call-taker-for-112 | Kwik 112
+zsc/tareeq-al-huda | Tareeq Al-Huda
+robin-voice-ops/robin-voice-ops | Robin Voice Ops
+openline-receptionist/openline-ai-voice-receptionist | OpenLine
+neuron-burners/mediscribe-live | MediScribe Live
+drafters/afterward-the-calls-after-a-death-made-for-you | Afterward
+docuvoice-ai/docuvoice-rag | DocuVoice RAG
+devstation-labs/orion-autonomous-bill-negotiation-by-voice | Orion bill negotiation
+ai-q-labs/voice-case-the-glasshouse-0340 | Voice Case - The Glasshouse, 03:40
+rhemaai-forge/voxarchitect-voice-native-intelligence | VoxArchitect
+primehack-security-team/kt-the-ai-tutor-you-talk-to | KT tutor
+atomix/readdy-ai-junior-technical-interviewer-practice | Readdy AI
+aa49/swara-ai | Swara AI
+cubiczan/evercall-jarvis-for-grandma | EverCall
+lodestar/aria-adaptive-relational-intelligence-agent | ARIA (LodeStar)
+libitum/mockrill-realtime-ai-mock-interview-voice-coach | Mockrill
+odishaaititans/opsvoice-ai-sre-incident-commander | OpsVoice AI
+talkos/talkos | TalkOS
+nightmare/ai-voice-agent-for-booking-the-appointment | appointment booking
+vibes/voice-controlled-robot-arm | Voice-Controlled Robot Arm
+vector-forge/the-claim-intake-agent-that-refuses-to-guess | Claim intake agent that refuses to guess
+hazvox-ai-x-voice-safety-agent/hazvox-ai-hands-free-voice-safety-agent | HazVox AI
+uganda-cranes/voicebridgeai | voicebridgeai
+teevincs/ohun | Ohun
+silvercrane/opspilot-voice-ai-incident-commander | OpsPilot Voice
+beyond-vibe/silverline | SilverLine
+blink/second-listen | Second Listen
+voice-nova/voicenova | VoiceNova
+relay/relay-voice-operations-for-field-work | Relay: Voice Ops for Field Work
+echologic-ai/echologic-voice-agent | echologic
+talksolo/voice-language-partner | Voice Language Partner
+aura-sec-in-ram-voice-intelligence/aura-real-time-sec-10-k-voice-analyst | Aura SEC 10-K
+voice-action-gate/voice-action-gate | Voice Action Gate
+signal-foundry/recebe-voice-delivery-reconciliation | RECEBE
+patchline/patchline | Patchline
+smart-link/smartlink-voice-autonomous-analytics-voice-agent | SmartLink Voice
+anticipatedd-vsslaanintelligentmulti-agent/vane-space-sla-v10 | VANE-SPACE-SLA
+heat-warning-agent/heat-warning-agent | Heat Warning Agent
+sahabatsuara/voice-work-skill-discipline-spirituality | SahabatSuara
+juice-lineone/lineone | LineOne
+team-rn/voicemed-ai-agent | Voicemed
+speakquest/lingusim-adaptive-language-simulation-coach | LinguSim
+interview-lab/interview-lab | Interview Lab
+voiceagentj/speech-to-maya | Speech-to-Maya
+officer-parker/officer-parker | Officer Parker
+voiceforus/bugspeak-speak-a-bug-ship-issue | BugSpeak
+guard-line/guard-line | Guard Line
+veritas-clinical-ai/veritas-clinical-ai | Veritas Clinical AI
+firstchoice/tourist-translator-ai | Tourist translator
+voicelab/voice-lab-molecular-symmetry-copilot | Voice Lab Molecular
+blue-river-technology/verbatrace-ai-voice-to-evidence-agent | VerbaTrace AI - Voice-to-Evidence
+sara-developer/echoagent-ai | EchoAgent AI
+nemesis-voiceops/voiceops-controller-autonomous-voice-sre-engine | VoiceOps Controller
+radio-universe/radio-universe-radio-you-can-talk-to | Radio Universe
+midnight-ace/flowchart-creator-for-visually-impaired-users | Flowchart Creator for VI users
+aalto/aalto-talk-to-your-browser | Aalto
+dropsnipper/voicepulse-ai-real-time-voice-qa-and-speech | VoicePulse
+echoagent/voice-task-assistant | Voice Task Assistant
+evidenturn/evidenturn | EvidenTurn
+marksmanx/aegisvoice | AegisVoice
+trace/trace-voice-native-business-investigation-agent | TRACE
+code-warriors/aria-real-time-voice-ai-assistant | ARIA (Code warriors)
+enigma-pro/second-chair | Second Chair
+very-professional/playtest-pal | Playtest Pal
+sipaos/sipa-voice-gate | sipa-voice-gate
+medivoice-ai/medivoice-ai | MediVoice AI
+claimvoice/claimvoice-ai-claims-first-responder | ClaimVoice
+auracommand/auracommand-autonomous-voice-ops-agent | AuraCommand
+quoteready/quoteready | QuoteReady
+aidlc/say-less-intelligent-voice-agent-repair-engine | Say Less
+ai-maxxers/voxhire-adaptive-ai-technical-interviewer | VoxHire
+voice-order-support-agent/voice-order-support-agent-interrupt-it-any-time | Voice Order Support Agent
+sgy/walkaround-voice-inspection-agent | WalkAround — Voice Inspection
+degens-unite/earshot | Earshot
+voxrede/voxrede | Voxrede
+gnomon/uh-huh-a-voice-agent-for-busy-handed-workers | Uh-Huh busy-handed workers
+kpsx-studio/spokeui-point-speak-ship-ui-changes | SpokeUI
+call-e-solo/clinic-scheduling-voice-agent | Clinic Scheduling
+packcheck/packcheck-every-count-accounted-for | PackCheck
+omar-solo-voice-ai/techses-voice-it-help-desk | TechSəs
+meeting-shadow-agent/meeting-shadow-agent | Meeting Shadow Agent
+dot/omnidesk-real-time-voice-agent | OmniDesk
+phantom-grid/eduvoice-copilotautocopilot | EduVoice
+team-kito/novelos | NovelOS
+khlab/crewvoice-spoken-timesheets-you-can-audit | CrewVoice
+voice-co-creator/nodeflow-hybrid-knowledge-orchestrator | NodeFlow
+openline/hangon-assemblyai-voice-front-desk | HangON
+nina/deskpot-pet-cat-nina | Deskpot Cat Nina
+ezi-edutech/synapvocal-realtime-voice-bridge | SynapVocal
+microcat/catforge-voice-lab | CatForge
+benchback/benchback-from-parts-shelf-to-paid-back | Benchback
+qiqi/tell-it-wont-take-yes-for-an-answer | Tell — won't take yes
+team-nexus/code-talk | Code Talk
+recall-radar/recall-radar-voice-is-anything-i-own-recalled | Recall Radar
+code-warrior/scamtrap-ai | ScamTrap AI
+briefkeeper/briefkeeper-from-conversation-to-clarity | Briefkeeper
+lazycat/wavelink-mobile-ai-voice-support-agent | Wavelink Mobile
+heed/heed-the-voice-to-do-agent-that-waits-for-you | Heed
+lia-agente-da-familia/lia-give-your-mind-some-room | Lia
+voice-market-agent-vs/voice-market-agent | Voice Market Agent
+unstoppable/viva-your-oral-exam-with-a-real-voice-agent | Viva oral exam
+voiceremitng/voiceremitng | VoiceRemitNG
+medivoice-team/medivoice-evidence-first-patient-intake | MediVoice Evidence-First Intake
+tonegap/tonegap | ToneGap
+bug-bunny/rollcall | Rollcall
+0xkalkistrike/aura-offline-autonomous-voice-agent | AURA offline
+recount/recount-finish-the-stocktake | Recount stocktake
+dockwitness/dockwitness-proof-before-the-truck-leaves | DockWitness
+voiceteam/talkie-websites-that-talk-back-and-take-action | Talkie
+neuralvoice/neuralvoice-ai-assistant | NeuralVoice
+probe/probe | Probe
+techflow-al-momayaz/cvoxpuzzle-fastest-and-most-flexible-cv-builder | CVoxPuzzle
+smart-energy-squad/energy-consumption-prediction-and-recommend-system | Energy prediction
+velora/melo-your-screen-your-mission-your-ai-guide | Melo
+clausecatcher/clausecatcher | ClauseCatcher
+gg/aura-ai-that-understands-your-screen-in-real-time | Aura screen
+night-desk/night-desk-tajmahal-hotel | Night Desk hotel
+ai-team/legal-voice-voice-legal-forms | Legal-Voice forms
+runway-voice/runway-voice-ask-your-cash-flow-anything | Runway Voice
+boomerang/boomerang-the-agent-that-calls-you-back | Boomerang
+spparo/spparo-voice-agent | Spparo
+routeproof/routeproof | RouteProof
+echos-ai/echos-ai-meeting-and-voice-memo-assistant | Echos
+tally/tally-reliability-layer-for-voice-agents | Tally reliability layer
+pilotsaver/aeroguard-autonomous-airfield-voice-interceptor | AeroGuard airfield
+readback/readback | READBACK
+datawhisperer/datawhisperer | DataWhisperer
+dimensions/callout | Callout
+tasha404/voicedesk-ai-voice-front-desk | VoiceDesk front desk
+closeloop-ai/frontdeskai | Frontdesk.ai
+siriguard/signalguard-customer-conversation-smart-agent | SignalGuard
+prx/miles | Miles
+codenova/hyperas | hyperas
+endpointing/safecall-privacy-first-ai-voice-agent | SafeCall
+# (junk titles skipped: srfgsdg, claflin, sadadasd...)
+# ---- ACTIVE DRAFTS (updated after Sep 20, named) ----
+loud-enough/loudenough | LoudEnough
+space-time/devils-advocate | Devil's Advocate
+safarsync/safarsync-ai-voice-first-fleet-ops | SafarSync Fleet Ops
+breeklayer/glance | GLANCE
+solorobot/concierge | Concierge
+fldevboo/bisik-compliance-copilot-for-field-officers | Bisik compliance copilot field officers
+nasi-lemak/decideeats-voice-agent | DecideEats
+supernova/postmortem-witness-incident-bridge-listener | Postmortem Witness
+tobixai/pushback-or-ai-sales-objection-practice-partner | Pushback
+suara-ai/suara-ai-your-real-time-english-speaking-copilot | Suara AI
+aptstock-ai/aptstock-ai-voice-inventory-copilot | AptStock
+synaptic/dendrite-agent-for-community-health-workers | Dendrite CHW
+the-invictus/agrisaarthi-ai-farmer-advisory | AgriSaarthi
+bluedev/owami | Owami
+assemblyaiajo/voice-triage-agent | Voice Triage Agent
+medbrief/medbrief | MedBrief
+echodocs/echodocs-voice-rag-agent | EchoDocs
+unknown-avengers/oxidebug-voice-first-mcp-debugging-agent | Oxidebug
+dr-papi-foundation/africas-voice-dental-health-gateway | Africa dental gateway
+barge-in/ev-hands-free-voice-assistant | E.V. hands-free
+voice-ordering-assistant-in/voice-ordering-assistant | Voice Ordering Assistant
+nonius/nonius-the-interview-companion | Nonius
+malwarous/awaaz | Awaaz
+believer/lifeline-emergency-ai-voice-agent | LifeLine Emergency
+voicex/vaultvoice-offline-compliance-interpreter | VaultVoice

@@ -1,0 +1,740 @@
+<title>CodeLoop Hackathon Strategy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --paper:#F5F7FA; --panel:#FFFFFF; --ink:#16202E; --muted:#566274; --rule:#D8DEE7; --soft:#EBEFF4;
+  --red:#B42318; --red-bg:#FDECEA; --teal:#0B7A70; --teal-bg:#E3F4F1; --amber:#A15C07; --amber-bg:#FDF3E1;
+  --blue:#1F4E8C; --blue-bg:#E7EEF8;
+  --display:"Archivo","Arial Narrow",Arial,sans-serif; --body:"Source Sans 3","Segoe UI",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0F141B; --panel:#161D27; --ink:#E4E9F0; --muted:#9AA6B6; --rule:#2A3544; --soft:#1C2531;
+    --red:#FF7A6E; --red-bg:#3A1A18; --teal:#43C6B6; --teal-bg:#12302C; --amber:#F2B84B; --amber-bg:#35280F;
+    --blue:#8DB4F0; --blue-bg:#18263A; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0F141B; --panel:#161D27; --ink:#E4E9F0; --muted:#9AA6B6; --rule:#2A3544; --soft:#1C2531;
+  --red:#FF7A6E; --red-bg:#3A1A18; --teal:#43C6B6; --teal-bg:#12302C; --amber:#F2B84B; --amber-bg:#35280F;
+  --blue:#8DB4F0; --blue-bg:#18263A; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16.5px;line-height:1.6;padding-inline:20px;padding-block:0 64px}
+a{color:var(--blue);text-underline-offset:2px}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:220px minmax(0,1fr);gap:48px}
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);align-self:start;padding-top:36px;font-size:14px;max-height:100vh;overflow:auto}
+nav.toc .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+nav.toc ol{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+nav.toc a{display:grid;grid-template-columns:22px 1fr;gap:6px;padding:4px 6px;border-radius:4px;color:var(--ink);text-decoration:none}
+nav.toc a:hover{background:var(--soft)}
+nav.toc a b{font-family:var(--mono);font-weight:600;color:var(--muted);font-size:12px;padding-top:2px}
+main{min-width:0;padding-top:28px}
+main > section{padding-block:28px;border-top:1px solid var(--rule)}
+h1,h2,h3,h4{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(34px,5vw,54px);font-weight:800;font-stretch:80%;letter-spacing:-.01em}
+h2{font-size:clamp(24px,3vw,31px);font-weight:750;font-stretch:85%;margin-bottom:14px}
+h2 .part{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.06em;color:var(--red);display:block;margin-bottom:6px;font-stretch:100%}
+h3{font-size:20px;font-weight:700;margin:26px 0 8px;font-stretch:92%}
+h4{font-size:16px;font-weight:700;margin:18px 0 6px}
+p{margin:0 0 12px;max-width:72ch}
+ul,ol{margin:0 0 12px;padding-left:22px;max-width:72ch}
+li{margin:3px 0}
+small,.muted{color:var(--muted)}
+code,.mono{font-family:var(--mono);font-size:.86em}
+code{background:var(--soft);padding:1px 5px;border-radius:3px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+/* hero */
+.hero{padding-block:8px 20px}
+.hero .sub{font-size:19px;color:var(--muted);max-width:62ch;margin-top:12px}
+.ecg{display:flex;flex-wrap:wrap;gap:6px 14px;margin:22px 0 4px;font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.ecg span b{color:var(--ink);font-weight:600}
+.ecg .t{color:var(--teal)} .ecg .a{color:var(--amber)} .ecg .r{color:var(--red)}
+.verdict{background:var(--panel);border:1px solid var(--rule);border-left:4px solid var(--red);border-radius:6px;padding:20px 22px;margin-top:22px;display:grid;gap:10px}
+.verdict h3{margin:0;font-size:22px}
+.verdict p{margin:0}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:6px}
+.kv div{border-top:1px solid var(--rule);padding-top:8px}
+.kv b{display:block;font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+/* tables */
+.tbl{overflow-x:auto;margin:12px 0 18px;border:1px solid var(--rule);border-radius:6px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;line-height:1.45}
+th,td{padding:8px 10px;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}
+th{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--soft);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:13px}
+table.score td.n{min-width:40px}
+table.score tr.win td{background:var(--teal-bg)}
+table.score tr.win td:first-child{font-weight:700}
+.pill{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.04em;padding:2px 7px;border-radius:999px;white-space:nowrap}
+.p-red{background:var(--red-bg);color:var(--red)} .p-teal{background:var(--teal-bg);color:var(--teal)} .p-amber{background:var(--amber-bg);color:var(--amber)} .p-blue{background:var(--blue-bg);color:var(--blue)} .p-grey{background:var(--soft);color:var(--muted)}
+/* callouts */
+.note{background:var(--blue-bg);border-radius:6px;padding:14px 16px;margin:14px 0;max-width:78ch}
+.warn{background:var(--amber-bg);border-radius:6px;padding:14px 16px;margin:14px 0;max-width:78ch}
+.note p:last-child,.warn p:last-child{margin-bottom:0}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:12px 0}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:14px 16px}
+.card h4{margin-top:0}
+.card ul{margin-bottom:0}
+.tier{border-radius:6px;padding:14px 16px;border:1px solid var(--rule);background:var(--panel)}
+.tier h4{margin:0 0 6px;display:flex;align-items:center;gap:8px}
+pre{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:14px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.5;margin:10px 0 16px}
+pre.mermaid{background:var(--panel);text-align:center}
+.script td:first-child{font-family:var(--mono);font-size:12.5px;white-space:nowrap;color:var(--red);font-weight:600}
+.qa{display:grid;gap:10px;margin-top:10px}
+.qa details{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:10px 14px}
+.qa summary{cursor:pointer;font-weight:700}
+.qa details p{margin:8px 0 2px}
+.src{font-size:13.5px;color:var(--muted)}
+.sources li{font-size:14px}
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr;gap:0}
+  nav.toc{position:static;max-height:none;padding-top:20px}
+  nav.toc ol{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <div class="lbl">Contents</div>
+  <ol>
+    <li><a href="#top"><b>·</b>Verdict</a></li>
+    <li><a href="#a"><b>A</b>Hackathon research</a></li>
+    <li><a href="#b"><b>B</b>Competitive landscape</a></li>
+    <li><a href="#c"><b>C</b>Our existing ideas</a></li>
+    <li><a href="#d"><b>D</b>New ideas</a></li>
+    <li><a href="#e"><b>E</b>Final selection</a></li>
+    <li><a href="#f"><b>F</b>Product vision</a></li>
+    <li><a href="#g"><b>G</b>Hackathon MVP</a></li>
+    <li><a href="#h"><b>H</b>Production product</a></li>
+    <li><a href="#s"><b>H2</b>Safety architecture</a></li>
+    <li><a href="#i"><b>I</b>Technical architecture</a></li>
+    <li><a href="#j"><b>J</b>Demo script</a></li>
+    <li><a href="#k"><b>K</b>Judge Q&amp;A</a></li>
+    <li><a href="#l"><b>L</b>Build plan</a></li>
+    <li><a href="#src"><b>↗</b>Sources</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="hero" id="top">
+  <div class="eyebrow">AssemblyAI Voice Agent Hackathon · lablab.ai · strategy as of 25 Sep 2026</div>
+  <h1>CodeLoop</h1>
+  <p class="sub">A voice agent that works as the recorder at an in-hospital cardiac arrest. It listens to the whole team, logs every drug and shock, and runs the protocol clock. It also catches spoken orders that nobody confirmed back.</p>
+  <div class="ecg" aria-label="Example code timeline">
+    <span><b>00:00</b> CPR started</span>
+    <span class="t"><b>00:24</b> shock 200 J · closed</span>
+    <span class="a"><b>00:41</b> epi 1 mg · unacknowledged</span>
+    <span class="r"><b>01:02</b> amio 300 → read back 150</span>
+    <span><b>02:00</b> rhythm check due</span>
+  </div>
+  <div class="verdict">
+    <h3>Verdict: drop VoiceCase and Guardian and build CodeLoop</h3>
+    <p>Both of our ideas land in the two most crowded clusters in this hackathon. There is already a submission called <em>Voice Case</em>. About 35–40 of the ~160 entries use the same "LLM proposes, code decides, quote the evidence, read it back" pattern that Guardian relies on. Nobody has built anything for resuscitation. CodeLoop keeps the best parts of both ideas: Guardian's deterministic engine, VoiceCase's Truth Ledger and the audit receipt. It moves them into a setting where voice is the only interface that works, the harm is fatal, and the evidence is published.</p>
+    <div class="kv">
+      <div><b>Deadline</b>Wed 30 Sep, 15:00 UTC (20:30 IST)</div>
+      <div><b>Prize reality</b>5 equal winners, $1k cash + $1k credits each</div>
+      <div><b>Our target</b>A clear top-5 finish. Nothing is "definite".</div>
+      <div><b>Biggest risk</b>Multi-speaker audio in a loud room. We de-risk it on day 1.</div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= PART A ================= -->
+<section id="a">
+<h2><span class="part">PART A</span>Hackathon research</h2>
+
+<h3>Official rules (verified 25 Sep 2026)</h3>
+<div class="tbl"><table>
+<tr><th>Item</th><th>What we found</th><th>So what</th></tr>
+<tr><td>Window</td><td>1–30 Sep 2026. Deadline <b>Wed 30 Sep 15:00 UTC = 20:30 IST</b>. Late submission (up to 6 h) only with prior organizer approval.</td><td>Submit by 18:00 IST at the latest. Treat 20:30 as a hard wall.</td></tr>
+<tr><td>Prizes</td><td>Header says "$10k pool ($5k cash + $5k credits)". The prize block says <b>5 winners × ($1,000 cash + $1,000 API credits)</b>, all identical. Cash goes to individuals by SWIFT; non-US winners face 30% US withholding unless a treaty applies.</td><td>No separate #1 prize. We need a solid top-5 finish, not a coin-flip at #1.</td></tr>
+<tr><td>Eligibility</td><td>Online, worldwide, 18+. US-sanctioned countries are excluded. India is fine.</td><td>—</td></tr>
+<tr><td>Team</td><td>1–6 members; at most 3 can submit.</td><td>—</td></tr>
+<tr><td>Required tech</td><td>Must build on AssemblyAI, with either the <b>Voice Agent API</b> or <b>Realtime STT (Universal-Streaming / U3.5 Pro)</b> plus your own LLM and TTS. Other LLMs and APIs are allowed.</td><td>We use both, each for a job the product can't do without.</td></tr>
+<tr><td>Criteria</td><td><b>Application of Technology · Presentation · Business Value · Originality.</b> No weights published, so assume equal weights.</td><td>Originality is where most entries lose points. That favours an empty category.</td></tr>
+<tr><td>Judges</td><td>21 listed, mostly senior engineers, directors and founders, many India-based. None is identifiable as AssemblyAI staff.</td><td>They will read code and check claims. Several competitors' claims don't match their code, so we must say plainly what is real and what is simulated.</td></tr>
+<tr><td>Votes</td><td>Likes aren't a criterion ("gaming the vote" means disqualification). Every entry shows 0–1 likes except the top few, whose ~10 likes don't track quality.</td><td>Ignore votes.</td></tr>
+<tr><td>Deliverables</td><td>Title (≤50 chars), short description (≤255), long description (≥100 words), 16:9 cover, <b>MP4 video ≤5 min</b>, <b>PDF slides</b>, <b>public GitHub (MIT-compatible)</b>, <b>live demo URL</b>.</td><td>Lablab's guide says a demo judges can't open "scores as if it doesn't work". We need a hosted demo that works without our team in the room.</td></tr>
+</table></div>
+<p class="src">Also found: every lablab project page carries peer-review scores on the same four criteria (marked unapproved). The strongest entries average about 4.3–4.6 out of 5.</p>
+
+<h3>Past AssemblyAI hackathon winners: the pattern</h3>
+<ul>
+<li><b>Speech turned into structured data live on screen</b>, for example Dealty (1st, NYC 2024), which auto-filled real-estate forms mid-call.</li>
+<li><b>Latency you can see and turn-taking that feels natural</b>, for example Hogwarts Spell Caster (DEV 2025).</li>
+<li><b>Multilingual and under-served users</b>, for example Wynnie (DEV 2025).</li>
+<li><b>Emergency and dispatch</b> projects keep placing (OperatorAI 2022, ReportSOS 2024).</li>
+<li>Lablab judges generally reward a named B2B buyer, quantified value, and audit or trust features.</li>
+</ul>
+
+<h3>AssemblyAI capabilities that matter (Sept 2026)</h3>
+<div class="tbl"><table>
+<tr><th>Capability</th><th>Current state</th><th>CodeLoop uses it for</th></tr>
+<tr><td><b>Voice Agent API</b> (GA 29 Apr 2026)</td><td>One WebSocket (<code>wss://agents.assemblyai.com/v1/ws</code>) that runs STT, LLM and TTS together. $4.50/hr all-in, ~1 s turn latency. <code>session.update</code> changes prompt, tools and keyterms mid-call. <code>reply.create{instructions}</code> makes the agent speak on demand. <code>conversation.message</code> adds context silently. Semantic barge-in: "uh-huh" doesn't interrupt, "stop" does.</td><td>The recorder's voice: protocol prompts, loop nudges, and answering the team's questions through tools.</td></tr>
+<tr><td><b>Universal-3.5 Pro Streaming</b> (23 Jun 2026)</td><td>$0.45/hr. Turn detection reads the transcript. Word-level <code>confidence</code> and timestamps. Mid-sentence code-switching across 18–19 languages, including Hindi (Hindi words come out in Devanagari).</td><td>The ears: continuous room transcription.</td></tr>
+<tr><td>Streaming diarization</td><td><code>speaker_labels=true</code>, <code>max_speakers</code> ≤10, <code>SpeakerRevision</code> corrections. Short utterances may come back as <code>PENDING</code>/<code>UNKNOWN</code>. +$0.12/hr.</td><td>Knowing who ordered and who acknowledged. Roles come from the opening role call.</td></tr>
+<tr><td>Medical Mode</td><td><code>domain=medical-v1</code>, +$0.15/hr, works on every realtime model.</td><td>Drug names, doses and rhythms.</td></tr>
+<tr><td>Keyterms + prompt + agent_context</td><td>≤100 keyterms, replaceable mid-stream with <code>UpdateConfiguration</code>. A detailed <code>prompt</code> cuts medical-term entity errors by 43% in AssemblyAI's own data.</td><td>ACLS formulary and rhythms, plus each patient's allergies and home meds when known.</td></tr>
+<tr><td>Voice Focus</td><td><code>voice_focus=far-field</code>, noise and cross-talk suppression, +$0.10/hr (U3.5 only).</td><td>A tablet on the crash cart listening to the whole room.</td></tr>
+<tr><td>LLM Gateway</td><td>OpenAI-compatible, Claude/GPT/Gemini, tool calling, <code>json_schema</code> structured outputs. LeMUR was shut down on 31 Mar 2026.</td><td>Structured event extraction with quoted evidence.</td></tr>
+<tr><td>Session artifacts</td><td>Voice Agent sessions store a recording and a timeline with <code>user_confidence</code>, <code>tool_calls</code> and <code>time_to_first_audio_ms</code>. HMAC-signed webhooks.</td><td>Audit trail and latency numbers for the evaluation.</td></tr>
+</table></div>
+<div class="warn"><p><b>Design constraint:</b> the Voice Agent socket <b>does not expose live word confidence</b>. That is why CodeLoop runs two AssemblyAI sessions: U3.5 Pro Streaming for the room, and the Voice Agent API for the agent's voice. Hindi is understood but not <em>spoken</em> yet, so CodeLoop replies in English.</p></div>
+</section>
+
+<!-- ================= PART B ================= -->
+<section id="b">
+<h2><span class="part">PART B</span>Competitive landscape</h2>
+<p>At 09:47 UTC on 25 Sep, lablab showed 147 submitted, 78 drafts and 3,773 participants. We pulled every submission URL from lablab's own feed: 158 titles, plus ~25 named drafts. Four agents read each project page and cloned 120+ repos to see which AssemblyAI API the code actually calls.</p>
+
+<h3>Where the ~160 entries sit</h3>
+<div class="tbl"><table>
+<tr><th>Category</th><th class="n">≈ Entries</th><th>Saturation</th><th>Examples</th></tr>
+<tr><td>Personal assistant / productivity / meetings</td><td class="n">16</td><td><span class="pill p-red">saturated</span></td><td>Heed, Echos, Briefkeeper, Meeting Shadow</td></tr>
+<tr><td>Dev tools / SRE incident commanders</td><td class="n">15</td><td><span class="pill p-red">saturated</span></td><td>OpsVoice, OpsPilot, VoiceOps, SpeakToDebug</td></tr>
+<tr><td>Field ops / inventory / inspection / logistics</td><td class="n">13</td><td><span class="pill p-red">saturated</span></td><td>WalkAround, Recount, PackCheck, DockWitness, RECEBE, CrewVoice</td></tr>
+<tr><td>Healthcare (intake, scribe, OR, meds)</td><td class="n">12</td><td><span class="pill p-amber">crowded</span></td><td>MediScribe, MediVoice, Tell, AegisOR, Veritas</td></tr>
+<tr><td>Receptionist / front desk / booking</td><td class="n">10</td><td><span class="pill p-red">saturated</span></td><td>OpenLine, VoiceDesk ×2, HangON, Night Desk</td></tr>
+<tr><td>Evidence / claims / legal / compliance</td><td class="n">9</td><td><span class="pill p-amber">crowded</span></td><td><b>Voice Case</b>, VerbaTrace, EvidenTurn, ClaimVoice, Saakshi, ClauseCatcher</td></tr>
+<tr><td>Interview coaching</td><td class="n">9</td><td><span class="pill p-red">saturated</span></td><td>MockMate, Mockrill, VoxHire, Interview Lab</td></tr>
+<tr><td>Accessibility / support / education</td><td class="n">19</td><td><span class="pill p-amber">crowded</span></td><td>KT, LinguSim, Aalto, Wavelink</td></tr>
+<tr><td>Action / transaction safety gates</td><td class="n">6</td><td><span class="pill p-amber">strong incumbents</span></td><td>Voice Action Gate, READBACK, Tally, Patchline, sipa</td></tr>
+<tr><td>Fraud / scam / finance</td><td class="n">11</td><td><span class="pill p-amber">crowded</span></td><td>AegisVoice, ScamTrap, Guard Line, Orion</td></tr>
+<tr><td>Industrial / robotics safety</td><td class="n">5</td><td><span class="pill p-amber">emerging</span></td><td>HazVox, Earshot, Robot Arm, AeroGuard</td></tr>
+<tr><td>Emergency / 112 / CPR</td><td class="n">3</td><td><span class="pill p-blue">emerging</span></td><td>Kwik 112, LifeLine (draft, bystander CPR)</td></tr>
+<tr><td><b>In-hospital resuscitation / team closed-loop</b></td><td class="n"><b>0</b></td><td><span class="pill p-teal">whitespace</span></td><td>—</td></tr>
+</table></div>
+<p class="src">Counts are approximate. The four batch reports use slightly different category labels, and ~20 entries are "other" or off-topic.</p>
+
+<div class="note"><p><b>The pattern is now standard, not a differentiator.</b> About 35–40 entries use "the LLM only proposes, deterministic code decides, every field quotes the transcript, read back before acting". Winning now takes that <em>plus</em> a domain where it matters, measured numbers, a demo judges can open, and several AssemblyAI products each doing a real job.</p></div>
+
+<h3>The real threats (verified by reading code)</h3>
+<div class="tbl"><table>
+<tr><th>Project</th><th>What it does</th><th>Why judges will like it</th><th>Weakness</th><th>Threat</th></tr>
+<tr><td><b>Saakshi</b></td><td>AI witness on Indian insurance/loan sales calls. It speaks a correction ~1.4 s after a banned claim, uses deterministic rule packs, and issues hash-chained certificates.</td><td>Indian regulation, ~19k LOC, 97 test files, a live intervention</td><td>Compliance-buyer story; the mis-selling niche is now taken</td><td><span class="pill p-red">5</span></td></tr>
+<tr><td><b>Afterward</b></td><td>Phones banks and utilities for a bereaved family, navigates IVRs and waits on hold. A server gate refused its own agent mid-call.</td><td>Emotional pull, polish, and a README written for judges</td><td>12 institutions simulated; built in 2 days</td><td><span class="pill p-red">5</span></td></tr>
+<tr><td><b>Voice Action Gate</b></td><td>An irreversible action only runs if every argument traces to words in the transcript.</td><td>Best peer score in its batch (4.63), 179 tests</td><td>STT only; the demo's action is scripted in the browser</td><td><span class="pill p-red">5</span></td></tr>
+<tr><td><b>READBACK</b></td><td>Speak what you think you're signing; it decodes the real crypto transaction and a Safe guard contract refuses anything not read back.</td><td>Bybit $1.46B replay and on-chain proof</td><td>Voice is a single sentence, not a conversation</td><td><span class="pill p-red">5</span></td></tr>
+<tr><td><b>Rollcall</b></td><td>Voice agent on both ends of 40 simulated provider-directory calls: 40/40 calls, 150/150 fields, 0 false writes.</td><td>Measured results; judges can take a call</td><td>All counterparties simulated</td><td><span class="pill p-red">5</span></td></tr>
+<tr><td><b>Tell</b></td><td>Medication check-in that won't accept a hesitant "yes". Runs Voice Agent API and streaming side by side.</td><td>A clear aha moment and dual-product use</td><td>~3k LOC, no clinical validation</td><td><span class="pill p-red">5</span></td></tr>
+<tr><td><b>Kwik 112</b></td><td>India 112 call-taker. A code rule lets severity go up but never down.</td><td>284 tests, a benchmark, and India relevance</td><td>Emergency triage is a familiar theme</td><td><span class="pill p-amber">4</span></td></tr>
+<tr><td><b>ClaimVoice</b></td><td>Post-crash insurance first notice of loss (FNOL): identity lockout, duplicate-proof filing, real phone number.</td><td>The most production-ready entry</td><td>Well-known domain</td><td><span class="pill p-amber">4–5</span></td></tr>
+<tr><td><b>Earshot</b></td><td>Voice-supervised 3D robot gripper: "stop" in ~300 ms, corrections become rules.</td><td>Visual wow, ~15k LOC</td><td>Simulated; STT only</td><td><span class="pill p-amber">4–5</span></td></tr>
+<tr><td><b>Tally / Patchline</b></td><td>Reliability layers: second-transcript cross-check, targeted repair, regression tests.</td><td>The deepest engineering</td><td>Developer-tool demo (burger ordering)</td><td><span class="pill p-amber">4</span></td></tr>
+<tr><td><b>Bisik</b> (draft)</td><td>Listens to a loan officer and customer and whispers missed disclosures to the officer.</td><td>Deep AssemblyAI use</td><td>Not yet published</td><td><span class="pill p-amber">4–5</span></td></tr>
+</table></div>
+
+<h3>Whitespace</h3>
+<ul>
+<li><b>Agents that listen to a live multi-person human team</b> and track who promised what to whom. Most entries are one user talking to one bot. Saakshi, Second Chair and Bisik monitor two people, never a team of 3–6.</li>
+<li><b>Time-critical clinical team work:</b> codes, trauma activations, neonatal resuscitation. Zero entries.</li>
+<li><b>Demos judges can run without us</b>, with numbers measured against live AssemblyAI. Rare even among the top entries.</li>
+<li><b>Real audio conditions</b> (noise, overlap, several speakers). Almost every demo is one clean mic.</li>
+</ul>
+
+<h3>Credibility lesson from the review</h3>
+<p>Our agents found several entries whose claims don't match their code: HazVox claims the Voice Agent API but uses browser speech recognition, one deployed frontend calls <code>localhost</code>, one "threat score" is clamped to 89–99.6, and one demo link is only a GitHub repo. With 21 engineering judges, <b>our README must state plainly what is real, what is simulated, and how we measured every number</b>.</p>
+</section>
+
+<!-- ================= PART C ================= -->
+<section id="c">
+<h2><span class="part">PART C</span>Our existing ideas</h2>
+
+<div class="cols">
+<div class="card">
+<h4>VoiceCase <span class="pill p-red">drop as primary</span></h4>
+<ul>
+<li><b>Collisions:</b> a submission literally named <em>Voice Case</em>, plus VerbaTrace, EvidenTurn, ClaimVoice and LoudEnough. Outside the hackathon: NYAYA (public GitHub, English/Hindi/Hinglish intake, evidence checklist and complaint drafting on Claude) and Reinstara ($34 per AI appeal, 9 platforms).</li>
+<li><b>Voice necessity is medium.</b> A worker could fill a WhatsApp form; voice helps but isn't essential.</li>
+<li><b>Outcome risk:</b> in Washington, 80% of deactivations were overturned when drivers had union representation under a fair-reason standard. What wins is representation plus a legal forum, not a well-written letter. Karnataka's grievance rules are under court challenge.</li>
+<li><b>Who pays:</b> unions and NGOs, not workers. This is an impact play, not a business.</li>
+</ul>
+</div>
+<div class="card">
+<h4>GuardianVoice (OR/ICU) <span class="pill p-red">drop</span></h4>
+<ul>
+<li>AegisOR (OR timeouts and counts), Tell, MediScribe and Veritas already occupy clinical voice safety here.</li>
+<li>Passive "audit" of drug administration invites the regulatory question with no answer in 5 days.</li>
+<li>Clinical ambient AI is a crowded incumbent market (Microsoft Dragon Copilot, Abridge, Ambience, Epic).</li>
+<li>The one real gap it points at, <b>verbal orders that aren't read back</b> (45% of respondents to an ISMP survey read them back less than half the time), is the seed CodeLoop grows from.</li>
+</ul>
+</div>
+<div class="card">
+<h4>Modified Guardian (industrial) <span class="pill p-amber">drop standalone, keep the engine</span></h4>
+<ul>
+<li>The pain is real: lockout/tagout was OSHA's #4 most-cited standard in FY2025 (2,562 citations).</li>
+<li>But every piece exists commercially (Vocollect, RealWear, Augmentir, Siemens, Brady/Master Lock e-LOTO, Enablon/Sphera permit-to-work). A 2026 Springer paper published "LLM proposes, deterministic checker disposes".</li>
+<li>In this hackathon: HazVox, Voice Action Gate, READBACK, Tally, Patchline and Earshot. Judges will have seen the pattern six times.</li>
+<li>The demo would be a simulated plant, and "who certifies this?" has no answer.</li>
+</ul>
+</div>
+</div>
+<div class="note"><p><b>What we keep.</b> Guardian's <b>deterministic engine</b> becomes the ACLS protocol and closed-loop state machine. VoiceCase's <b>Truth Ledger</b> (VERIFIED / SPOKEN / CONFLICTING / UNKNOWN) becomes the status of each event (CLOSED / HEARD / CONFLICT / UNCONFIRMED). The <b>Safety Receipt</b> becomes the Code Record, where every line links to a timestamp, a speaker and the exact words heard. The team's thinking carries over; only the domain changes.</p></div>
+</section>
+
+<!-- ================= PART D ================= -->
+<section id="d">
+<h2><span class="part">PART D</span>New ideas (26 brainstormed, 12 researched)</h2>
+<p>Filter: voice must be structurally necessary (hands or eyes busy, a live human-to-human exchange, language barrier, stress), stakes must be high, and the idea must be clear of the ~160 submissions. Class: <b>A</b> crowded, <b>B</b> exists but ours is meaningfully different, <b>C</b> limited direct competition, <b>D</b> novel.</p>
+<div class="tbl"><table>
+<tr><th>#</th><th>Idea</th><th>Class</th><th>Nearest competition</th><th>Verdict</th></tr>
+<tr><td>1</td><td><b>CodeLoop</b>: cardiac-arrest recorder, ACLS timers, closed-loop order tracker</td><td>B/C</td><td>Tap apps (Redivus, Code Blue NAVI), defibrillator review tools, a hobby post-hoc GitHub MVP. No live voice product. 0 submissions.</td><td><span class="pill p-teal">winner</span></td></tr>
+<tr><td>2</td><td><b>Faithful</b>: live fidelity auditor for human interpreters (police, court, clinic)</td><td>D</td><td>None found. Error data: ~31 errors per pediatric encounter, 63% clinically consequential.</td><td><span class="pill p-blue">runner-up</span></td></tr>
+<tr><td>3</td><td><b>Verbal Order Guard</b>: sound-alike and number-trap checks on phone and bedside medication orders</td><td>C</td><td>MedAware works at order entry, not the spoken moment. Several read-back gates in the hackathon.</td><td>Strong, but reads as "another read-back gate"</td></tr>
+<tr><td>4</td><td><b>ThreePart</b>: repeat-back checks for power-grid and rail instructions (NERC COM-002-4)</td><td>C</td><td>AeroGuard (ATC) uses the same pattern</td><td>Best Guardian pivot, weaker demo</td></tr>
+<tr><td>5</td><td><b>Vasooli Kavach</b>: borrower shield on loan-recovery calls (RBI fair-practice rules)</td><td>C</td><td>Scam detectors look similar; phones block call recording</td><td>High impact, no payer</td></tr>
+<tr><td>6</td><td>Fireground Mayday and personnel-accountability monitor</td><td>B</td><td>Radio vendors; no radio audio to work with</td><td>Demo data hard to get</td></tr>
+<tr><td>7</td><td>I-PASS nurse handover that checks the receiver's summary</td><td>B</td><td>I-PASS apps, ambient scribes</td><td>Less dramatic</td></tr>
+<tr><td>8</td><td>Ambulance-to-ED handover (IMIST-AMBO) with pre-alert</td><td>B</td><td>ePCR vendors</td><td>Close to Kwik 112</td></tr>
+<tr><td>9</td><td>Informed-consent teach-back in regional languages, with the CDSCO audio-video record</td><td>B</td><td>eConsent platforms</td><td>Hindi TTS not yet available</td></tr>
+<tr><td>10</td><td>Bedside voice double-check for blood transfusion</td><td>C</td><td>Barcode systems already solve most of it</td><td>Voice not essential</td></tr>
+<tr><td>11</td><td>Telephone CPR coach for bystanders, in Hindi</td><td>B</td><td>LifeLine draft; dispatcher protocols</td><td>Collides with LifeLine</td></tr>
+<tr><td>12</td><td>Conversational fatigue check for truck drivers</td><td>B</td><td>Camera driver-monitoring systems</td><td>Weak safety claim</td></tr>
+</table></div>
+<p class="src">Dropped at the brainstorm stage because they collided with submissions: crane signals (HazVox), maritime VHF (AeroGuard), Hindi FIR filing (SAUTI, Legal-Voice), surgical counts (AegisOR), kitchen HACCP (low stakes), wage-theft logs (CrewVoice/VoiceCase), and more. The full list is in <code>new_ideas.md</code>.</p>
+</section>
+
+<!-- ================= PART E ================= -->
+<section id="e">
+<h2><span class="part">PART E</span>Final selection and scoring</h2>
+<p>These are our own scores after all the research, not the ideas' authors' scores. "Whitespace" is measured against this field. <b>Overall</b> is our judgment of hackathon potential, not an average.</p>
+<div class="tbl"><table class="score">
+<tr><th>Criterion</th><th class="n">CodeLoop</th><th class="n">Faithful</th><th class="n">Verbal Order</th><th class="n">ThreePart</th><th class="n">Vasooli</th><th class="n">Guardian ind.</th><th class="n">Guardian med.</th><th class="n">VoiceCase</th></tr>
+<tr><td>Problem severity</td><td class="n">10</td><td class="n">9</td><td class="n">9</td><td class="n">8</td><td class="n">8</td><td class="n">9</td><td class="n">9</td><td class="n">8</td></tr>
+<tr><td>Market size</td><td class="n">6</td><td class="n">6</td><td class="n">7</td><td class="n">5</td><td class="n">7</td><td class="n">7</td><td class="n">7</td><td class="n">4</td></tr>
+<tr><td>Frequency</td><td class="n">6</td><td class="n">8</td><td class="n">8</td><td class="n">8</td><td class="n">7</td><td class="n">6</td><td class="n">7</td><td class="n">5</td></tr>
+<tr><td>Voice necessity</td><td class="n">10</td><td class="n">10</td><td class="n">9</td><td class="n">9</td><td class="n">8</td><td class="n">7</td><td class="n">8</td><td class="n">6</td></tr>
+<tr><td>AssemblyAI fit</td><td class="n">10</td><td class="n">8</td><td class="n">9</td><td class="n">8</td><td class="n">8</td><td class="n">6</td><td class="n">7</td><td class="n">6</td></tr>
+<tr><td>Technical depth</td><td class="n">9</td><td class="n">9</td><td class="n">7</td><td class="n">7</td><td class="n">6</td><td class="n">7</td><td class="n">7</td><td class="n">6</td></tr>
+<tr><td>Originality</td><td class="n">8</td><td class="n">9</td><td class="n">6</td><td class="n">6</td><td class="n">7</td><td class="n">4</td><td class="n">3</td><td class="n">3</td></tr>
+<tr><td>Competition whitespace</td><td class="n">9</td><td class="n">9</td><td class="n">5</td><td class="n">5</td><td class="n">5</td><td class="n">3</td><td class="n">3</td><td class="n">2</td></tr>
+<tr><td>Demo wow</td><td class="n">9</td><td class="n">7</td><td class="n">7</td><td class="n">6</td><td class="n">7</td><td class="n">7</td><td class="n">7</td><td class="n">6</td></tr>
+<tr><td>Business potential</td><td class="n">7</td><td class="n">6</td><td class="n">6</td><td class="n">7</td><td class="n">3</td><td class="n">5</td><td class="n">5</td><td class="n">3</td></tr>
+<tr><td>Social impact</td><td class="n">9</td><td class="n">9</td><td class="n">7</td><td class="n">6</td><td class="n">9</td><td class="n">7</td><td class="n">7</td><td class="n">8</td></tr>
+<tr><td>Production potential</td><td class="n">6</td><td class="n">4</td><td class="n">5</td><td class="n">6</td><td class="n">4</td><td class="n">2</td><td class="n">2</td><td class="n">4</td></tr>
+<tr><td>Hackathon feasibility</td><td class="n">7</td><td class="n">5</td><td class="n">8</td><td class="n">8</td><td class="n">7</td><td class="n">6</td><td class="n">6</td><td class="n">7</td></tr>
+<tr><td>Safety/reliability story</td><td class="n">9</td><td class="n">6</td><td class="n">8</td><td class="n">8</td><td class="n">6</td><td class="n">8</td><td class="n">7</td><td class="n">6</td></tr>
+<tr class="win"><td>Overall hackathon potential</td><td class="n">9</td><td class="n">7</td><td class="n">7</td><td class="n">6</td><td class="n">6</td><td class="n">4</td><td class="n">4</td><td class="n">4</td></tr>
+</table></div>
+
+<h3>Why the major scores</h3>
+<ul>
+<li><b>CodeLoop: voice necessity 10.</b> During a code, hands are compressing, bagging or pushing drugs, and eyes are on the patient and monitor. Existing recorder apps fail because they need taps. The spoken exchange <em>is</em> the workflow.</li>
+<li><b>CodeLoop: AssemblyAI fit 10.</b> It exercises streaming diarization, Medical Mode, keyterms swapped mid-session, word confidence, far-field Voice Focus, Hindi/English code-switching, and the Voice Agent API with semantic barge-in. Each is needed for a specific failure mode, not bolted on.</li>
+<li><b>CodeLoop: feasibility 7, not 9.</b> Multi-speaker far-field audio is the real risk. We de-risk on day 1 and have a fallback of one phone mic per role, one stream per channel.</li>
+<li><b>CodeLoop: production 6.</b> Live alerting is probably regulated software. The documentation and simulation-debrief modes are not, so there is a real path to market.</li>
+<li><b>Faithful: originality 9 but feasibility 5 and safety 6.</b> Checking meaning across languages causes false flags on legitimate paraphrase. Judges must understand two languages to feel the demo, and a wrong flag can undermine an interpreter unfairly.</li>
+<li><b>Verbal Order Guard: whitespace 5.</b> It is the best technical showcase of word confidence, but judges will read it as another read-back gate. CodeLoop <b>contains</b> it: the dose read-back mismatch is one of CodeLoop's catches.</li>
+<li><b>Guardian and VoiceCase: originality 3–4.</b> Direct name and pattern collisions in this hackathon.</li>
+</ul>
+
+<h3>Why CodeLoop beats the rest</h3>
+<ol>
+<li><b>It is the only entry in its category.</b> Originality is a quarter of the score, and most of the field loses it.</li>
+<li><b>Voice is the problem, not the interface.</b> Failure happens in human-to-human speech: 387 verbal orders in 89 filmed trauma resuscitations, and only 26% were closed-loop.</li>
+<li><b>It turns the crowded pattern into a feature.</b> Judges have seen "code decides" 35 times on bank transfers. Here, code holding the ACLS clock and the orders ledger is obviously right.</li>
+<li><b>It is the most AssemblyAI-heavy idea we found</b>, and every feature is load-bearing.</li>
+<li><b>The demo is universally legible.</b> Everyone knows "code blue" from TV. An amber card saying "epinephrine 1 mg: nobody confirmed" needs no explanation.</li>
+</ol>
+<div class="warn"><p><b>We can't promise a "definite #1".</b> There are 5 equal prizes, 21 judges and no published weights, and at least six competitors have months-grade polish. What we can say from the evidence is that CodeLoop gives us the best odds of any idea we examined. The remaining risk is execution, which Part L addresses.</p></div>
+</section>
+
+<!-- ================= PART F ================= -->
+<section id="f">
+<h2><span class="part">PART F</span>Product vision</h2>
+<div class="tbl"><table>
+<tr><th>Field</th><th>CodeLoop</th></tr>
+<tr><td>Name</td><td><b>CodeLoop</b>. Tagline: <em>Every order heard. Every loop closed.</em> (Run a quick trademark and GitHub name check; "Closed Loop" and "Recorder" are fallbacks.)</td></tr>
+<tr><td>One-liner</td><td>A voice agent that works as the recorder at a cardiac arrest. It logs every drug, shock and rhythm, runs the ACLS clock out loud, and catches orders nobody confirmed back.</td></tr>
+<tr><td>Target user</td><td>In-hospital code-blue and rapid-response teams (team leader, medication nurse, recorder), then ED trauma teams. <b>The first buyer is the hospital resuscitation committee or simulation education department.</b></td></tr>
+<tr><td>Pain</td><td>About 290k adult in-hospital cardiac arrests a year in the US, with ~25% survival. Epinephrine delay rates vary from 0% to 53.8% between hospitals. EHR records agree with trained observers only at κ = 0.27 on epinephrine timing. In filmed resuscitations, 74% of verbal orders were not closed-loop, and closed-loop orders were completed 3.6× sooner.</td></tr>
+<tr><td>Current solution</td><td>A nurse "recorder" writing on paper or a flowsheet (one of the few free hands, taken off patient care). Tap apps like Redivus and Code Blue NAVI. Defibrillator data reviewed after the fact (ZOLL, Stryker CODE-STAT). Sim debriefs from video (Laerdal SimCapture).</td></tr>
+<tr><td>Why these fail</td><td>They need hands and eyes. They record what someone <em>remembered to type</em>, not what was said. None notices an order that was never acknowledged, or a dose read back wrong, <em>while it's happening</em>.</td></tr>
+<tr><td>Why voice</td><td>A code is already run entirely by voice. CodeLoop adds nothing to anyone's hands: it listens to the channel the team already uses and only speaks when the protocol or a broken loop requires it.</td></tr>
+<tr><td>Why AssemblyAI</td><td>It needs far-field, multi-speaker, medically accurate streaming with word confidence (U3.5 Pro plus diarization, Medical Mode, Voice Focus and keyterms). It also needs an agent that talks <em>and stops the instant a human speaks</em> (Voice Agent API semantic barge-in), plus mid-sentence Hindi/English switching for Indian teams. Take any of these away and the product breaks.</td></tr>
+<tr><td>Why judges care</td><td>Life-or-death stakes, published evidence, a 30-second aha, and deep, visible use of the sponsor's stack, in a category no one else chose.</td></tr>
+<tr><td>Why users would use it</td><td>It frees the recorder's hands for patient care. The record writes itself for the registry and QA. Debriefs get a real timeline. Nothing new to learn: you just talk the way ACLS already trains you to.</td></tr>
+<tr><td>Competition</td><td>Redivus (tap-based recorder, claims 66% fewer errors in simulation), Code Blue NAVI (UCI, one-handed web app), ZOLL/Stryker code review, SimCapture, academic speech-based activity recognition (~87% from transcripts), and a hobby GitHub "CodeBlue" that turns voice into a report after the event with nurse review.</td></tr>
+<tr><td>Differentiation</td><td>(1) Live and hands-free. (2) Tracks <b>closed loops</b> (order → acknowledgment → done) across speakers. (3) Catches read-back mismatches. (4) A deterministic ACLS clock with spoken prompts that yield to humans. (5) Every entry carries its evidence: quote, speaker, time, ASR confidence. (6) Hindi/English code-switching.</td></tr>
+<tr><td>Business model</td><td>SaaS. <b>Sim tier</b> (per site per year, mock codes and ACLS courses, no PHI). <b>Clinical documentation tier</b> (per bed or per hospital; nurse-verified record, EHR flowsheet and registry export). <b>Real-time assist tier</b> (after regulatory clearance). Prices are hypotheses to test with 5 hospital educators.</td></tr>
+<tr><td>Unit cost</td><td>AssemblyAI list prices: streaming U3.5 Pro $0.45 + Medical $0.15 + diarization $0.12 + Voice Focus $0.10 ≈ <b>$0.82/hr</b>. Voice Agent $4.50/hr of session time. <b>A 30-minute code costs ≈ $2.70 in AssemblyAI fees</b>, before LLM tokens.</td></tr>
+<tr><td>Market</td><td>Every acute-care hospital runs codes and mock codes. Expansion paths: pediatric and neonatal resuscitation (NRP), ED trauma activations, EMS cardiac arrest, rapid response. India: NABH-accredited hospitals already need code-blue protocols, and Hinglish team talk is normal. We state TAM only from sourced figures and mark estimates as estimates.</td></tr>
+<tr><td>Social impact</td><td>Earlier epinephrine and fewer missed or duplicated doses are tied to survival. Better data for every hospital's quality program. Accessible to teams where no one is free to type.</td></tr>
+<tr><td>Hackathon demo</td><td>A three-person mock code, live, with real AssemblyAI streams. Plus a "Replay a mock code" button that streams recorded audio through the live pipeline, so judges can run it alone.</td></tr>
+<tr><td>Production version</td><td>A crash-cart tablet or ceiling mic array, nurse sign-off, EHR (FHIR) and GWTG-R export, hospital SSO, PHI-grade security, and simulation-to-bedside rollout (Part H).</td></tr>
+</table></div>
+</section>
+
+<!-- ================= PART G ================= -->
+<section id="g">
+<h2><span class="part">PART G</span>Hackathon MVP scope</h2>
+<div class="cols">
+<div class="tier">
+<h4><span class="pill p-red">MUST</span> proves the concept</h4>
+<ul>
+<li>Room audio → U3.5 Pro streaming with <code>speaker_labels</code>, <code>domain=medical-v1</code>, ACLS <code>keyterms_prompt</code>, detailed <code>prompt</code>, <code>voice_focus=far-field</code>.</li>
+<li>Role call at code start ("I'm leading", "Priya, meds") maps speaker labels to roles. Manual reassignment by tap.</li>
+<li>Event extraction: a fast grammar path plus LLM Gateway <code>json_schema</code>. Every event must quote the exact transcript span, or it is rejected.</li>
+<li>Deterministic ACLS engine: code clock, 2-minute CPR cycles, epi 3–5 min window, shock count, amiodarone 300 → 150 sequence, rhythm path.</li>
+<li>Closed-loop ledger: ORDERED → ACKNOWLEDGED → DONE. UNACKNOWLEDGED after 10 s. CONFLICT on dose or energy mismatch. UNCONFIRMED when dose-word confidence is below 0.6.</li>
+<li>Voice Agent API voice: short prompts via <code>reply.create</code>, and questions ("CodeLoop, last epi?") answered only through tools. Instant barge-in.</li>
+<li>Live UI: clock, timers, open-loops board, event timeline with quote, speaker and confidence.</li>
+<li>Code Record export (JSON + printable HTML), with unresolved items flagged for sign-off.</li>
+<li><b>Replay mode</b> on the hosted demo: streams a recorded mock code through the real pipeline.</li>
+<li>Public repo with a README section on what's real and what's simulated. 5-minute video, PDF deck.</li>
+</ul>
+</div>
+<div class="tier">
+<h4><span class="pill p-amber">SHOULD</span> lifts the score</h4>
+<ul>
+<li><b>Evaluation harness:</b> 6–8 scripted mock codes with gold event logs. Event recall and precision, dose accuracy, timestamp error, loop-detection accuracy.</li>
+<li><b>A/B scoreboard:</b> the same audio with and without Medical Mode, keyterms and prompt. Drug and dose entity error rates side by side.</li>
+<li>Hindi/English code-switching ("epi ek milligram de do") with a per-turn <code>language_code</code> chip.</li>
+<li>Rhythm consistency flag: "charge" ordered while the last recorded rhythm is asystole or PEA → "Check rhythm: last recorded asystole."</li>
+<li>Echo guard so CodeLoop never logs its own voice.</li>
+<li>Debrief view: timeline chart, time-to-first-epi, loop closure rate, prompts issued.</li>
+<li>Latency panel: speech-to-event ms and agent <code>time_to_first_audio_ms</code>.</li>
+</ul>
+</div>
+<div class="tier">
+<h4><span class="pill p-blue">NICE</span> if time remains</h4>
+<ul>
+<li>Fallback mode: one phone per role as a mic (one stream per channel, perfect attribution).</li>
+<li>FHIR Bundle export (Observation / MedicationAdministration / Procedure).</li>
+<li>GWTG-R / Utstein-style form pre-fill.</li>
+<li>Pediatric weight-based dose check ("epi 0.01 mg/kg").</li>
+<li>Session-end pipeline: fetch the Voice Agent timeline and add it to the record.</li>
+<li>A simple sim-instructor dashboard comparing runs.</li>
+</ul>
+</div>
+<div class="tier">
+<h4><span class="pill p-grey">DON'T BUILD</span></h4>
+<ul>
+<li>Any drug <em>recommendation</em> beyond protocol timing. We record and remind; we never prescribe.</li>
+<li>Defibrillator or monitor integration (state it as roadmap).</li>
+<li>Real EHR connection, auth, multi-tenant admin, billing.</li>
+<li>Compression-rate detection from audio (LifeLine's feature, and a rabbit hole).</li>
+<li>Mobile native app, custom voice, fancy 3D visuals.</li>
+<li>Telephony. A code isn't a phone call.</li>
+</ul>
+</div>
+</div>
+</section>
+
+<!-- ================= PART H ================= -->
+<section id="h">
+<h2><span class="part">PART H</span>Full production product</h2>
+<div class="cols">
+<div class="card"><h4>User experience</h4><ul><li>A tablet mounted on every crash cart, plus an optional ceiling mic array in ICU and ED bays.</li><li>Starts when someone says "code blue" or presses one large button. Stops at ROSC or termination.</li><li>The screen is readable from 3 m: the clock, what's due, open loops.</li><li>Voice prompts are short and rare, and humans can silence them ("CodeLoop, quiet").</li></ul></div>
+<div class="card"><h4>Onboarding</h4><ul><li>A hospital configures its formulary, protocol version (AHA 2025 guidelines / ERC / pediatric), prompt policy and languages.</li><li>Teams train on mock codes first, the sim tier.</li><li>Opt-in voice enrollment of regular code-team members improves attribution.</li></ul></div>
+<div class="card"><h4>Core workflow</h4><ol><li>Activation, then role call.</li><li>Live capture and the ACLS clock.</li><li>Loop monitoring and prompts.</li><li>ROSC or termination.</li><li>Nurse review queue for UNCONFIRMED and CONFLICT items.</li><li>Sign-off.</li><li>EHR flowsheet and registry export.</li><li>Debrief within minutes.</li></ol></div>
+<div class="card"><h4>Voice experience</h4><ul><li>Three prompt levels per hospital policy: silent (screen only), timers only, timers plus loop nudges.</li><li>Semantic barge-in: any human speech cuts the agent off.</li><li>Direct questions answered only from the ledger.</li><li>Configurable voice and volume.</li></ul></div>
+<div class="card"><h4>Web / mobile</h4><ul><li>Crash-cart PWA in kiosk mode.</li><li>Web console for QA, educators and admins.</li><li>Read-only live view for a remote intensivist or tele-ICU.</li></ul></div>
+<div class="card"><h4>Backend</h4><ul><li>Python async orchestrator per active code (holds both AssemblyAI sockets, the engine and the extractor).</li><li>An event bus for state changes and a Postgres system of record.</li><li>Object storage for encrypted audio.</li><li>A worker queue for post-code jobs.</li></ul></div>
+<div class="card"><h4>AI architecture</h4><ul><li>AssemblyAI U3.5 Pro streaming (ears), Voice Agent API (voice), LLM Gateway (extraction, debrief summary).</li><li>The LLM classifies and extracts; the ACLS engine and ledger decide.</li><li>Offline evaluation sets per hospital and regression tests on every model or prompt change.</li></ul></div>
+<div class="card"><h4>Agent architecture</h4><ul><li>The voice agent sees tools only (<code>get_code_state</code>, <code>get_events</code>, <code>confirm_event</code>, <code>correct_event</code>, <code>mute_prompts</code>, <code>set_role</code>).</li><li>Its system prompt forbids stating any time, dose or rhythm not returned by a tool.</li><li>Progressive tool reveal: correction tools unlock only after the code ends, or for the recorder role.</li></ul></div>
+<div class="card"><h4>Database</h4><ul><li>Postgres tables: <code>codes</code>, <code>participants</code>, <code>utterances</code> (words, confidence, speaker), <code>events</code>, <code>loops</code>, <code>prompts</code>, <code>corrections</code>, <code>signoffs</code>, <code>audit_log</code> (append-only, hash-chained).</li><li>Audio in encrypted object storage.</li></ul></div>
+<div class="card"><h4>Auth &amp; permissions</h4><ul><li>Hospital SSO (SAML/OIDC).</li><li>Device certificates for carts.</li><li>Roles: clinician (live), recorder-nurse (review and sign), QA/educator (read, de-identified), admin (config).</li><li>Break-glass access is logged.</li></ul></div>
+<div class="card"><h4>Audit logging</h4><ul><li>Every event links to utterance IDs, word offsets and the audio time range.</li><li>Every correction keeps the original and records who changed it and when.</li><li>Every prompt spoken is logged with its trigger rule.</li><li>Hash-chained so the record is tamper-evident.</li></ul></div>
+<div class="card"><h4>Security &amp; privacy</h4><ul><li>TLS everywhere, KMS-encrypted storage, a BAA with AssemblyAI and the LLM provider (US), and regional processing (AssemblyAI EU/US endpoints).</li><li>India: DPDP Act 2023 consent and notice.</li><li>PII redaction on transcripts leaving the clinical record.</li></ul></div>
+<div class="card"><h4>Data retention</h4><ul><li>Audio kept 30 days by default (policy-configurable), then deleted. The signed record follows the medical-record retention period.</li><li>De-identified timelines are kept for QA and research under the hospital's own agreement.</li></ul></div>
+<div class="card"><h4>Human-in-the-loop</h4><ul><li>No entry reaches the EHR without nurse sign-off.</li><li>CONFLICT and UNCONFIRMED items block sign-off until resolved.</li><li>The team leader can silence or override any prompt.</li><li>Every prompt is framed as a reminder, never an instruction.</li></ul></div>
+<div class="card"><h4>Failure handling</h4><ul><li>A local timer engine keeps the clock running if the network drops.</li><li>Audio is buffered on the device and replayed for transcription when the link returns.</li><li>A visible "LISTENING DEGRADED" banner.</li><li>If voice fails, the screen still works. If everything fails, the paper form is the fallback, as today.</li></ul></div>
+<div class="card"><h4>Monitoring</h4><ul><li>Per-code metrics: stream health, latency, % PENDING/UNKNOWN speaker, low-confidence rate, prompt count.</li><li>Alert on a drop in event-capture accuracy measured against sim runs.</li></ul></div>
+<div class="card"><h4>Analytics</h4><ul><li>Time to first epi, time to first shock, CPR cycle adherence, loop-closure rate, prompt acceptance.</li><li>Trends by unit, shift and team.</li><li>Feeds resuscitation committee reviews.</li></ul></div>
+<div class="card"><h4>Billing</h4><ul><li>Annual per-site subscription (sim) or per-bed (clinical).</li><li>Usage metering on code-minutes to track COGS (~$2.70 per 30-minute code at list prices).</li></ul></div>
+<div class="card"><h4>Admin dashboard</h4><ul><li>Formulary and keyterms editor.</li><li>Protocol version and prompt policy.</li><li>Device fleet.</li><li>Users and roles.</li><li>Retention settings, audit export.</li></ul></div>
+<div class="card"><h4>Integrations</h4><ul><li>EHR (Epic and Oracle Health via FHIR R4 and flowsheet APIs).</li><li>GWTG-Resuscitation registry export.</li><li>Defibrillator data merge (ZOLL, Stryker, Philips) for shocks and CPR quality.</li><li>Nurse call and paging for code activation.</li><li>Sim platforms (Laerdal).</li></ul></div>
+<div class="card"><h4>API</h4><ul><li>REST and webhooks: <code>code.started</code>, <code>code.ended</code>, <code>record.signed</code>.</li><li><code>GET /codes/{id}/record</code> (FHIR Bundle).</li><li>Read-only live stream for tele-ICU.</li></ul></div>
+<div class="card"><h4>Enterprise &amp; compliance</h4><ul><li>SOC 2 Type II, HIPAA, HITRUST later.</li><li><b>Regulatory:</b> the documentation and sim tiers are designed as non-device software. Live time-critical alerts are likely SaMD, so plan an FDA pre-submission and the CDSCO medical device software route in India.</li><li>IEC 62304 lifecycle for the clinical tier.</li></ul></div>
+<div class="card"><h4>Deployment &amp; scale</h4><ul><li>Cloud (AWS or Azure healthcare regions), one orchestrator pod per active code, autoscaled.</li><li>A large hospital has only a few concurrent codes, so scale is easy.</li><li>An on-prem connector for EHR.</li></ul></div>
+<div class="card"><h4>i18n &amp; multilingual</h4><ul><li>Input: any of U3.5 Pro's 18–19 languages with code-switching (Hindi, Spanish, Arabic, and more).</li><li>Output: English, Spanish, French, German, Italian and Portuguese voices today. Hindi voice when AssemblyAI ships it.</li><li>Localized formularies and protocols (AHA, ERC, Indian resuscitation guidelines).</li></ul></div>
+</div>
+</section>
+
+<!-- ================= SAFETY ================= -->
+<section id="s">
+<h2><span class="part">PART H2</span>Safety architecture</h2>
+<div class="tbl"><table>
+<tr><th>Question</th><th>CodeLoop's rule</th></tr>
+<tr><td>What the AI may do</td><td>Transcribe; propose structured events with a quoted span; speak protocol-timer reminders and loop nudges from a fixed phrase list; answer questions using tool results only.</td></tr>
+<tr><td>What the AI may not do</td><td>Recommend drugs, doses or therapy; decide rhythm; write to the EHR; change an event without a human; speak any number not produced by the engine.</td></tr>
+<tr><td>Deterministic validation</td><td>Evidence span must appear verbatim in the final transcript. Drug must be in the formulary. Dose and energy must be within configured plausible bounds. Loop matching by drug, dose and time window. Every timer and threshold lives in code with unit tests.</td></tr>
+<tr><td>Human confirmation</td><td>Nurse sign-off before export. Any CONFLICT or UNCONFIRMED event. Any correction. Role mapping.</td></tr>
+<tr><td>Escalation</td><td>An unacknowledged order for 10 s gets an on-screen amber card. At 20 s, or on a dose conflict, there is one short spoken nudge (if policy allows). A repeated conflict turns red and gets flagged for debrief.</td></tr>
+<tr><td>ASR uncertain</td><td>Dose or drug token confidence below 0.6, or speaker PENDING/UNKNOWN: the event is logged as UNCONFIRMED and shown with its alternatives ("300 or 150?"). It never silently becomes a fact.</td></tr>
+<tr><td>LLM uncertain</td><td>Schema-invalid output or a quote not found in the transcript is dropped and counted in metrics. The fast grammar path and the LLM must agree for auto-confirmation, or the event is marked HEARD (single source).</td></tr>
+<tr><td>Tool failure</td><td>If the Voice Agent tool errors, the agent says "Check the screen" instead of guessing. Engine failures surface a banner. The clock keeps running locally.</td></tr>
+<tr><td>Conflicting evidence</td><td>Both versions are kept with timestamps and speakers, the event state becomes CONFLICT, and the team leader's later explicit statement resolves it. The correction trail is preserved.</td></tr>
+<tr><td>User changes mind</td><td>"Cancel the amio" closes the loop as CANCELLED with its evidence. Nothing is deleted; history is append-only.</td></tr>
+<tr><td>Network failure</td><td>Local timers and screen continue. Audio is buffered for later transcription. A banner shows "live capture paused", and the record marks the gap explicitly.</td></tr>
+<tr><td>Hallucinated actions</td><td>The agent can't invent events: only the extraction pipeline creates them, and only with a verbatim quote. The agent has no write tools during a live code, apart from confirming an existing event.</td></tr>
+<tr><td>Audit trail</td><td>Append-only, hash-chained log of utterances, events, prompts and corrections, each linked to audio time ranges and ASR confidence.</td></tr>
+</table></div>
+</section>
+
+<!-- ================= PART I ================= -->
+<section id="i">
+<h2><span class="part">PART I</span>Technical architecture</h2>
+
+<h3>System diagram</h3>
+<pre class="mermaid">
+flowchart LR
+  MIC[Crash-cart tablet mic] --> ORCH
+  REPLAY[Replay: recorded mock code] --> ORCH
+  subgraph ORCH[Code orchestrator - FastAPI, one per code]
+    direction TB
+    EARS[Ears: U3.5 Pro Streaming\nspeaker_labels, medical-v1,\nkeyterms, far-field]
+    EXT[Event extractor\ngrammar fast-path + LLM Gateway json_schema\nquote must match transcript]
+    ENG[ACLS engine + loop ledger\ndeterministic, unit-tested]
+    VOICE[Voice: Voice Agent API\nreply.create prompts\ntools only, barge-in]
+    EARS --> EXT --> ENG
+    ENG -- prompt due --> VOICE
+    VOICE -- tool.call --> ENG
+  end
+  ORCH -- WebSocket state --> UI[Live UI: clock, timers,\nopen loops, timeline]
+  ORCH -- agent audio --> UI
+  ENG --> DB[(SQLite / Postgres\nappend-only log)]
+  DB --> REC[Code Record export\nJSON, HTML, FHIR]
+</pre>
+
+<h3>Stack</h3>
+<div class="tbl"><table>
+<tr><th>Layer</th><th>Choice</th><th>Why</th></tr>
+<tr><td>Frontend</td><td>Vite + React + TypeScript, Tailwind. AudioWorklet mic capture (16 kHz PCM16). WebAudio playback of agent audio.</td><td>Fast to build. <code>echoCancellation</code> is on in <code>getUserMedia</code>.</td></tr>
+<tr><td>Backend</td><td>Python 3.12, FastAPI, <code>websockets</code>, asyncio, pydantic v2, <code>soxr</code> for 16k→24k resampling.</td><td>One process holds both AssemblyAI sockets. Replay mode is server-side.</td></tr>
+<tr><td>Store</td><td>SQLite (hackathon) → Postgres (prod).</td><td>Zero ops.</td></tr>
+<tr><td>AssemblyAI</td><td>U3.5 Pro Streaming v3, Voice Agent API v1, LLM Gateway.</td><td>Sponsor stack, each doing a distinct job.</td></tr>
+<tr><td>LLM</td><td>A fast Claude model through LLM Gateway, with <code>response_format: json_schema</code> (strict).</td><td>Structured extraction. Confirm the exact Gateway model IDs in its docs.</td></tr>
+<tr><td>Tests</td><td>pytest for the engine and ledger (the core), plus replay-based integration tests.</td><td>Engineering judges will look.</td></tr>
+<tr><td>Deploy</td><td>Frontend on Vercel. Backend on Fly.io or Render (WebSocket-capable, always-on instance).</td><td>The demo URL must stay awake. Avoid free tiers that sleep.</td></tr>
+</table></div>
+
+<h3>Repository structure</h3>
+<pre>
+codeloop/
+├─ README.md               # what's real vs simulated, eval numbers, run steps
+├─ LICENSE                 # MIT
+├─ backend/
+│  ├─ app/main.py          # FastAPI, /ws/code/{id}, /api/codes, /api/replay
+│  ├─ app/orchestrator.py  # per-code session: fan-out audio, wire components
+│  ├─ app/aai/ears.py      # U3.5 Pro streaming client (+ UpdateConfiguration)
+│  ├─ app/aai/voice.py     # Voice Agent API client (session.update, reply.create, tools)
+│  ├─ app/aai/gateway.py   # LLM Gateway json_schema extraction
+│  ├─ app/extract/grammar.py   # regex fast-path: drugs, doses, joules, rhythms
+│  ├─ app/extract/validate.py  # quote match, formulary, bounds, confidence gates
+│  ├─ app/engine/acls.py       # clock, cycle/epi/amio timers, rhythm path
+│  ├─ app/engine/ledger.py     # closed-loop state machine
+│  ├─ app/engine/prompts.py    # fixed phrase list + prompt policy
+│  ├─ app/record/export.py     # JSON / HTML / FHIR
+│  ├─ app/models.py        # pydantic models (below)
+│  ├─ data/formulary.yaml  # ACLS drugs, doses, bounds, keyterms
+│  └─ tests/               # engine + ledger + validator + replay tests
+├─ frontend/src/…          # CodeScreen, LoopsBoard, Timeline, Record, Eval
+├─ eval/
+│  ├─ scenarios/*.wav      # 6–8 recorded mock codes
+│  ├─ gold/*.json          # gold event logs
+│  └─ run_eval.py          # recall/precision/dose/timing + A/B toggles
+└─ docs/ architecture.md, demo-script.md, safety.md
+</pre>
+
+<h3>Environment variables</h3>
+<pre>ASSEMBLYAI_API_KEY=…            # server-side only
+AAI_STREAM_URL=wss://streaming.assemblyai.com/v3/ws
+AAI_AGENT_URL=wss://agents.assemblyai.com/v1/ws
+AAI_GATEWAY_URL=https://llm-gateway.assemblyai.com/v1
+LLM_MODEL=&lt;gateway model id&gt;
+AGENT_VOICE=michael             # immutable per session
+PROMPT_POLICY=timers_and_loops  # silent | timers | timers_and_loops
+UNACK_SECONDS=10
+LOW_CONF_THRESHOLD=0.6
+ALLOWED_ORIGINS=https://codeloop.vercel.app
+DATABASE_URL=sqlite:///codeloop.db</pre>
+
+<h3>API contracts (browser ↔ orchestrator WebSocket)</h3>
+<pre>// client → server
+{ "type":"start_code", "mode":"live"|"replay", "scenario":"vf_arrest_1" }
+&lt;binary PCM16 16 kHz, 100 ms frames&gt;
+{ "type":"assign_role", "speaker":"B", "role":"meds" }
+{ "type":"resolve", "event_id":"e17", "choice":"300" }
+{ "type":"end_code", "outcome":"rosc"|"terminated" }
+
+// server → client
+{ "type":"transcript", "turn":12, "speaker":"A", "role":"leader", "text":"Amiodarone 300",
+  "words":[{"t":"300","c":0.93,"s":61200,"e":61610}], "lang":"en", "final":true }
+{ "type":"event", "id":"e17", "kind":"order", "drug":"amiodarone", "dose_mg":300,
+  "quote":"Amiodarone 300", "turn":12, "speaker_role":"leader", "status":"ORDERED" }
+{ "type":"loop", "id":"L5", "state":"CONFLICT", "ordered":"300 mg", "heard":"150 mg",
+  "evidence":["t12","t13"] }
+{ "type":"timer", "name":"epi_window", "state":"open"|"due"|"overdue", "elapsed_s":212 }
+{ "type":"prompt", "rule":"LOOP_CONFLICT", "text":"Check dose. Ordered amiodarone three hundred, read back one fifty." }
+{ "type":"agent_audio", "b64":"…" }  { "type":"agent_interrupted" }
+{ "type":"health", "ears":"ok", "voice":"ok", "latency_ms":1340 }</pre>
+
+<h3>Data models</h3>
+<pre>Code(id, started_at, ended_at, outcome, protocol, prompt_policy)
+Participant(code_id, speaker_label, role, name?)
+Utterance(id, code_id, turn, speaker_label, text, lang, words[{text,conf,start,end}], start_ms, end_ms)
+Event(id, code_id, kind[order|ack|done|rhythm|shock|drug_given|cpr|pulse_check|rosc|cancel],
+      drug?, dose?, unit?, route?, energy_j?, rhythm?, quote, utterance_id, source[grammar|llm|both],
+      status[HEARD|CONFIRMED|UNCONFIRMED|CONFLICT|CANCELLED], confidence)
+Loop(id, order_event, ack_event?, done_event?, state, opened_at, closed_at?)
+Prompt(id, rule, text, spoken_at, interrupted, trigger_event?)
+Correction(id, target_id, before, after, by_role, at, evidence)
+AuditEntry(seq, prev_hash, hash, payload)</pre>
+
+<h3>Voice agent tools</h3>
+<div class="tbl"><table>
+<tr><th>Tool</th><th>Parameters</th><th>Returns / effect</th></tr>
+<tr><td><code>get_code_state</code></td><td>—</td><td>Clock, rhythm, shocks, last epi with time since, open loops, due timers</td></tr>
+<tr><td><code>get_events</code></td><td><code>kind</code> enum, <code>drug</code> enum (formulary), <code>limit</code></td><td>Matching events with times and quotes</td></tr>
+<tr><td><code>confirm_event</code></td><td><code>event_id</code>, <code>value</code> (pattern-validated)</td><td>Resolves UNCONFIRMED or CONFLICT with the spoken value as evidence</td></tr>
+<tr><td><code>mute_prompts</code></td><td><code>seconds</code> 30–600</td><td>Silences voice prompts (the screen still updates)</td></tr>
+<tr><td><code>set_role</code></td><td><code>role</code> enum</td><td>Maps the current speaker to a role</td></tr>
+</table></div>
+<p>The agent gets mic audio only after the Ears stream hears the wake word "CodeLoop" (a ~6 s window), and during its own speech so that barge-in works. Protocol prompts come from the engine via <code>reply.create</code> with "Say exactly: …" instructions from the fixed phrase list. Engine state is also pushed silently via <code>conversation.message</code> (role <code>system</code>) so answers stay grounded, but the system prompt still requires a tool call for any number.</p>
+
+<h3>Closed-loop state machine</h3>
+<pre class="mermaid">
+stateDiagram-v2
+  [*] --> ORDERED: order heard (quote verified)
+  ORDERED --> ACKNOWLEDGED: matching read-back
+  ORDERED --> UNACKNOWLEDGED: no ack in 10 s
+  UNACKNOWLEDGED --> ACKNOWLEDGED: late ack
+  ORDERED --> CONFLICT: read-back value differs
+  ACKNOWLEDGED --> CONFLICT: done value differs
+  CONFLICT --> ACKNOWLEDGED: leader restates value
+  ACKNOWLEDGED --> DONE: "is in" or "delivered"
+  ORDERED --> CANCELLED: explicit cancel
+  ACKNOWLEDGED --> CANCELLED: explicit cancel
+  DONE --> [*]
+  CANCELLED --> [*]
+</pre>
+<p>Any value built on a dose word below 0.6 confidence carries an <b>UNCONFIRMED</b> flag through every state until a human resolves it. DONE drug events feed the ACLS engine: epi resets the 3–5 minute window, and amiodarone advances the 300 → 150 sequence. Shocks increment the count and check against the last rhythm.</p>
+
+<h3>Error handling</h3>
+<ul>
+<li><b>AssemblyAI stream errors:</b> 3005 or 1006 → reconnect with backoff and a new temp token, keep buffering audio. Show a banner. 3007 (chunk size) is a client bug and is covered by a test.</li>
+<li><b>Voice Agent:</b> resume within 30 s via <code>session.resume</code>. After that, open a new session. Prompts go to screen-only in the meantime.</li>
+<li><b>Gateway timeout</b> above 2.5 s: keep the grammar result as HEARD and retry the LLM asynchronously.</li>
+<li><b>Echo:</b> drop Ears turns that overlap agent playback and fuzzy-match (≥0.8) the agent's text.</li>
+<li><b>Billing safety:</b> always send <code>Terminate</code> and <code>session.end</code>. Hard-cap each demo session at 15 minutes.</li>
+</ul>
+
+<h3>Where AssemblyAI is load-bearing</h3>
+<div class="tbl"><table>
+<tr><th>Feature</th><th>Failure it prevents</th><th>Visible in demo as</th></tr>
+<tr><td>U3.5 Pro streaming, ~570 ms final turns</td><td>Timeline lags behind the code</td><td>Events appear within ~1–2 s of speech</td></tr>
+<tr><td>Streaming diarization</td><td>Can't tell an order from its acknowledgment</td><td>Role chips on every line</td></tr>
+<tr><td>Medical Mode + keyterms + prompt</td><td>"amio" → "ammo", "epi" → "happy"</td><td>A/B scoreboard of drug-name error rates</td></tr>
+<tr><td>Word confidence</td><td>A misheard dose becomes a fact</td><td>UNCONFIRMED chip: "300 or 150?"</td></tr>
+<tr><td>Voice Focus far-field</td><td>Monitor alarms and compressions drown speech</td><td>Replay scenario with alarm noise</td></tr>
+<tr><td>Code-switching (hi/en)</td><td>Indian teams' real talk is missed</td><td>Hinglish order logged, with a language chip</td></tr>
+<tr><td>Voice Agent API + semantic barge-in</td><td>A talking bot that talks over the team leader</td><td>Prompt cut off mid-word when the leader speaks</td></tr>
+<tr><td>Tool calling</td><td>Agent invents a time</td><td>"Last epi 3:10 ago", with the tool call shown</td></tr>
+<tr><td>LLM Gateway json_schema</td><td>Free-text extraction you can't validate</td><td>Event JSON with quote</td></tr>
+</table></div>
+</section>
+
+<!-- ================= PART J ================= -->
+<section id="j">
+<h2><span class="part">PART J</span>The 110-second demo</h2>
+<p>Cast: <b>Leader</b> (Dr. Rao), <b>Meds nurse</b> (Priya), <b>Compressor</b> (Arjun). A CPR manikin, the tablet on a chair as the "crash cart", and a phone speaker playing faint monitor beeps. Film in one take with the screen captured side by side. Speak naturally; don't slow down for the model.</p>
+<div class="tbl"><table class="script">
+<tr><th>Time</th><th>On screen / audio</th><th>What it proves</th></tr>
+<tr><td>0:00–0:08</td><td>Black. Monitor alarm and compressions audio. Text: "Filmed resuscitations: only 1 in 4 spoken orders was confirmed back. Confirmed orders were done 3.6× sooner." (El-Shafy 2018) → "CodeLoop listens so every loop closes."</td><td>Pain in under 10 s, with a real statistic</td></tr>
+<tr><td>0:08–0:20</td><td>Leader: "Code blue. Starting CPR. I'm leading. Priya, meds. Arjun, compressions." Clock starts at 00:00. Speaker labels A/B/C become Leader, Meds, Compressor. CPR cycle 2:00 counts down.</td><td>Diarization and role call, hands-free</td></tr>
+<tr><td>0:20–0:33</td><td>Leader: "Rhythm is VF. Charge to 200." Arjun: "Charging 200… clear… shock delivered." The loop card goes ORDERED → ACK → DONE (teal). Timeline: "00:24 Shock #1 200 J", with the quote.</td><td>Real-time structured events</td></tr>
+<tr><td>0:33–0:50</td><td>Leader: "Give one milligram of epi." Arjun and Priya talk over each other about access, and nobody acknowledges. At 10 s the card turns amber: "UNACKNOWLEDGED epinephrine 1 mg · 0:10". CodeLoop, briefly: "Epinephrine one milligram. Not acknowledged." Priya: "Sorry, epi one milligram going in… epi in." Loop closes, and the epi 3–5 min window starts.</td><td><b>The catch</b>: something humans missed</td></tr>
+<tr><td>0:50–1:05</td><td>Leader: "Amiodarone 300." Priya: "Amio 150, pushing." A red CONFLICT card: "Ordered 300 mg · read back 150 mg". CodeLoop: "Check dose. Ordered three hundred, read back one fifty." Leader: "Three hundred. Three zero zero." Priya: "Three hundred amio in." Resolved, and the correction trail stays visible.</td><td>Deterministic read-back check, with an audit trail</td></tr>
+<tr><td>1:05–1:15</td><td>"+2:00" wipe. CodeLoop: "Two minutes. Pause compressions for rhythm and pulse che—". Leader cuts in: "Got it, pausing." The agent stops mid-word, and a small chip shows the measured barge-in stop time (use the real number).</td><td>AssemblyAI turn-taking and semantic barge-in</td></tr>
+<tr><td>1:15–1:27</td><td>Priya (Hinglish): "CodeLoop, last epi kab diya tha?" Chips show hi+en. The <code>get_code_state</code> tool call is shown. CodeLoop: "Last epinephrine at zero fifty-two, three minutes ten seconds ago. Next dose window is open."</td><td>Code-switching; tool-grounded answer, no hallucination</td></tr>
+<tr><td>1:27–1:40</td><td>Leader: "We have a pulse. ROSC." Clock stops. The Code Record appears: every entry with time, role, quote and ASR confidence. "1 item needs sign-off", and the nurse taps to confirm.</td><td>The outcome: a record nobody had to type</td></tr>
+<tr><td>1:40–1:50</td><td>Eval card with real numbers from our harness, e.g. "8 mock codes · N events · recall X% · dose accuracy Y% · drug-name errors −Z% with Medical Mode + keyterms". Close: "Codes are loud, fast and hands-full. <b>Every order heard. Every loop closed.</b>"</td><td>Credibility and a memorable line</td></tr>
+</table></div>
+<p><b>Full 5-minute video</b> (lablab's recommended shape): 0:00–1:50 the demo above → 1:50–2:40 how it works (the diagram, where the LLM stops and code starts) → 2:40–3:30 evaluation and A/B → 3:30–4:20 business (sim wedge, buyer, $2.70/code COGS, regulation path) → 4:20–5:00 roadmap and team. Slides: 8–10 pages, the same order.</p>
+</section>
+
+<!-- ================= PART K ================= -->
+<section id="k">
+<h2><span class="part">PART K</span>20 hard judge questions</h2>
+<div class="qa">
+<details><summary>1. Why voice? Why not a tap app like Redivus?</summary><p>During a code, the hands that could tap are doing compressions, airway or drugs. The recorder role exists because someone has to stop caring for the patient to write. Tap apps record what someone remembered to enter. CodeLoop records what was actually said, including orders nobody acknowledged, which a tap app can't see at all.</p></details>
+<details><summary>2. Why AssemblyAI specifically?</summary><p>We need far-field, multi-speaker streaming with medical vocabulary, word-level confidence and Hindi/English code-switching, plus an agent that stops talking the instant a human speaks. U3.5 Pro streaming (diarization, Medical Mode, keyterms, Voice Focus) and the Voice Agent API's semantic barge-in cover that in one stack. We show the A/B: the same audio without Medical Mode and keyterms, and the drug-name error difference.</p></details>
+<details><summary>3. Isn't this just ChatGPT with a microphone?</summary><p>No. The LLM only turns sentences into candidate events, and each must quote the transcript verbatim. The clock, timers, loop states, protocol checks and every number spoken come from deterministic, unit-tested code. The voice agent can only read state through tools. Remove the LLM and the engine still runs on the grammar path.</p></details>
+<details><summary>4. Who actually needs this?</summary><p>Hospital code-blue and rapid-response teams, and the resuscitation committees and educators who must review every code. First users are simulation educators running mock codes and ACLS courses: no patient data, no regulatory barrier, and they need timelines for debriefing.</p></details>
+<details><summary>5. Why don't existing products solve it?</summary><p>Defibrillator review tools see shocks and compressions but not drugs or conversation. Tap apps need hands. Ambient scribes are built for one-on-one visits, not six people talking at once under time pressure. Nobody tracks closed loops live.</p></details>
+<details><summary>6. What happens when the AI is wrong?</summary><p>Wrong entries can't silently become facts. Low-confidence dose words become UNCONFIRMED. Disagreements become CONFLICT. Nothing is exported without nurse sign-off. Prompts are reminders, and the leader can silence them. In our evaluation we report the error rates rather than hiding them.</p></details>
+<details><summary>7. How do you prevent hallucinations?</summary><p>Three gates. (1) The extraction quote must match the transcript verbatim. (2) Values must be in the formulary and within bounds. (3) The agent may only speak numbers returned by tools, and its prompts come from a fixed phrase list. We log every dropped extraction.</p></details>
+<details><summary>8. What about ambiguity, like two drugs ordered at once or overlapping speech?</summary><p>Each order opens its own loop, and matching uses drug, dose and a time window, not just the speaker. Overlap that diarization labels PENDING/UNKNOWN gets attributed as "unknown speaker" and flagged. We would rather show uncertainty than guess.</p></details>
+<details><summary>9. A talking machine in a code sounds distracting. Why would teams trust it?</summary><p>By default it speaks only for the 2-minute cycle and broken loops, in a few words, and stops the moment anyone talks. Hospitals choose silent, timers-only or full. Trust comes from the evidence trail: every line on screen shows the exact words it came from.</p></details>
+<details><summary>10. Who pays, and how much?</summary><p>First, hospital simulation and education budgets, as a per-site subscription. Later, the clinical documentation tier per bed, justified by recorder time saved, registry abstraction time, and quality metrics like time to epinephrine. Prices are hypotheses we'll test with educators. Our AssemblyAI cost is about $2.70 per 30-minute code at list price.</p></details>
+<details><summary>11. How big is the market?</summary><p>About 290k adult in-hospital cardiac arrests a year in the US alone. Every acute hospital runs codes and mock codes. The same engine extends to trauma activations, pediatric and neonatal resuscitation, and EMS. We won't quote a TAM we can't source; the sourced numbers are in our deck appendix.</p></details>
+<details><summary>12. What's defensible?</summary><p>The protocol engine and loop ledger are simple to copy. What compounds is (a) labelled resuscitation audio and evaluation sets from sim centres, (b) per-hospital formulary and protocol configurations, (c) EHR and registry integrations, and (d) the regulatory file for the clinical tier.</p></details>
+<details><summary>13. What if Epic or an ambient-scribe company copies it?</summary><p>They might, eventually. Their products are built for one-on-one visits. Codes are a niche with different audio, timing and team dynamics. Our wedge is simulation training, where they don't sell. Integration partner is a likely outcome too.</p></details>
+<details><summary>14. Can this actually be deployed? Isn't it a medical device?</summary><p>The simulation and debrief tier can be deployed now; it isn't used on patients. Documentation with nurse sign-off is the next step. Live time-critical alerting is likely regulated as SaMD, so we'd pursue an FDA pre-submission and the CDSCO route. We say this upfront rather than hiding it.</p></details>
+<details><summary>15. What did you build versus simulate?</summary><p>Real: live AssemblyAI streaming, diarization, Medical Mode, keyterms, the Voice Agent API, LLM Gateway extraction, the ACLS engine, the loop ledger, the record export and the evaluation. Simulated: the patient and monitor (actors and a manikin), and there's no EHR or defibrillator integration. The README has this table.</p></details>
+<details><summary>16. Which part of AssemblyAI is essential? What breaks without it?</summary><p>Without streaming diarization we can't tell orders from acknowledgments. Without word confidence a misheard "fifteen" becomes a fact. Without Medical Mode and keyterms, drug names degrade (we show the numbers). Without semantic barge-in the agent talks over the team leader.</p></details>
+<details><summary>17. How accurate is it in a real, loud code?</summary><p>We don't know yet and won't claim to. We measured on N scripted mock codes with alarm and compression noise, and report recall, precision and dose accuracy. Real-world validation is the first milestone of a sim-centre pilot.</p></details>
+<details><summary>18. What about privacy of recording clinicians and patients?</summary><p>In simulation there's no patient data. Clinically: hospital policy and consent, encrypted storage, a BAA with vendors, audio deleted after 30 days by default, and redaction of identifiers in exports. India: DPDP Act consent and notice.</p></details>
+<details><summary>19. Why would the team leader accept being "audited" by a machine?</summary><p>The framing is support, not surveillance. It removes the recorder burden and produces the debrief the committee requires anyway. Mock codes are already filmed and debriefed; CodeLoop makes that faster and more objective.</p></details>
+<details><summary>20. Why did a team from India build a US-guideline product?</summary><p>ACLS is international (AHA and ERC), and Indian hospitals run code-blue teams under NABH. Our Hinglish support reflects how Indian teams actually talk. We'd pilot with Indian teaching hospitals and simulation centres, where we can reach educators directly.</p></details>
+</div>
+</section>
+
+<!-- ================= PART L ================= -->
+<section id="l">
+<h2><span class="part">PART L</span>Build plan (25 → 30 Sep)</h2>
+<p>This assumes 2–3 builders. <b>Dev A</b> owns audio and AssemblyAI. <b>Dev B</b> owns the engine, extraction and evaluation. <b>Dev C</b> owns the UI, demo and deck. Commit small and often; judges look for commits spread across days.</p>
+<div class="tbl"><table>
+<tr><th>When</th><th>Phase</th><th>Deliverable</th><th>Go / no-go</th></tr>
+<tr><td>Thu 25 (tonight)</td><td>1. Risk spikes</td><td>A: browser mic → backend → U3.5 Pro with <code>speaker_labels</code>, medical-v1, keyterms. Three people talk; inspect labels and confidence. A: Voice Agent session speaks via <code>reply.create</code> and answers a tool call. B: formulary YAML and event schema. All: record the first 3-minute mock code.</td><td>If diarization on one far-field mic is unusable, switch to <b>one phone mic per role</b> (a stream per channel). Decide by midnight.</td></tr>
+<tr><td>Fri 26</td><td>2. Core engine</td><td>B: ACLS engine + loop ledger + validator with pytest (the most important code). B: grammar fast-path. A: orchestrator fan-out and WS protocol. C: UI skeleton (clock, loops board, timeline).</td><td>Engine tests green on scripted event sequences.</td></tr>
+<tr><td>Fri 26 (late)</td><td>3. Extraction</td><td>B: LLM Gateway <code>json_schema</code> extraction with a quote check. Merge with grammar. Map confidence to UNCONFIRMED.</td><td>Correct events from the first recording.</td></tr>
+<tr><td>Sat 27</td><td>4. Voice agent</td><td>A: wake-word gating, prompt policy, tools, barge-in, echo guard. C: live UI wired end to end.</td><td>A full live mock code works start to finish.</td></tr>
+<tr><td>Sat 27 (late)</td><td>5. Record + replay</td><td>B: Code Record export. A: server-side Replay mode that streams WAV at real-time pace into the same pipeline.</td><td>Replay gives the same result on 3 runs.</td></tr>
+<tr><td>Sun 28</td><td>6. Evaluation</td><td>All: record 6–8 scenarios (VF, PEA, Hinglish, noisy, conflict, cancel) and write gold logs. B: <code>run_eval.py</code> plus the A/B (Medical Mode and keyterms on/off). C: eval page in the app.</td><td>Real numbers exist, whatever they are.</td></tr>
+<tr><td>Mon 29</td><td>7. Deploy + polish</td><td>Deploy frontend and backend (always-on). Test from a phone on another network. C: record the 110 s demo (several takes), and write the deck and README (the real vs simulated table).</td><td>The demo URL works for someone outside the team.</td></tr>
+<tr><td>Tue 30, to 17:00 IST</td><td>8. Submit</td><td>Edit the 5-minute video, export the PDF deck and cover image, fill the lablab form, check the repo is public with an MIT license, and submit <b>by 18:00 IST</b>. Then check that the demo URL still loads.</td><td>2.5 h buffer before 20:30 IST.</td></tr>
+</table></div>
+
+<h3>Cut order if behind schedule</h3>
+<ol>
+<li>Drop FHIR, the debrief charts and pediatric doses (nice-to-have).</li>
+<li>Drop Hinglish from the live demo but keep it in one replay scenario.</li>
+<li>Drop the wake-word Q&amp;A. Keep voice prompts via <code>reply.create</code> only.</li>
+<li><b>Never cut:</b> the engine tests, the closed-loop catch, the conflict catch, Replay mode, the eval numbers, the deployed URL.</li>
+</ol>
+
+<h3>Top risks</h3>
+<div class="tbl"><table>
+<tr><th>Risk</th><th>Mitigation</th></tr>
+<tr><td>Diarization fails on overlapping far-field speech</td><td>Loop matching doesn't depend on speaker identity. Fallback: one mic per role. A scripted demo with natural but not simultaneous speech.</td></tr>
+<tr><td>The agent hears itself</td><td>Browser AEC, a playback-window filter, a text fuzzy-match filter, and headphones as a last resort.</td></tr>
+<tr><td>Voice Agent gating is awkward</td><td>Fallback: agent voice for prompts only (<code>reply.create</code>), and questions via a big "Ask" button.</td></tr>
+<tr><td>Demo host sleeps or the WS drops</td><td>A paid always-on instance, health checks, and a pre-warmed session before the judging period.</td></tr>
+<tr><td>Clinical inaccuracy spotted by a doctor-judge</td><td>Check the formulary and timers against the AHA ACLS algorithm. Word every prompt as a reminder. Have a clinician friend review the script.</td></tr>
+</table></div>
+</section>
+
+<section id="src">
+<h2><span class="part">SOURCES</span>Key references</h2>
+<ul class="sources">
+<li>Hackathon page and prizes: <a href="https://lablab.ai/ai-hackathons/assemblyai-voice-agent-hackathon">lablab.ai event</a> · <a href="https://lablab.ai/hackathon-rules">lablab rules</a> · <a href="https://lablab.ai/guide/how-to-win-an-ai-hackathon">lablab "how to win"</a></li>
+<li>AssemblyAI: <a href="https://www.assemblyai.com/docs/voice-agents/voice-agent-api">Voice Agent API docs</a> · <a href="https://www.assemblyai.com/blog/universal-3-5-pro-realtime">U3.5 Pro Realtime</a> · <a href="https://www.assemblyai.com/docs/streaming/prompting-and-keyterms">Prompting &amp; keyterms</a> · <a href="https://www.assemblyai.com/pricing">Pricing</a></li>
+<li>Closed-loop evidence (verified from the paper): El-Shafy et al., <a href="https://www.sciencedirect.com/science/article/abs/pii/S1931720417300387">J Surg Educ 2018;75(1):58–64</a>. 89 videos, 387 orders, 26.1% closed-loop, HR 3.6 (2.5–5.3).</li>
+<li>Documentation accuracy (verified): <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10672215/">J Clin Med 2023, EHR vs observer, κ = 0.27 epi ≤5 min, κ = 0.04 ETCO2</a></li>
+<li>Epinephrine delay variation: <a href="https://www.ahajournals.org/doi/10.1161/CIRCULATIONAHA.116.025459">Circulation</a> · IHCA incidence review: <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC13134658/">PMC</a> (gathered by a research agent; re-check before quoting)</li>
+<li>Closed-loop video review in trauma: <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9002216/">CJEM (PMC9002216)</a> · Speech-based activity recognition: <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7962594/">PMC7962594</a></li>
+<li>Existing tools: <a href="https://redivus.com/2024/05/31/making-a-case-for-better-code-blue-documentation/">Redivus</a> (vendor claims) · <a href="https://github.com/ALERT-Sapo/Code-Blue-NAVI">Code Blue NAVI</a> · <a href="https://github.com/hulkbuster00134/CodeBlue">hobby CodeBlue</a> · <a href="https://arxiv.org/pdf/2511.09894">EgoEMS dataset</a></li>
+<li>Full working notes (competitor tables for all ~160 entries, market research, capabilities reference) are in the team's local <code>research/</code> folder.</li>
+</ul>
+</section>
+</main>
+</div>

@@ -1,0 +1,133 @@
+# Adult in-hospital VF arrest. Mirrors the 110-second competition demo, stretched to real
+# time so the 2-minute CPR cycle fires naturally. Every line carries the events a perfect
+# recorder would log from it ("gold"); eval/run_eval.py scores CodeLoop against these.
+#
+# Placement: `at` = absolute start (s). Otherwise the line starts `gap` s (default 0.6)
+# after the previous line ends. A negative gap makes lines overlap.
+id: vf_arrest_demo
+title: VF arrest with an unacknowledged epi order and an amiodarone read-back conflict
+cast:
+  leader:     { voice: "Rishi",  name: "Dr. Rao",  distance: 1.0 }
+  meds:       { voice: "Tara",   name: "Priya",    distance: 0.8 }
+  compressor: { voice: "Daniel", name: "Arjun",    distance: 0.9 }
+  airway:     { voice: "Moira",  name: "Fiona",    distance: 0.6 }
+  support:    { voice: "Lekha",  name: "Sunita",   distance: 0.7 }
+expected_outcomes:
+  - { loop: "epinephrine 1 mg", first_state: UNACKNOWLEDGED, final_state: DONE }
+  - { loop: "amiodarone 300 mg", first_state: CONFLICT, final_state: DONE }
+  - { loop: "shock 200 J", final_state: DONE, count: 2 }
+lines:
+  - at: 0.5
+    who: leader
+    say: "Code blue. Starting CPR now. I'm leading. Priya, you're on meds. Arjun, you're on compressions."
+    gold:
+      - { kind: cpr_start }
+      - { kind: role, role: leader, name: "Dr. Rao" }
+      - { kind: role, role: meds, name: "Priya" }
+      - { kind: role, role: compressor, name: "Arjun" }
+  - who: compressor
+    say: "On compressions."
+    gold: []
+  - who: meds
+    say: "Priya on meds."
+    gold: []
+  - at: 12.0
+    who: leader
+    say: "Pads are on. Pause compressions. Rhythm check."
+    gold:
+      - { kind: cpr_pause }
+      - { kind: rhythm_check }
+  - who: leader
+    say: "That's V-fib. Charge to two hundred joules."
+    gold:
+      - { kind: rhythm, rhythm: VF }
+      - { kind: order, action: shock, energy_j: 200 }
+  - who: compressor
+    say: "Charging to two hundred. Everybody clear. Shock delivered."
+    gold:
+      - { kind: ack, action: shock, energy_j: 200 }
+      - { kind: done, action: shock, energy_j: 200 }
+  - who: leader
+    say: "Resume compressions."
+    gold:
+      - { kind: cpr_resume }
+  - at: 30.0
+    who: leader
+    say: "Give one milligram of epinephrine."
+    gold:
+      - { kind: order, action: drug, drug: epinephrine, dose: 1, unit: mg }
+  - who: compressor
+    gap: -0.3
+    say: "Is IV access in yet?"
+    gold: []
+  - who: airway
+    say: "Line is in the left arm, twenty gauge."
+    gold: []
+  - at: 46.0
+    who: meds
+    say: "Sorry. Epi, one milligram, drawing up now."
+    gold:
+      - { kind: ack, action: drug, drug: epinephrine, dose: 1, unit: mg }
+  - at: 53.0
+    who: meds
+    say: "Epi one milligram is in."
+    gold:
+      - { kind: done, action: drug, drug: epinephrine, dose: 1, unit: mg }
+  - at: 58.0
+    who: leader
+    say: "Amiodarone three hundred milligrams."
+    gold:
+      - { kind: order, action: drug, drug: amiodarone, dose: 300, unit: mg }
+  - who: meds
+    say: "Amio one fifty, pushing."
+    gold:
+      - { kind: ack, action: drug, drug: amiodarone, dose: 150, unit: mg }
+  - who: leader
+    say: "No. Three hundred. Three zero zero."
+    gold:
+      - { kind: order, action: drug, drug: amiodarone, dose: 300, unit: mg, restatement: true }
+  - who: meds
+    say: "Three hundred of amiodarone, pushing now."
+    gold:
+      - { kind: ack, action: drug, drug: amiodarone, dose: 300, unit: mg }
+  - who: meds
+    gap: 2.0
+    say: "Amio three hundred is in."
+    gold:
+      - { kind: done, action: drug, drug: amiodarone, dose: 300, unit: mg }
+  - at: 82.0
+    who: airway
+    say: "Bagging at ten a minute. Good chest rise."
+    gold: []
+  - at: 96.0
+    who: support
+    say: "CodeLoop, last epi kab diya tha?"
+    lang: hi
+    gold:
+      - { kind: question, topic: last_drug, drug: epinephrine }
+  - at: 122.0
+    who: leader
+    say: "Pause compressions. Rhythm check."
+    gold:
+      - { kind: cpr_pause }
+      - { kind: rhythm_check }
+  - who: leader
+    say: "Still V-fib. Charge to two hundred."
+    gold:
+      - { kind: rhythm, rhythm: VF }
+      - { kind: order, action: shock, energy_j: 200 }
+  - who: compressor
+    say: "Charging two hundred. Clear. Shock delivered."
+    gold:
+      - { kind: ack, action: shock, energy_j: 200 }
+      - { kind: done, action: shock, energy_j: 200 }
+  - who: leader
+    say: "Resume CPR."
+    gold:
+      - { kind: cpr_resume }
+  - at: 142.0
+    who: leader
+    say: "Hold compressions, pulse check. I've got a pulse. We have ROSC."
+    gold:
+      - { kind: cpr_pause }
+      - { kind: rosc }

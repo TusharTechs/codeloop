@@ -1,0 +1,84 @@
+# Non-shockable arrest run by a team that talks in Hinglish. Tests code-switching, the
+# "charge ordered on a non-shockable rhythm" consistency flag, a cancelled order, and
+# heavier noise with overlapping speech.
+id: asystole_hinglish
+title: Asystole arrest in Hinglish with a rhythm-consistency catch and a cancelled order
+cast:
+  leader:     { voice: "Aman",   name: "Dr. Mehta", distance: 1.0 }
+  meds:       { voice: "Lekha",  name: "Sunita",    distance: 0.8 }
+  compressor: { voice: "Rishi",  name: "Karan",     distance: 0.9 }
+expected_outcomes:
+  - { loop: "epinephrine 1 mg", final_state: DONE }
+  - { flag: RHYTHM_NONSHOCKABLE_CHARGE }
+  - { loop: "shock 200 J", final_state: CANCELLED }
+lines:
+  - at: 0.5
+    who: leader
+    say: "Code blue, CPR start karo. Main lead kar raha hoon. Sunita, meds aap dekho. Karan, compressions."
+    lang: hi
+    gold:
+      - { kind: cpr_start }
+      - { kind: role, role: leader, name: "Dr. Mehta" }
+      - { kind: role, role: meds, name: "Sunita" }
+      - { kind: role, role: compressor, name: "Karan" }
+  - who: compressor
+    say: "Compressions start."
+    gold: []
+  - at: 10.0
+    who: leader
+    say: "Pause. Rhythm check. Asystole hai. Compressions continue karo."
+    lang: hi
+    gold:
+      - { kind: cpr_pause }
+      - { kind: rhythm_check }
+      - { kind: rhythm, rhythm: ASYSTOLE }
+      - { kind: cpr_resume }
+  - who: leader
+    say: "Epi ek milligram de do."
+    lang: hi
+    gold:
+      - { kind: order, action: drug, drug: epinephrine, dose: 1, unit: mg }
+  - who: meds
+    say: "Epi ek milligram, de rahi hoon."
+    lang: hi
+    gold:
+      - { kind: ack, action: drug, drug: epinephrine, dose: 1, unit: mg }
+  - who: compressor
+    gap: -0.4
+    say: "Need to switch compressors soon."
+    gold: []
+  - at: 24.0
+    who: meds
+    say: "Epi ek milligram in ho gaya."
+    lang: hi
+    gold:
+      - { kind: done, action: drug, drug: epinephrine, dose: 1, unit: mg }
+  - at: 34.0
+    who: leader
+    say: "Charge to two hundred."
+    gold:
+      - { kind: order, action: shock, energy_j: 200 }
+  - who: compressor
+    say: "Charging two hundred."
+    gold:
+      - { kind: ack, action: shock, energy_j: 200 }
+  - who: leader
+    gap: 1.5
+    say: "Wait, cancel that, it's asystole. Dump the charge."
+    gold:
+      - { kind: cancel, action: shock, energy_j: 200 }
+  - who: compressor
+    say: "Charge dumped. Back on the chest."
+    gold:
+      - { kind: cpr_resume }
+  - at: 52.0
+    who: leader
+    say: "Sunita, amiodarone mat dena, it's not indicated here."
+    lang: hi
+    gold: []
+  - at: 60.0
+    who: meds
+    say: "CodeLoop, next epi kab due hai?"
+    lang: hi
+    gold:
+      - { kind: question, topic: next_due, drug: epinephrine }
