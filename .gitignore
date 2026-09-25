@@ -23,3 +23,6 @@ spikes/results/
 *.db-journal
 
 .DS_Store
+data/
+*.db-wal
+*.db-shm
