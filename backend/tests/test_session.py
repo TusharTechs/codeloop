@@ -183,3 +183,16 @@ async def test_stale_timer_prompts_are_dropped_not_spoken_late(session: CodeSess
     await step(session, 10.0)
     assert not session.voice.said
     assert any(e.kind == "line_dropped" for e in session.store.entries("c1"))
+
+
+async def test_ending_the_code_closes_the_session_after_a_grace_period(session: CodeSession, monkeypatch) -> None:
+    import codeloop.session as mod
+
+    monkeypatch.setattr(mod, "CLOSE_AFTER_END_S", 0.01)
+    session.ears.clock = 1.0
+    await session._on_ears(said("Starting CPR now.", "A", 0.2, 0))
+    await session.handle_control({"type": "end_code", "outcome": "rosc"})
+    await asyncio.sleep(0.1)
+    assert session.closed
+    assert session.store.get_code("c1")["status"] == "ended"
+    assert session.store.get_code("c1")["outcome"] == "rosc"

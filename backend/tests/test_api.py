@@ -24,14 +24,16 @@ def replay_dir(tmp_path):
         w.setsampwidth(2)
         w.setframerate(16_000)
         w.writeframes(b"\x00\x00" * 16_000)
-    (tmp_path / "tiny.ward.gold.json").write_text(json.dumps({"title": "Tiny", "duration_s": 1.0, "noise": "ward",
-                                                               "cast": {"leader": {"name": "Dr. X"}}}))
+    (tmp_path / "tiny.ward.gold.json").write_text(
+        json.dumps({"title": "Tiny", "duration_s": 1.0, "noise": "ward", "cast": {"leader": {"name": "Dr. X"}}})
+    )
     return tmp_path
 
 
 def make_client(replay_dir, token: str | None = None) -> TestClient:
-    settings = Settings(assemblyai_api_key="k", replay_dir=replay_dir, access_token=token,
-                        frontend_dist=replay_dir / "nope")
+    settings = Settings(
+        assemblyai_api_key="k", replay_dir=replay_dir, access_token=token, frontend_dist=replay_dir / "nope"
+    )
     return TestClient(create_app(settings, Store(":memory:"), factory=fake_session))
 
 
@@ -39,7 +41,8 @@ def test_health_and_scenarios(replay_dir) -> None:
     with make_client(replay_dir) as c:
         assert c.get("/api/health").json()["assemblyai_key"] is True
         assert c.get("/api/scenarios").json() == [
-            {"id": "tiny.ward", "title": "Tiny", "duration_s": 1.0, "noise": "ward", "cast": {"leader": "Dr. X"}}]
+            {"id": "tiny.ward", "title": "Tiny", "duration_s": 1.0, "noise": "ward", "cast": {"leader": "Dr. X"}}
+        ]
 
 
 def test_live_code_socket_controls_and_record(replay_dir) -> None:
@@ -50,8 +53,18 @@ def test_live_code_socket_controls_and_record(replay_dir) -> None:
             assert hello["type"] == "hello" and hello["state"]["mode"] == "live"
             ws.send_bytes(b"\x00\x00" * 1600)
             ws.send_text(json.dumps({"type": "manual_event", "kind": "cpr_start"}))
-            ws.send_text(json.dumps({"type": "manual_event", "kind": "done", "action": "drug", "drug": "epinephrine",
-                                     "dose": 1, "unit": "mg"}))
+            ws.send_text(
+                json.dumps(
+                    {
+                        "type": "manual_event",
+                        "kind": "done",
+                        "action": "drug",
+                        "drug": "epinephrine",
+                        "dose": 1,
+                        "unit": "mg",
+                    }
+                )
+            )
             ws.send_text(json.dumps({"type": "ask", "text": "CodeLoop, last epi?"}))
             msgs = [ws.receive_json() for _ in range(8)]
             assert any(m["type"] == "answer" and m["text"].startswith("Last epinephrine, one milligram") for m in msgs)

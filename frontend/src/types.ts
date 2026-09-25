@@ -154,6 +154,7 @@ export interface CodeRecord {
   integrity: { chain_valid: boolean; first_bad_entry: number | null; entries: number; head_hash: string }
   summary: Record<string, number | string | null> | null
   duration: string | null
+  duration_s: number | null
   administered: { clock: string; what: string; without_order: boolean; closed_loop: boolean }[]
   timeline: { clock: string; at_s: number; what: string; kind: string; quote: string; speaker: string | null; role: string | null; source: string; confidence: number | null; unconfirmed: boolean }[]
   loops: Loop[]

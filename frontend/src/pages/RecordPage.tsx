@@ -49,7 +49,7 @@ export function RecordPage({ codeId }: { codeId: string }) {
       </div>
 
       <div className="tiles">
-        <div className="tile"><span className="k">Duration</span><span className="v" style={{ fontSize: 20 }}>{rec.duration ?? '—'}</span></div>
+        <div className="tile"><span className="k">Duration</span><span className="v">{rec.duration ?? "—"}</span></div>
         <div className="tile"><span className="k">Shocks</span><span className="v">{String(s.shocks ?? rec.administered.filter((a) => a.what.startsWith('shock')).length)}</span></div>
         <div className="tile"><span className="k">Drugs given</span><span className="v">{rec.administered.filter((a) => !a.what.startsWith('shock')).length}</span></div>
         <div className="tile"><span className="k">Closed-loop orders</span><span className="v">{orders ? Math.round((closed / orders) * 100) : 0}%</span><span className="s">{closed} of {orders} read back</span></div>

@@ -9,7 +9,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from .engine.speech import say_duration
 from .store import Store
 
 EVENT_LABELS = {
@@ -91,6 +90,12 @@ def build_record(store: Store, code_id: str) -> dict[str, Any]:
         if lp["state"] in ("CONFLICT", "ORDERED", "UNACKNOWLEDGED", "ACKNOWLEDGED") or lp.get("needs_confirmation")
     ]
     closed = [e.payload for e in entries if e.kind == "code_closed"]
+    if closed and closed[-1].get("clock_s") is not None:
+        duration_s: float | None = float(closed[-1]["clock_s"])
+    elif events and start is not None:
+        duration_s = max(ev["at_s"] for ev in events) - start
+    else:
+        duration_s = None
     administered = [
         {
             "clock": clock(lp.get("closed_at_s"), start),
@@ -110,7 +115,8 @@ def build_record(store: Store, code_id: str) -> dict[str, Any]:
             "head_hash": store.head_hash(code_id),
         },
         "summary": closed[-1] if closed else None,
-        "duration": say_duration(max((ev["at_s"] for ev in events), default=0) - (start or 0)) if events else None,
+        "duration": clock(duration_s, 0) if duration_s is not None else None,
+        "duration_s": duration_s,
         "administered": sorted(administered, key=lambda x: x["clock"]),
         "timeline": timeline,
         "loops": list(loops.values()),

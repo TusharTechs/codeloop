@@ -46,6 +46,7 @@ QUIET_GAP_S = 0.6
 MAX_WAIT_S = {4: 1.0, 3: 1.5, 2: 3.0, 1: 4.0}  # by priority
 STALE_S = {4: 8.0, 3: 20.0, 2: 12.0, 1: 8.0}
 ECHO_TAIL_S = 0.8
+CLOSE_AFTER_END_S = 15.0
 
 
 class Subscriber(Protocol):
@@ -117,6 +118,7 @@ class CodeSession:
         self._started_wall = time.monotonic()
         self._last_state_push = 0.0
         self.closed = False
+        self._closer: asyncio.Task | None = None
         self.voice_status = "off"
         self.ears_status = "connecting"
 
@@ -150,6 +152,11 @@ class CodeSession:
         if replay_path is not None:
             self._tasks.append(asyncio.create_task(self._replay(replay_path), name=f"replay-{self.id}"))
         await self.push_state(force=True)
+
+    async def _close_after(self, seconds: float) -> None:
+        await self.broadcast({"type": "closing", "in_s": seconds})
+        await asyncio.sleep(seconds)
+        await self.stop()
 
     async def stop(self) -> None:
         if self.closed:
@@ -458,6 +465,9 @@ class CodeSession:
             await self.stop()
             return
         await self._handle_output(out)
+        if self.engine.ended_at_s is not None and self._closer is None:
+            # Keep listening briefly so final words and the record flush, then close the code.
+            self._closer = asyncio.create_task(self._close_after(CLOSE_AFTER_END_S), name=f"close-{self.id}")
 
     def _manual_event(self, msg: dict, now: float) -> EngineOutput:
         kind = EventKind(msg["kind"])
