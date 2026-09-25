@@ -80,6 +80,10 @@ DONE_CUES = [
     "diya gaya",
     "chala gaya",
     "done",
+    "shocking",
+    "shocking now",
+    "delivering",
+    "shock given",
     "हो गया",
     "दे दिया",
     "गया",
@@ -359,6 +363,51 @@ GENERIC_ACK_CUES = [
 ]
 
 
+VALUE_FILLER = {
+    "no",
+    "yes",
+    "haan",
+    "nahi",
+    "make",
+    "it",
+    "that",
+    "that's",
+    "thats",
+    "is",
+    "not",
+    "but",
+    "instead",
+    "i",
+    "said",
+    "say",
+    "again",
+    "correction",
+    "sorry",
+    "the",
+}
+NEGATIONS = {"not", "nahi", "instead"}
+CPR_NOUNS = {"cpr", "compressions", "compression", "chest"}
+CPR_START_WORDS = {"start", "starting", "begin", "beginning", "going", "shuru", "initiate", "commence", "started"}
+CPR_RESUME_WORDS = {"resume", "resuming", "continue", "continuing", "restart", "back", "jari"}
+CPR_PAUSE_WORDS = {"pause", "pausing", "hold", "holding", "stop", "stopping", "off"}
+CONJUNCTIONS = {"and", "aur", "then", "plus", "also"}
+KEEP_CONTRACTIONS = {"let's", "lets"}
+GENERIC_DONE_CUES = [
+    "delivered",
+    "given",
+    "it is in",
+    "that is in",
+    "is in",
+    "in",
+    "done",
+    "shocked",
+    "pushed",
+    "chala gaya",
+    "ho gaya",
+    "de diya",
+]
+
+
 # Short Hindi function words are too short for phonetic matching; map them explicitly to the
 # romanized forms the cue lists use.
 HINDI_LEXICON = {
@@ -436,7 +485,17 @@ PHONETIC_DENYLIST = {
 
 
 def tokenize(text: str) -> list[Tok]:
-    return [Tok(m.group(0), m.group(0).lower().replace("’", "'"), m.start(), m.end()) for m in _TOKEN_RE.finditer(text)]
+    out: list[Tok] = []
+    for m in _TOKEN_RE.finditer(text):
+        norm = m.group(0).lower().replace("’", "'")
+        if norm.endswith("'s") and norm not in KEEP_CONTRACTIONS and len(norm) > 2:
+            # "Epi's in" → "epi is in"; "That's V-fib" → "that is v fib"
+            cut = m.end() - 2
+            out.append(Tok(text[m.start() : cut], norm[:-2], m.start(), cut))
+            out.append(Tok(text[cut : m.end()], "is", cut, m.end()))
+        else:
+            out.append(Tok(m.group(0), norm, m.start(), m.end()))
+    return out
 
 
 def _find(norms: list[str], phrase: str) -> list[tuple[int, int]]:
@@ -532,21 +591,42 @@ class Grammar:
             ctoks = [t for t in tokens if t.start >= c_start and t.end <= c_end]
             if not ctoks:
                 continue
-            idx0 = tokens.index(ctoks[0])
-            clause_text = text[ctoks[0].start : ctoks[-1].end]
             end_char = ctoks[-1].end
             norms = [t.norm for t in ctoks]
             if text[end_char : c_end + 1].strip().startswith("?") and norms[0] in QUESTION_WORDS:
                 # "Is IV access in yet?" is a question; "Amio 150, pushing?" is a read-back
                 # with rising intonation and must still be scored.
                 continue
-            at_s = times[idx0 + len(ctoks) - 1] if times else utt.end_s
-            cand = partial(Candidate, quote=clause_text, at_s=at_s, char_span=(ctoks[0].start, ctoks[-1].end))
-            out += self._structural(norms, ctoks, cand)
-            out += self._clinical(norms, ctoks, idx0, conf, cand)
+            for sub in self._split_actions(ctoks):
+                sidx = tokens.index(sub[0])
+                snorms = [t.norm for t in sub]
+                at_s = times[sidx + len(sub) - 1] if times else utt.end_s
+                cand = partial(
+                    Candidate, quote=text[sub[0].start : sub[-1].end], at_s=at_s, char_span=(sub[0].start, sub[-1].end)
+                )
+                out += self._structural(snorms, sub, cand)
+                out += self._clinical(snorms, sub, sidx, conf, cand)
         return self._dedupe(out)
 
     # -------------------------------------------------------------- pieces
+
+    def _has_action(self, toks: list[Tok]) -> bool:
+        norms = [t.norm for t in toks]
+        return bool(self._drugs(norms)) or any(n in SHOCK_WORDS for n in norms)
+
+    def _split_actions(self, ctoks: list[Tok]) -> list[list[Tok]]:
+        """Split "Charge to one fifty and give amiodarone three hundred" into one clause per
+        action, but only at a conjunction with an action on both sides."""
+        parts = [ctoks]
+        i = 1
+        while i < len(parts[-1]) - 1:
+            cur = parts[-1]
+            if cur[i].norm in CONJUNCTIONS and self._has_action(cur[:i]) and self._has_action(cur[i + 1 :]):
+                parts[-1:] = [cur[:i], cur[i + 1 :]]
+                i = 1
+            else:
+                i += 1
+        return parts
 
     @staticmethod
     def _clauses(text: str) -> list[tuple[int, int]]:
@@ -564,13 +644,19 @@ class Grammar:
             out.append(cand(EventKind.ROSC))
         if _has(norms, TERMINATE_CUES):
             out.append(cand(EventKind.TERMINATE))
+        words = set(norms)
+        cpr_noun = bool(words & CPR_NOUNS)
         if _has(norms, CPR_START_CUES):
             out.append(cand(EventKind.CPR_START))
-        elif _has(norms, CPR_RESUME_CUES):
+        elif _has(norms, CPR_RESUME_CUES) or (cpr_noun and words & CPR_RESUME_WORDS):
             out.append(cand(EventKind.CPR_RESUME))
-        elif _has(norms, CPR_PAUSE_CUES) and not _has(norms, ["don't pause", "no pause"]):
+        elif cpr_noun and words & CPR_START_WORDS:
+            out.append(cand(EventKind.CPR_START))  # "Let's get compressions going", "compressions shuru karo"
+        elif (_has(norms, CPR_PAUSE_CUES) or (cpr_noun and words & CPR_PAUSE_WORDS)) and not _has(
+            norms, ["don't pause", "no pause"]
+        ):
             out.append(cand(EventKind.CPR_PAUSE))
-        if _has(norms, RHYTHM_CHECK_CUES):
+        if _has(norms, RHYTHM_CHECK_CUES) or norms in (["rhythm"], ["pulse"], ["rhythm", "check"]):
             out.append(cand(EventKind.RHYTHM_CHECK))
         rhythm = self._rhythm(norms)
         if rhythm is not None:
@@ -664,12 +750,13 @@ class Grammar:
         # A clause that is only a number ("Three hundred." / "Three zero zero.") is a value
         # restatement; the resolver attaches it to the loop being discussed.
         if numbers and all(
-            n in {"no", "yes", "haan", "nahi", "make", "it", "that's", "thats"}
-            or any(num.start <= i < num.end for num in numbers)
-            or n in UNIT_WORDS
+            n in VALUE_FILLER or any(num.start <= i < num.end for num in numbers) or n in UNIT_WORDS
             for i, n in enumerate(norms)
         ):
-            num = numbers[-1]
+            # "One fifty, not one twenty." asserts the value before the negation.
+            neg = next((i for i, n in enumerate(norms) if n in NEGATIONS), None)
+            before = [x for x in numbers if neg is not None and x.end <= neg]
+            num = before[-1] if before else numbers[-1]
             out.append(
                 cand(
                     Cue.VALUE,
@@ -680,6 +767,8 @@ class Grammar:
             )
         elif cue == Cue.ACK and _has(norms, GENERIC_ACK_CUES) and len(norms) <= 5:
             out.append(cand(Cue.ACK))  # "Pushing now." acknowledges the latest open order
+        elif cue == Cue.DONE and _has(norms, GENERIC_DONE_CUES) and len(norms) <= 4:
+            out.append(cand(Cue.DONE))  # "Delivered." / "It's in." completes the latest open order
         return out
 
     def _cue(self, norms: list[str]) -> Cue | None:

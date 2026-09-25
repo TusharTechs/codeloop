@@ -187,3 +187,39 @@ def test_silent_policy_raises_flags_but_never_speaks() -> None:
     e.apply(order_drug(10, "amiodarone", 300))
     out = e.apply(ack_drug(12, "amiodarone", 150))
     assert out.flags and not out.prompts
+
+
+def test_bare_completion_callout_completes_the_acknowledged_order() -> None:
+    from codeloop.domain.models import Utterance
+    from codeloop.pipeline import TranscriptPipeline
+
+    p = TranscriptPipeline()
+    for i, (t, text, who) in enumerate(
+        [
+            (1, "Starting CPR.", "A"),
+            (14, "Charge to 200.", "A"),
+            (16, "200 charging, sub clear.", "B"),
+            (18, "delivered.", None),
+        ]
+    ):
+        p.process(Utterance(id=f"u{i}", turn_order=i, text=text, start_s=t - 1, end_s=t, speaker=who))
+    lp = next(iter(p.engine.loops.values()))
+    assert lp.state == LoopState.DONE and lp.ordered_value == 200
+    assert len(p.engine.shocks) == 1
+
+
+def test_bare_completion_with_two_candidates_is_unconfirmed() -> None:
+    from codeloop.domain.models import Utterance
+    from codeloop.pipeline import TranscriptPipeline
+
+    p = TranscriptPipeline()
+    for i, (t, text, who) in enumerate(
+        [
+            (1, "Starting CPR.", "A"),
+            (10, "Epi one milligram, drawing up.", "B"),
+            (11, "Amio three hundred, drawing up.", "B"),
+            (14, "Given.", "B"),
+        ]
+    ):
+        res = p.process(Utterance(id=f"u{i}", turn_order=i, text=text, start_s=t - 1, end_s=t, speaker=who))
+    assert res.events[-1].kind == "done" and res.events[-1].unconfirmed

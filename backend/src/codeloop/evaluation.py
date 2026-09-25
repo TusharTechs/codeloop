@@ -187,16 +187,19 @@ def check_outcomes(engine: CodeEngine, expected: list[dict]) -> list[tuple[dict,
             ok = any(f.rule == exp["flag"] for f in engine.flags.values())
             results.append((exp, ok, "raised" if ok else "not raised"))
             continue
-        matching = [lp for lp in loops if lp.label() == exp["loop"]]
+        want = exp["loop"].replace("_", " ")
+        matching = [lp for lp in loops if lp.label().replace("_", " ") == want]
         if "count" in exp:
-            ok = len(matching) == exp["count"] and all(lp.state == LoopState(exp["final_state"]) for lp in matching)
+            ok = len(matching) == exp["count"] and all(
+                lp.state == LoopState(exp["final_state"]) for lp in matching if "final_state" in exp
+            )
             results.append((exp, ok, f"{len(matching)} loops, states {[lp.state.value for lp in matching]}"))
             continue
         if not matching:
             results.append((exp, False, "loop not found; have " + ", ".join(lp.label() for lp in loops)))
             continue
         lp = matching[0]
-        ok = lp.state == LoopState(exp["final_state"])
+        ok = lp.state == LoopState(exp["final_state"]) if "final_state" in exp else True
         detail = " → ".join(h.state.value for h in lp.history)
         if "first_state" in exp:
             ok &= any(h.state == LoopState(exp["first_state"]) for h in lp.history)

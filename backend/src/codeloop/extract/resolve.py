@@ -98,6 +98,20 @@ class Resolver:
             rhythm=c.rhythm,
             **base,
         )
+        if kind == EventKind.DONE and ev.action is None:
+            # "Delivered." — complete the order being worked on. Two candidates is ambiguous.
+            targets = engine.generic_done_targets(ev)
+            if not targets:
+                self._drop(c, "completion callout with no open order")
+                return []
+            lp = targets[0]
+            ev.action, ev.drug = lp.action, lp.drug
+            if lp.action == Action.SHOCK:
+                ev.energy_j = lp.ordered_value
+            else:
+                ev.dose, ev.unit = lp.ordered_value, lp.unit
+            if len(targets) > 1:
+                ev.value_confidence = 0.0  # which order it completed is not certain
         if kind == EventKind.ACK and ev.action is None:
             # "Pushing now." — record what it acknowledges.
             lp = engine.generic_ack_target(ev)

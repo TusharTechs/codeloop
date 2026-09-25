@@ -366,6 +366,17 @@ class CodeEngine:
             return lp
         return None
 
+    def generic_done_targets(self, ev: Event) -> list[Loop]:
+        """Open loops a bare "Delivered." could complete: acknowledged ones first, recent only."""
+        recent = [
+            lp
+            for lp in self.loops.values()
+            if lp.state.is_open and ev.at_s - lp.history[-1].at_s <= GENERIC_ACK_WINDOW_S
+        ]
+        acked = [lp for lp in reversed(recent) if lp.state == LoopState.ACKNOWLEDGED]
+        others = [lp for lp in reversed(recent) if lp.state != LoopState.ACKNOWLEDGED]
+        return acked or others
+
     def generic_ack_target(self, ev: Event) -> Loop | None:
         for lp in reversed(list(self.loops.values())):
             if (
