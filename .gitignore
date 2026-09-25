@@ -27,7 +27,7 @@ data/
 *.db-wal
 *.db-shm
 
-# certificates and keys (never commit; corporate TLS-inspection CAs stay on the local machine)
+# certificates and keys (never commit)
 *.pem
 *.crt
 *.cer

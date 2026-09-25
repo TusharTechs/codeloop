@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Refuse certificates, private keys and proxy CA material
+      - name: Refuse certificates and private keys
         run: |
           if git ls-files | grep -iE '\.(pem|crt|cer|der|key|p12|pfx|jks|keystore|csr)$|ca[-_]bundle'; then
             echo "certificate or key file tracked"; exit 1; fi

@@ -274,11 +274,6 @@ docker build -t codeloop .
 docker run -p 8000:8000 -e ASSEMBLYAI_API_KEY=... -v codeloop-data:/data codeloop
 ```
 
-On a network with TLS inspection (a corporate proxy), pass your CA bundle as a build
-secret. It is used only to download dependencies and is never copied into the image:
-`docker build --secret id=ca,src="$SSL_CERT_FILE" -t codeloop .`. At runtime, mount it too:
-`-v "$SSL_CERT_FILE":/etc/ssl/ca.pem:ro -e SSL_CERT_FILE=/etc/ssl/ca.pem`.
-
 | Environment variable | Default | Purpose |
 |---|---|---|
 | `ASSEMBLYAI_API_KEY` | (required) | Server-side only; never sent to the browser |
