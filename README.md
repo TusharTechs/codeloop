@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/brand/codeloop-lockup.svg" alt="CodeLoop" width="420">
+  <img src="docs/brand/codeloop-lockup.svg" alt="CodeLoop" width="340">
 </p>
 
 <p align="center"><b>Every order heard. Every loop closed.</b><br>
