@@ -27,8 +27,10 @@ export function RecordPage({ codeId }: { codeId: string }) {
 
   const s = rec.summary ?? {}
   const loops = rec.loops
-  const closed = loops.filter((l) => l.history.some((h) => h.state === 'ACKNOWLEDGED')).length
-  const orders = loops.filter((l) => !l.without_order).length
+  // Of the orders CodeLoop heard, how many were read back before completion.
+  const ordered = loops.filter((l) => !l.without_order)
+  const orders = ordered.length
+  const closed = ordered.filter((l) => l.history.some((h) => h.state === 'ACKNOWLEDGED')).length
 
   return (
     <div className="record">

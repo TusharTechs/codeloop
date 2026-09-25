@@ -166,3 +166,15 @@ def test_replay_is_deterministic() -> None:
             for h in lp["history"]:
                 h.pop("event_id")
     assert a == b
+
+
+def test_first_role_for_a_voice_sticks_until_changed_on_screen() -> None:
+    from codeloop.domain.models import EventSource, Role
+
+    e = CodeEngine()
+    e.apply(ev(EventKind.ROLE, 1, role=Role.LEADER, speaker="A"))
+    out = e.apply(ev(EventKind.ROLE, 9, role=Role.MEDS, speaker="A"))  # diarization merged Priya into A
+    assert e.roles == {"A": Role.LEADER}
+    assert [f.rule for f in out.flags] == ["ROLE_CONFLICT"]
+    e.apply(ev(EventKind.ROLE, 10, role=Role.MEDS, speaker="A", source=EventSource.MANUAL))
+    assert e.roles == {"A": Role.MEDS}

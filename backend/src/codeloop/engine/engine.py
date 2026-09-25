@@ -23,6 +23,7 @@ from ..domain.models import (
     Action,
     Event,
     EventKind,
+    EventSource,
     Flag,
     FlagSeverity,
     Loop,
@@ -658,9 +659,20 @@ class CodeEngine:
             return EngineOutput()
         if ev.name:
             self.names[ev.name.lower()] = ev.role
-        else:  # self-assignment: "I'm leading"
-            if ev.speaker:
-                self.roles[ev.speaker] = ev.role
+        elif ev.speaker:  # self-assignment: "I'm leading"
+            current = self.roles.get(ev.speaker)
+            if current is not None and current != ev.role and ev.source != EventSource.MANUAL:
+                # Diarization can give two people one label; the first role heard sticks and
+                # only a person on screen can change it.
+                fl = self._flag(
+                    "ROLE_CONFLICT",
+                    FlagSeverity.INFO,
+                    f"Voice {ev.speaker} is {current.value} but also said {ev.role.value}; tap the voice to reassign",
+                    ev.at_s,
+                    ev=ev,
+                )
+                return EngineOutput(flags=[fl], state_changed=True)
+            self.roles[ev.speaker] = ev.role
         return EngineOutput(state_changed=True)
 
     # ------------------------------------------------------------------ protocol checks
