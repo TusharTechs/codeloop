@@ -47,9 +47,24 @@ def save_json(name: str, data: object) -> Path:
 
 
 _NUM_WORDS = {
-    "zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7,
-    "eight": 8, "nine": 9, "ten": 10, "fifteen": 15, "twenty": 20, "fifty": 50,
-    "hundred": 100, "ek": 1, "do": 2, "teen": 3,
+    "zero": 0,
+    "one": 1,
+    "two": 2,
+    "three": 3,
+    "four": 4,
+    "five": 5,
+    "six": 6,
+    "seven": 7,
+    "eight": 8,
+    "nine": 9,
+    "ten": 10,
+    "fifteen": 15,
+    "twenty": 20,
+    "fifty": 50,
+    "hundred": 100,
+    "ek": 1,
+    "do": 2,
+    "teen": 3,
 }
 
 

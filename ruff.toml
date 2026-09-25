@@ -4,3 +4,9 @@ target-version = "py313"
 [lint]
 select = ["E", "F", "W", "B", "I", "UP", "ASYNC", "RUF"]
 ignore = ["RUF001", "RUF002", "RUF003"]
+
+[lint.per-file-ignores]
+"backend/tests/**" = ["E501"]
+
+[lint.isort]
+known-first-party = ["codeloop"]

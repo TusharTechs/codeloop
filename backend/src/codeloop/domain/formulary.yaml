@@ -1,0 +1,77 @@
+# Resuscitation formulary. Every value the system accepts is bounded here; extraction output
+# outside these bounds is rejected or marked UNCONFIRMED. Hospitals override this file.
+# Doses are adult ACLS (AHA). `usual` doses drive read-back matching and pronunciation only;
+# CodeLoop never recommends a dose.
+version: "aha-2025-adult-v1"
+
+drugs:
+  epinephrine:
+    aliases: [epi, epinephrine, adrenaline, adrenalin, "एपि", "एपिनेफ्रिन"]
+    unit: mg
+    usual: [1]
+    bounds: [0.01, 1.0]
+    interval_s: [180, 300]   # ACLS: every 3-5 minutes
+  amiodarone:
+    aliases: [amio, amiodarone, "एमियो", "एमियोडेरोन"]
+    unit: mg
+    usual: [300, 150]
+    bounds: [50, 450]
+    sequence: [300, 150]     # first dose, second dose
+  lidocaine:
+    aliases: [lidocaine, lido, lignocaine, xylocaine]
+    unit: mg
+    usual: [100, 50]
+    bounds: [20, 200]
+  atropine:
+    aliases: [atropine]
+    unit: mg
+    usual: [1]
+    bounds: [0.5, 3]
+  adenosine:
+    aliases: [adenosine]
+    unit: mg
+    usual: [6, 12]
+    bounds: [3, 18]
+  calcium_chloride:
+    aliases: [calcium chloride, calcium, cacl]
+    unit: g
+    usual: [1]
+    bounds: [0.5, 2]
+  sodium_bicarbonate:
+    aliases: [sodium bicarbonate, bicarb, bicarbonate]
+    unit: mEq
+    usual: [50]
+    bounds: [25, 150]
+  magnesium_sulfate:
+    aliases: [magnesium, mag, magnesium sulfate, mag sulfate]
+    unit: g
+    usual: [2]
+    bounds: [1, 4]
+  naloxone:
+    aliases: [naloxone, narcan]
+    unit: mg
+    usual: [0.4, 2]
+    bounds: [0.04, 4]
+  dextrose:
+    aliases: [dextrose, d50]
+    unit: g
+    usual: [25]
+    bounds: [5, 50]
+
+shock:
+  unit: J
+  bounds: [50, 360]
+  usual: [120, 150, 200, 300, 360]
+
+rhythms:
+  VF: { shockable: true, aliases: [vf, v fib, v-fib, vfib, ventricular fibrillation] }
+  PVT: { shockable: true, aliases: [pulseless vt, pulseless v tach, v tach, vt, ventricular tachycardia] }
+  PEA: { shockable: false, aliases: [pea, pulseless electrical activity] }
+  ASYSTOLE: { shockable: false, aliases: [asystole, flatline, flat line] }
+  SINUS: { shockable: false, aliases: [sinus, sinus rhythm, organized rhythm] }
+
+timers:
+  cpr_cycle_s: 120
+  cpr_cycle_warn_s: 105     # "fifteen seconds to rhythm check"
+  unacknowledged_s: 10
+  unacknowledged_nudge_s: 15

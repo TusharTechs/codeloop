@@ -44,12 +44,14 @@ def build_params(variant: str, sample_rate: int, max_speakers: int, langs: list[
     if langs:
         p["language_codes"] = json.dumps(langs)
     if variant == "full":
-        p.update({
-            "domain": "medical-v1",
-            "keyterms_prompt": json.dumps(KEYTERMS),
-            "prompt": PROMPT,
-            "voice_focus": "far-field",
-        })
+        p.update(
+            {
+                "domain": "medical-v1",
+                "keyterms_prompt": json.dumps(KEYTERMS),
+                "prompt": PROMPT,
+                "voice_focus": "far-field",
+            }
+        )
     return p
 
 
@@ -61,13 +63,13 @@ async def run(wav: Path, variant: str, max_speakers: int, langs: list[str], spee
     messages: list[dict] = []
     t0: float | None = None
 
-    async with websockets.connect(url, additional_headers={"Authorization": api_key()},
-                                  max_size=None) as ws:
+    async with websockets.connect(url, additional_headers={"Authorization": api_key()}, max_size=None) as ws:
+
         async def sender() -> None:
             nonlocal t0
             t0 = time.perf_counter()
             for i, off in enumerate(range(0, len(pcm), chunk)):
-                await ws.send(pcm[off: off + chunk])
+                await ws.send(pcm[off : off + chunk])
                 target = t0 + (i + 1) * CHUNK_MS / 1000 / speed
                 await asyncio.sleep(max(0.0, target - time.perf_counter()))
             await ws.send(json.dumps({"type": "Terminate"}))
@@ -81,8 +83,7 @@ async def run(wav: Path, variant: str, max_speakers: int, langs: list[str], spee
                     return
 
         await asyncio.gather(sender(), receiver())
-    return {"params": {k: v for k, v in params.items() if k != "prompt"}, "messages": messages,
-            "speed": speed}
+    return {"params": {k: v for k, v in params.items() if k != "prompt"}, "messages": messages, "speed": speed}
 
 
 def final_turns(messages: list[dict]) -> list[dict]:
@@ -171,13 +172,23 @@ def analyse(result: dict, gold: dict, speed: float) -> dict:
         for t in hyp_turns:
             for w in t.get("words", []):
                 wn = norm_words(w["text"])
-                if any(x.isdigit() or x in {"epi", "epinephrine", "amio", "amiodarone", "hundred",
-                                            "fifty", "joules"} for x in wn):
+                if any(
+                    x.isdigit() or x in {"epi", "epinephrine", "amio", "amiodarone", "hundred", "fifty", "joules"}
+                    for x in wn
+                ):
                     critical_conf.append(w.get("confidence", 0.0))
         labels = [str(t.get("speaker_label")) for t in hyp_turns]
-        per_line.append({"who": ln["who"], "ref": ln["say"], "hyp": hyp_text, "wer_errs": err,
-                         "labels": labels, "entities": results,
-                         "langs": [t.get("language_code") for t in hyp_turns]})
+        per_line.append(
+            {
+                "who": ln["who"],
+                "ref": ln["say"],
+                "hyp": hyp_text,
+                "wer_errs": err,
+                "labels": labels,
+                "entities": results,
+                "langs": [t.get("language_code") for t in hyp_turns],
+            }
+        )
 
     # Latency: when did the final arrive vs. when the speech ended (audio time / speed)?
     lat = []
@@ -198,9 +209,13 @@ def analyse(result: dict, gold: dict, speed: float) -> dict:
         "speaker_labels_seen": dict(label_counts),
         "labels_per_real_speaker": {k: sorted(v) for k, v in who_to_labels.items()},
         "revised_turns": sum(1 for t in turns if t.get("_revised")),
-        "critical_word_conf": {"n": len(critical_conf), "min": min(critical_conf, default=None),
-                               "p10": pct(critical_conf, 0.1), "p50": pct(critical_conf, 0.5),
-                               "below_0_6": sum(1 for c in critical_conf if c < 0.6)},
+        "critical_word_conf": {
+            "n": len(critical_conf),
+            "min": min(critical_conf, default=None),
+            "p10": pct(critical_conf, 0.1),
+            "p50": pct(critical_conf, 0.5),
+            "below_0_6": sum(1 for c in critical_conf if c < 0.6),
+        },
         "final_latency_ms": {"p50": pct(lat, 0.5), "p90": pct(lat, 0.9), "max": max(lat, default=None)},
         "per_line": per_line,
     }
@@ -218,8 +233,11 @@ def main() -> None:
     gold = json.loads(gold_path.read_text())
     langs = [x for x in args.langs.split(",") if x]
     result = asyncio.run(run(args.wav, args.variant, args.max_speakers, langs, args.speed))
-    errors = [m for m in result["messages"] if m.get("type") not in
-              ("Begin", "Turn", "SpeakerRevision", "Termination", "SpeechStarted", "Heartbeat")]
+    errors = [
+        m
+        for m in result["messages"]
+        if m.get("type") not in ("Begin", "Turn", "SpeakerRevision", "Termination", "SpeechStarted", "Heartbeat")
+    ]
     report = analyse(result, gold, args.speed)
     report["unexpected_messages"] = errors[:5]
     stem = f"streaming.{args.wav.stem}.{args.variant}"
@@ -230,8 +248,10 @@ def main() -> None:
     print("\nPer line (ref → hyp [labels] entity misses):")
     for ln in report["per_line"]:
         miss = [f"{e['kind']}={e['value']}" for e in ln["entities"] if not e["ok"]]
-        print(f"  {ln['who']:<10} {ln['ref'][:48]:<48} → {ln['hyp'][:60]:<60} {ln['labels']} "
-              f"{'MISS ' + ','.join(miss) if miss else ''}")
+        print(
+            f"  {ln['who']:<10} {ln['ref'][:48]:<48} → {ln['hyp'][:60]:<60} {ln['labels']} "
+            f"{'MISS ' + ','.join(miss) if miss else ''}"
+        )
 
 
 if __name__ == "__main__":

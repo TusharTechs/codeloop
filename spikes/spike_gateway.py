@@ -20,8 +20,7 @@ import httpx
 from _common import REPO, api_key, pct, save_json
 
 URL = "https://llm-gateway.assemblyai.com/v1/chat/completions"
-DEFAULT_MODELS = ["claude-haiku-4-5-20251001", "gemini-3.5-flash-lite", "gpt-5-nano",
-                  "qwen3.5-4b-32k-fast"]
+DEFAULT_MODELS = ["claude-haiku-4-5-20251001", "gemini-3.5-flash-lite", "gpt-5-nano", "qwen3.5-4b-32k-fast"]
 
 SYSTEM = """You extract resuscitation events from ONE transcribed utterance spoken during an
 in-hospital cardiac arrest. The utterance may mix Hindi and English.
@@ -38,21 +37,32 @@ Return every event the utterance states. Rules:
 EVENT = {
     "type": "object",
     "additionalProperties": False,
-    "required": ["kind", "action", "drug", "dose", "unit", "energy_j", "rhythm", "role",
-                 "name", "quote"],
+    "required": ["kind", "action", "drug", "dose", "unit", "energy_j", "rhythm", "role", "name", "quote"],
     "properties": {
-        "kind": {"type": "string", "enum": ["order", "ack", "done", "rhythm", "cpr_start",
-                                            "cpr_pause", "cpr_resume", "rhythm_check", "rosc",
-                                            "cancel", "role", "question"]},
+        "kind": {
+            "type": "string",
+            "enum": [
+                "order",
+                "ack",
+                "done",
+                "rhythm",
+                "cpr_start",
+                "cpr_pause",
+                "cpr_resume",
+                "rhythm_check",
+                "rosc",
+                "cancel",
+                "role",
+                "question",
+            ],
+        },
         "action": {"type": ["string", "null"], "enum": ["drug", "shock", None]},
         "drug": {"type": ["string", "null"]},
         "dose": {"type": ["number", "null"]},
         "unit": {"type": ["string", "null"]},
         "energy_j": {"type": ["number", "null"]},
-        "rhythm": {"type": ["string", "null"], "enum": ["VF", "PVT", "PEA", "ASYSTOLE",
-                                                        "SINUS", None]},
-        "role": {"type": ["string", "null"], "enum": ["leader", "meds", "compressor",
-                                                      "airway", "recorder", None]},
+        "rhythm": {"type": ["string", "null"], "enum": ["VF", "PVT", "PEA", "ASYSTOLE", "SINUS", None]},
+        "role": {"type": ["string", "null"], "enum": ["leader", "meds", "compressor", "airway", "recorder", None]},
         "name": {"type": ["string", "null"]},
         "quote": {"type": "string"},
     },
@@ -60,8 +70,12 @@ EVENT = {
 SCHEMA = {
     "name": "code_events",
     "strict": True,
-    "schema": {"type": "object", "additionalProperties": False, "required": ["events"],
-               "properties": {"events": {"type": "array", "items": EVENT}}},
+    "schema": {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["events"],
+        "properties": {"events": {"type": "array", "items": EVENT}},
+    },
 }
 
 
@@ -70,10 +84,13 @@ def key_of(ev: dict) -> tuple:
 
 
 async def extract(client: httpx.AsyncClient, model: str, text: str) -> dict:
-    body = {"model": model, "temperature": 0, "max_tokens": 600,
-            "messages": [{"role": "system", "content": SYSTEM},
-                         {"role": "user", "content": text}],
-            "response_format": {"type": "json_schema", "json_schema": SCHEMA}}
+    body = {
+        "model": model,
+        "temperature": 0,
+        "max_tokens": 600,
+        "messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": text}],
+        "response_format": {"type": "json_schema", "json_schema": SCHEMA},
+    }
     t = time.perf_counter()
     try:
         r = await client.post(URL, json=body, timeout=30)
@@ -89,9 +106,15 @@ async def extract(client: httpx.AsyncClient, model: str, text: str) -> dict:
 async def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--models", default=",".join(DEFAULT_MODELS))
-    ap.add_argument("--gold", type=Path, nargs="*", default=[
-        REPO / "eval/audio/vf_arrest_demo.none.gold.json",
-        REPO / "eval/audio/asystole_hinglish.none.gold.json"])
+    ap.add_argument(
+        "--gold",
+        type=Path,
+        nargs="*",
+        default=[
+            REPO / "eval/audio/vf_arrest_demo.none.gold.json",
+            REPO / "eval/audio/asystole_hinglish.none.gold.json",
+        ],
+    )
     args = ap.parse_args()
     lines = [ln for g in args.gold for ln in json.loads(g.read_text())["lines"]]
     report: dict[str, dict] = {}
@@ -125,11 +148,17 @@ async def main() -> None:
                 "precision": round(tp / max(1, tp + fp), 3),
                 "recall": round(tp / max(1, tp + fn), 3),
                 "non_verbatim_quotes": bad_quotes,
-                "mistakes": [{"say": ln["say"], "gold": [key_of(e) for e in ln.get("gold", [])],
-                              "got": [key_of(e) for e in r.get("events", [])]}
-                             for ln, r in res if r["ok"] and sorted(
-                                 key_of(e) for e in ln.get("gold", []) if e["kind"] != "role") != sorted(
-                                 key_of(e) for e in r["events"] if e["kind"] != "role")][:8],
+                "mistakes": [
+                    {
+                        "say": ln["say"],
+                        "gold": [key_of(e) for e in ln.get("gold", [])],
+                        "got": [key_of(e) for e in r.get("events", [])],
+                    }
+                    for ln, r in res
+                    if r["ok"]
+                    and sorted(key_of(e) for e in ln.get("gold", []) if e["kind"] != "role")
+                    != sorted(key_of(e) for e in r["events"] if e["kind"] != "role")
+                ][:8],
             }
             print(model, json.dumps({k: v for k, v in report[model].items() if k != "mistakes"}))
     save_json("gateway.report.json", report)

@@ -61,14 +61,13 @@ def write_wav(path: Path, x: np.ndarray) -> None:
 def tts(text: str, voice: str, rate: int, tmp: Path, idx: int) -> np.ndarray:
     out = tmp / f"line_{idx}.wav"
     subprocess.run(
-        ["say", "-v", voice, "-r", str(rate), "-o", str(out), "--file-format=WAVE",
-         "--data-format=LEI16@16000", text],
+        ["say", "-v", voice, "-r", str(rate), "-o", str(out), "--file-format=WAVE", "--data-format=LEI16@16000", text],
         check=True,
     )
     x = read_wav(out)
     # Trim leading/trailing digital silence so placement times are accurate.
     nz = np.flatnonzero(np.abs(x) > 1e-3)
-    return x[nz[0]: nz[-1] + 1] if nz.size else x
+    return x[nz[0] : nz[-1] + 1] if nz.size else x
 
 
 def room_ir(rt60: float, rng: np.random.Generator) -> np.ndarray:
@@ -96,8 +95,7 @@ def lowpass_noise(n: int, rng: np.random.Generator, alpha: float) -> np.ndarray:
     return y / (np.max(np.abs(y)) + 1e-9)
 
 
-def compressions(total: int, windows: list[tuple[float, float]], level: float,
-                 rng: np.random.Generator) -> np.ndarray:
+def compressions(total: int, windows: list[tuple[float, float]], level: float, rng: np.random.Generator) -> np.ndarray:
     out = np.zeros(total)
     period = 60 / 110  # 110 compressions per minute
     burst_len = int(0.07 * SR)
@@ -108,7 +106,7 @@ def compressions(total: int, windows: list[tuple[float, float]], level: float,
             if i + burst_len >= total:
                 break
             burst = lowpass_noise(burst_len, rng, 0.93) * np.hanning(burst_len)
-            out[i: i + burst_len] += burst
+            out[i : i + burst_len] += burst
             t += period * rng.uniform(0.96, 1.04)
     return out * level
 
@@ -118,7 +116,7 @@ def monitor(total: int, level: float) -> np.ndarray:
     beep = np.sin(2 * np.pi * 960 * np.arange(int(0.08 * SR)) / SR) * np.hanning(int(0.08 * SR))
     step = int(0.62 * SR)
     for i in range(int(0.3 * SR), total - len(beep), step):
-        out[i: i + len(beep)] += beep
+        out[i : i + len(beep)] += beep
     return out * level
 
 
@@ -132,7 +130,7 @@ def alarm(total: int, level: float) -> np.ndarray:
         for k in range(3):
             i = int((start + k * 0.25) * SR)
             if i + pulse_n < total:
-                out[i: i + pulse_n] += pulse
+                out[i : i + pulse_n] += pulse
     return out * level / 1.5
 
 
@@ -172,8 +170,15 @@ def synth(path: Path, noise: str, rate: int, seed: int) -> Path:
             start = float(line["at"]) if "at" in line else cursor + float(line.get("gap", 0.6))
             end = start + len(clip) / SR
             cursor = end
-            placed.append({**line, "start": round(start, 3), "end": round(end, 3),
-                           "voice": who["voice"], "speaker_name": who["name"]})
+            placed.append(
+                {
+                    **line,
+                    "start": round(start, 3),
+                    "end": round(end, 3),
+                    "voice": who["voice"],
+                    "speaker_name": who["name"],
+                }
+            )
             clips.append(clip)
 
     total_s = max(p["end"] for p in placed) + 2.0
@@ -181,7 +186,7 @@ def synth(path: Path, noise: str, rate: int, seed: int) -> Path:
     mix = np.zeros(total)
     for p, clip in zip(placed, clips, strict=True):
         i = int(p["start"] * SR)
-        mix[i: i + len(clip)] += clip
+        mix[i : i + len(clip)] += clip
 
     if noise != "none":
         mix += compressions(total, cpr_windows(placed, total_s), db(comp_db), rng)

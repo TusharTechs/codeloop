@@ -42,14 +42,16 @@ The room is loud and busy. Rules:
 - Answer in one short sentence in English, even when the question mixes Hindi and English.
 - Never recommend treatment. You are a recorder and timekeeper."""
 
-TOOLS = [{
-    "type": "function",
-    "name": "get_code_state",
-    "description": "Current state of the code: clock, rhythm, shocks, last drug doses with "
-                   "time since given, open orders, and which timers are due. Call this before "
-                   "answering any question about times, doses, drugs, shocks or what is due.",
-    "parameters": {"type": "object", "properties": {}, "required": []},
-}]
+TOOLS = [
+    {
+        "type": "function",
+        "name": "get_code_state",
+        "description": "Current state of the code: clock, rhythm, shocks, last drug doses with "
+        "time since given, open orders, and which timers are due. Call this before "
+        "answering any question about times, doses, drugs, shocks or what is due.",
+        "parameters": {"type": "object", "properties": {}, "required": []},
+    }
+]
 
 CODE_STATE = {
     "clock": "04:02",
@@ -65,8 +67,10 @@ CODE_STATE = {
 def tts24(text: str, voice: str) -> bytes:
     with tempfile.TemporaryDirectory() as td:
         out = Path(td) / "u.wav"
-        subprocess.run(["say", "-v", voice, "-r", "180", "-o", str(out), "--file-format=WAVE",
-                        "--data-format=LEI16@24000", text], check=True)
+        subprocess.run(
+            ["say", "-v", voice, "-r", "180", "-o", str(out), "--file-format=WAVE", "--data-format=LEI16@24000", text],
+            check=True,
+        )
         pcm, _ = read_pcm16(out)
     return pcm
 
@@ -99,8 +103,7 @@ class Session:
                 frame = frame.ljust(FRAME_BYTES, b"\x00")
             else:
                 frame = b"\x00" * FRAME_BYTES
-            await self.ws.send(json.dumps({"type": "input.audio",
-                                           "audio": base64.b64encode(frame).decode()}))
+            await self.ws.send(json.dumps({"type": "input.audio", "audio": base64.b64encode(frame).decode()}))
             n += 1
             await asyncio.sleep(max(0.0, start + n * FRAME_MS / 1000 - time.perf_counter()))
 
@@ -122,14 +125,14 @@ class Session:
             elif t == "tool.call":
                 args = msg.get("arguments") or {}
                 self.pending_results[msg["call_id"]] = json.dumps(
-                    CODE_STATE if msg["name"] == "get_code_state" else {"error": "unknown tool"})
+                    CODE_STATE if msg["name"] == "get_code_state" else {"error": "unknown tool"}
+                )
                 msg["_args"] = args
             elif t == "reply.done":
                 if msg.get("status") == "interrupted":
                     self.pending_results.clear()
                 for call_id, result in list(self.pending_results.items()):
-                    await self.ws.send(json.dumps({"type": "tool.result", "call_id": call_id,
-                                                   "result": result}))
+                    await self.ws.send(json.dumps({"type": "tool.result", "call_id": call_id, "result": result}))
                     del self.pending_results[call_id]
             elif t in ("session.error", "session.ended"):
                 if t == "session.ended":
@@ -171,6 +174,7 @@ def summarize(ev: list[dict], t_start: float) -> dict:
             if pred(e):
                 return round((e["_t"] - t_start) * 1000)
         return None
+
     return {
         "user_transcripts": [e.get("text") for e in ev if e.get("type") == "transcript.user"],
         "tool_calls": [{"name": e.get("name"), "args": e.get("_args")} for e in ev if e.get("type") == "tool.call"],
@@ -190,16 +194,27 @@ async def main() -> None:
     stop = tts24("Got it, pausing now.", "Rishi")
     chatter = tts24("Resume compressions. Good depth, keep going.", "Daniel")
 
-    async with websockets.connect(URL, additional_headers={"Authorization": f"Bearer {api_key()}"},
-                                  max_size=None) as ws:
+    async with websockets.connect(
+        URL, additional_headers={"Authorization": f"Bearer {api_key()}"}, max_size=None
+    ) as ws:
         s = Session(ws)
-        await ws.send(json.dumps({"type": "session.update", "session": {
-            "system_prompt": SYSTEM_PROMPT,
-            "tools": TOOLS,
-            "input": {"format": {"encoding": "audio/pcm"}, "keyterms": KEYTERMS[:100],
-                      "turn_detection": {"interrupt_response": True}},
-            "output": {"voice": "michael"},
-        }}))
+        await ws.send(
+            json.dumps(
+                {
+                    "type": "session.update",
+                    "session": {
+                        "system_prompt": SYSTEM_PROMPT,
+                        "tools": TOOLS,
+                        "input": {
+                            "format": {"encoding": "audio/pcm"},
+                            "keyterms": KEYTERMS[:100],
+                            "turn_detection": {"interrupt_response": True},
+                        },
+                        "output": {"voice": "michael"},
+                    },
+                }
+            )
+        )
         recv = asyncio.create_task(s.receive())
         pump = asyncio.create_task(s.pump_audio())
         await asyncio.wait_for(s.ready.wait(), 15)
@@ -218,22 +233,26 @@ async def main() -> None:
         prompt_text = "Two minutes. Pause compressions for rhythm and pulse check."
 
         async def t1():
-            await ws.send(json.dumps({"type": "reply.create",
-                                      "instructions": f'Say exactly: "{prompt_text}"'}))
+            await ws.send(json.dumps({"type": "reply.create", "instructions": f'Say exactly: "{prompt_text}"'}))
+
         await test("T1_prompt", t1)
         results["T1_prompt"]["expected"] = prompt_text
 
         async def t2():
             await s.speech.put(q_en)
+
         await test("T2_question_en", t2)
 
         async def t3():
             await s.speech.put(q_hi)
+
         await test("T3_question_hinglish", t3)
 
         async def t4():
-            long = ("Epinephrine one milligram was ordered at zero thirty and has not been "
-                    "acknowledged. Please confirm who is drawing it up and read back the dose.")
+            long = (
+                "Epinephrine one milligram was ordered at zero thirty and has not been "
+                "acknowledged. Please confirm who is drawing it up and read back the dose."
+            )
             t = s.now()
             await ws.send(json.dumps({"type": "reply.create", "instructions": f'Say exactly: "{long}"'}))
             first_audio = await s.wait_for(lambda e: e.get("type") == "reply.audio", 10, t)
@@ -241,10 +260,12 @@ async def main() -> None:
                 await asyncio.sleep(1.2)  # let it talk, then a human cuts in
                 results.setdefault("T4_meta", {})["human_speech_sent_at_ms"] = round((s.now() - t) * 1000)
                 await s.speech.put(stop)
+
         await test("T4_barge_in", t4)
 
         async def t5():
             await s.speech.put(chatter)
+
         await test("T5_chatter", t5)
 
         await ws.send(json.dumps({"type": "session.end"}))
