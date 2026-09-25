@@ -84,10 +84,9 @@ def said(text: str, speaker: str, start: float, order: int) -> dict:
 
 
 @pytest.fixture
-async def session():
-    s = CodeSession(
-        "c1", Settings(assemblyai_api_key="x"), Store(":memory:"), ears_factory=FakeEars, voice_factory=FakeVoice
-    )
+async def session(tmp_path):
+    settings = Settings(assemblyai_api_key="x", audio_dir=tmp_path, second_listen=False)
+    s = CodeSession("c1", settings, Store(":memory:"), ears_factory=FakeEars, voice_factory=FakeVoice)
     await s.start()
     for t in s._tasks:  # drive time manually in tests
         t.cancel()
@@ -196,3 +195,43 @@ async def test_ending_the_code_closes_the_session_after_a_grace_period(session: 
     assert session.closed
     assert session.store.get_code("c1")["status"] == "ended"
     assert session.store.get_code("c1")["outcome"] == "rosc"
+
+
+async def test_second_listen_compares_the_recording_with_the_live_record(tmp_path, monkeypatch) -> None:
+    import codeloop.session as mod
+    from codeloop.record import build_record
+
+    fake = {
+        "id": "tx1",
+        "utterances": [
+            {"speaker": "A", "start": 200, "end": 1200, "text": "Starting CPR now.", "words": []},
+            {"speaker": "A", "start": 30000, "end": 31800, "text": "Give one milligram of epinephrine.", "words": []},
+            {"speaker": "B", "start": 60500, "end": 61900, "text": "Amio one fifty, pushing.", "words": []},
+        ],
+    }
+
+    async def fake_transcribe(settings, wav, keyterms, **kw):
+        assert wav.exists() and wav.stat().st_size > 16000 * 2 * 5
+        return fake
+
+    monkeypatch.setattr(mod, "transcribe_file", fake_transcribe)
+    settings = Settings(assemblyai_api_key="x", audio_dir=tmp_path)
+    store = Store(":memory:")
+    s = CodeSession("c2", settings, store, ears_factory=FakeEars, voice_factory=FakeVoice)
+    await s.start()
+    for t in s._tasks:
+        t.cancel()
+    await s.feed_audio(b"\x00\x00" * 16000 * 6)
+    s.ears.clock = 2.0
+    await s._on_ears(said("Starting CPR now.", "A", 0.2, 0))
+    s.ears.clock = 32.0
+    await s._on_ears(said("Give one milligram of epinephrine.", "A", 30.0, 1))
+    s.ears.clock = 62.0
+    await s._on_ears(said("Amio three hundred, pushing.", "B", 60.5, 2))  # live heard 300, recording says 150
+    await s.stop()
+    await s.second_listen_task
+    rec = build_record(store, "c2")
+    sl = rec["second_listen"]
+    assert sl["status"] == "done"
+    assert sl["counts"]["confirmed"] == 1 and sl["counts"]["value_mismatch"] == 1
+    assert any(n["state"] == "value_mismatch" for n in rec["needs_review"])

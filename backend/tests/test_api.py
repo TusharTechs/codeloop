@@ -32,7 +32,11 @@ def replay_dir(tmp_path):
 
 def make_client(replay_dir, token: str | None = None) -> TestClient:
     settings = Settings(
-        assemblyai_api_key="k", replay_dir=replay_dir, access_token=token, frontend_dist=replay_dir / "nope"
+        assemblyai_api_key="k",
+        replay_dir=replay_dir,
+        access_token=token,
+        frontend_dist=replay_dir / "nope",
+        store_audio=False,
     )
     return TestClient(create_app(settings, Store(":memory:"), factory=fake_session))
 
@@ -97,7 +101,7 @@ def test_index_is_never_cached_but_hashed_assets_are(tmp_path) -> None:
     (dist / "assets").mkdir(parents=True)
     (dist / "index.html").write_text("<html></html>")
     (dist / "assets" / "index-abc123.js").write_text("console.log(1)")
-    settings = Settings(assemblyai_api_key="k", replay_dir=tmp_path, frontend_dist=dist)
+    settings = Settings(assemblyai_api_key="k", replay_dir=tmp_path, frontend_dist=dist, store_audio=False)
     with TestClient(create_app(settings, Store(":memory:"), factory=fake_session)) as c:
         assert c.get("/").headers["cache-control"] == "no-cache"
         assert c.get("/some/route").headers["cache-control"] == "no-cache"

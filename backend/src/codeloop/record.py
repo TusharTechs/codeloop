@@ -90,6 +90,25 @@ def build_record(store: Store, code_id: str) -> dict[str, Any]:
         if lp["state"] in ("CONFLICT", "ORDERED", "UNACKNOWLEDGED", "ACKNOWLEDGED") or lp.get("needs_confirmation")
     ]
     closed = [e.payload for e in entries if e.kind == "code_closed"]
+    second: dict | None = None
+    for e in entries:
+        if e.kind == "second_listen_started":
+            second = {"status": "running"}
+        elif e.kind == "second_listen":
+            second = {"status": "done", **e.payload}
+        elif e.kind == "second_listen_failed":
+            second = {"status": "failed", **e.payload}
+    if second and second.get("status") == "done":
+        for item in second["items"]:
+            if item["status"] in ("value_mismatch", "second_only", "live_only"):
+                reason = {
+                    "value_mismatch": "second listen heard a different value",
+                    "second_only": "second listen heard it; not in the live record",
+                    "live_only": "second listen did not confirm it",
+                }[item["status"]]
+                needs_review.append(
+                    {"loop": f"second:{item['at_s']}", "what": item["what"], "state": item["status"], "reason": reason}
+                )
     if closed and closed[-1].get("clock_s") is not None:
         duration_s: float | None = float(closed[-1]["clock_s"])
     elif events and start is not None:
@@ -119,6 +138,7 @@ def build_record(store: Store, code_id: str) -> dict[str, Any]:
         "duration_s": duration_s,
         "administered": sorted(administered, key=lambda x: x["clock"]),
         "quality": (closed[-1].get("quality") if closed else None) or [],
+        "second_listen": second,
         "timeline": timeline,
         "loops": list(loops.values()),
         "flags": list(flags.values()),

@@ -41,6 +41,11 @@ class Settings(BaseSettings):
     max_concurrent_codes: int = 4
     max_code_minutes: int = 60
     database_path: Path = REPO_ROOT / "data" / "codeloop.db"
+    # Room audio is kept for the post-code "second listen" and for review, then deleted.
+    store_audio: bool = True
+    second_listen: bool = True
+    audio_dir: Path = REPO_ROOT / "data" / "audio"
+    audio_retention_days: int = 30
     replay_dir: Path = REPO_ROOT / "demo" / "scenarios"
     allowed_origins: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
     frontend_dist: Path = REPO_ROOT / "frontend" / "dist"

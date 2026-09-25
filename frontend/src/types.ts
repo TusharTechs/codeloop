@@ -160,6 +160,24 @@ export interface Scenario {
   cast: Record<string, string>
 }
 
+export interface SecondListenItem {
+  status: 'confirmed' | 'value_mismatch' | 'live_only' | 'second_only'
+  what: string
+  at_s: number
+  live_quote: string | null
+  second_quote: string | null
+  live_value: number | null
+  second_value: number | null
+}
+
+export interface SecondListen {
+  status: 'running' | 'done' | 'failed'
+  counts?: Record<SecondListenItem['status'], number>
+  live_events?: number
+  items?: SecondListenItem[]
+  error?: string
+}
+
 export interface CodeRecord {
   code: { id: string; created_at: string; mode: string; scenario: string | null; status: string; outcome: string | null; ended_at: string | null }
   integrity: { chain_valid: boolean; first_bad_entry: number | null; entries: number; head_hash: string }
@@ -168,6 +186,7 @@ export interface CodeRecord {
   duration_s: number | null
   administered: { clock: string; what: string; without_order: boolean; closed_loop: boolean }[]
   quality: QualityMetric[]
+  second_listen: SecondListen | null
   timeline: { clock: string; at_s: number; what: string; kind: string; quote: string; speaker: string | null; role: string | null; source: string; confidence: number | null; unconfirmed: boolean }[]
   loops: Loop[]
   flags: Flag[]

@@ -28,6 +28,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Protocol
 
+from .aai.async_stt import transcribe_file, utterances_from_transcript
 from .aai.streaming import SAMPLE_RATE, StreamingEars
 from .aai.turns import TurnAssembler
 from .aai.voice import Line, VoiceAgent
@@ -37,6 +38,7 @@ from .engine.answers import answer
 from .engine.engine import EngineOutput
 from .engine.metrics import quality_metrics
 from .pipeline import TranscriptPipeline
+from .reconcile import compare, events_from_utterances
 from .store import Store
 
 log = logging.getLogger(__name__)
@@ -120,6 +122,9 @@ class CodeSession:
         self._last_state_push = 0.0
         self.closed = False
         self._closer: asyncio.Task | None = None
+        self._audio_file: wave.Wave_write | None = None
+        self._audio_path: Path | None = None
+        self.second_listen_task: asyncio.Task | None = None
         self.voice_status = "off"
         self.ears_status = "connecting"
 
@@ -136,6 +141,13 @@ class CodeSession:
                 "formulary": self.engine.f.version,
             },
         )
+        if self.settings.store_audio:
+            self.settings.audio_dir.mkdir(parents=True, exist_ok=True)
+            self._audio_path = self.settings.audio_dir / f"{self.id}.wav"
+            self._audio_file = wave.open(str(self._audio_path), "wb")
+            self._audio_file.setnchannels(1)
+            self._audio_file.setsampwidth(2)
+            self._audio_file.setframerate(SAMPLE_RATE)
         self.ears = self._ears_factory(self.settings, self.engine.f, self._on_ears)
         await self.ears.start()
         self.ears_status = "live"
@@ -173,6 +185,26 @@ class CodeSession:
         await self._audit("code_closed", summary)
         self.store.finish_code(self.id, "ended", self.engine.outcome, summary)
         await self.broadcast({"type": "closed", "summary": summary})
+        if self._audio_file is not None:
+            seconds = self._audio_file.getnframes() / SAMPLE_RATE
+            self._audio_file.close()
+            self._audio_file = None
+            if self.settings.second_listen and seconds >= 5 and self.settings.has_api_key:
+                self.second_listen_task = asyncio.create_task(self._second_listen(), name=f"second-listen-{self.id}")
+
+    async def _second_listen(self) -> None:
+        """Re-transcribe the whole recording with AssemblyAI async Universal-3.5 Pro and compare."""
+        assert self._audio_path is not None
+        await self._audit("second_listen_started", {"model": "universal-3-5-pro", "domain": "medical-v1"})
+        try:
+            t = await transcribe_file(self.settings, self._audio_path, self.engine.f.keyterms())
+            second = events_from_utterances(utterances_from_transcript(t))
+            result = compare(self.engine.events, second)
+            result["transcript_id"] = t.get("id")
+            await self._audit("second_listen", result)
+        except Exception as e:
+            log.exception("second listen failed")
+            await self._audit("second_listen_failed", {"error": repr(e)[:300]})
 
     @property
     def clock(self) -> float:
@@ -188,6 +220,8 @@ class CodeSession:
             await self.stop()
             return
         await self.ears.send_audio(pcm)
+        if self._audio_file is not None:
+            self._audio_file.writeframes(pcm)
         if self.voice is not None:
             self.voice.feed_room_audio(pcm)
 

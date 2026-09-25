@@ -90,6 +90,21 @@ class SessionManager:
             await s.stop()
 
 
+def purge_old_audio(settings: Settings) -> int:
+    """Delete stored room audio older than the retention period."""
+    import time
+
+    if not settings.audio_dir.exists():
+        return 0
+    cutoff = time.time() - settings.audio_retention_days * 86400
+    removed = 0
+    for f in settings.audio_dir.glob("*.wav"):
+        if f.stat().st_mtime < cutoff:
+            f.unlink(missing_ok=True)
+            removed += 1
+    return removed
+
+
 def list_scenarios(replay_dir: Path) -> list[dict]:
     out = []
     # The quick tour is listed first: it is what a first-time visitor should watch.
@@ -124,6 +139,7 @@ def create_app(settings: Settings | None = None, store: Store | None = None, fac
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
+        purge_old_audio(settings)
         yield
         await manager.stop_all()
 

@@ -85,6 +85,54 @@ export function RecordPage({ codeId }: { codeId: string }) {
         </section>
       )}
 
+      {rec.second_listen && (
+        <section className="panel">
+          <h3>
+            Second listen
+            <span className="muted" style={{ textTransform: 'none', letterSpacing: 0 }}>
+              AssemblyAI async Universal-3.5 Pro · Medical Mode · the whole recording
+            </span>
+          </h3>
+          {rec.second_listen.status === 'running' && <div className="muted">Re-transcribing the full recording to check the live record…</div>}
+          {rec.second_listen.status === 'failed' && <div className="notice bad">Second listen failed: {rec.second_listen.error}</div>}
+          {rec.second_listen.status === 'done' && rec.second_listen.counts && (
+            <>
+              <div>
+                <b>
+                  {rec.second_listen.counts.confirmed} of {rec.second_listen.live_events} live events confirmed
+                </b>{' '}
+                by an independent transcription of the whole recording.
+                {rec.second_listen.counts.value_mismatch > 0 && <span className="chip bad" style={{ marginLeft: 8 }}>{rec.second_listen.counts.value_mismatch} value mismatch</span>}
+                {rec.second_listen.counts.live_only > 0 && <span className="chip warn" style={{ marginLeft: 8 }}>{rec.second_listen.counts.live_only} not confirmed</span>}
+                {rec.second_listen.counts.second_only > 0 && <span className="chip warn" style={{ marginLeft: 8 }}>{rec.second_listen.counts.second_only} missed live</span>}
+              </div>
+              {(rec.second_listen.items ?? []).filter((i) => i.status !== 'confirmed').length > 0 && (
+                <div className="tablewrap">
+                  <table className="t">
+                    <thead><tr><th>Time</th><th>Event</th><th>Finding</th><th>Live heard</th><th>Second listen heard</th></tr></thead>
+                    <tbody>
+                      {(rec.second_listen.items ?? []).filter((i) => i.status !== 'confirmed').map((i, k) => (
+                        <tr key={k}>
+                          <td className="mono">{Math.floor(i.at_s / 60).toString().padStart(2, '0')}:{Math.floor(i.at_s % 60).toString().padStart(2, '0')}</td>
+                          <td><b>{i.what}</b></td>
+                          <td>
+                            {i.status === 'value_mismatch' && <span className="chip bad">different value</span>}
+                            {i.status === 'live_only' && <span className="chip warn">not confirmed</span>}
+                            {i.status === 'second_only' && <span className="chip warn">missed live</span>}
+                          </td>
+                          <td className="muted">{i.live_quote ? `“${i.live_quote}”` : '—'}</td>
+                          <td className="muted">{i.second_quote ? `“${i.second_quote}”` : '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
+          )}
+        </section>
+      )}
+
       <section className="panel">
         <h3>Administered</h3>
         <div className="tablewrap">
