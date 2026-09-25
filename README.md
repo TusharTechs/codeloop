@@ -58,8 +58,29 @@ orders fly across the room.
   guessed.
 - **Gets out of the way.** CodeLoop waits for a gap in the room before it speaks and stops
   mid-word when a clinician talks over it. The team can mute it or keep it screen-only.
-- **Produces the Code Record.** Every entry has a timestamp, speaker, quote and ASR confidence.
-  Uncertain items are listed for sign-off, and a SHA-256 hash chain makes any edit detectable.
+- **Explains itself.** A "What just happened" caption says in plain words why a card turned
+  amber or red. A guided 90-second tour runs a mock code for anyone seeing CodeLoop for the
+  first time.
+
+**After the code:**
+
+- **Code Record.** Every entry has a timestamp, speaker, quote and ASR confidence. Uncertain
+  items are listed for sign-off, and a SHA-256 hash chain makes any edit detectable.
+- **Quality against AHA targets.** Time to first shock, time to first epinephrine, epinephrine
+  intervals, orders read back, median time to read-back, orders left unacknowledged, and CPR
+  fraction and longest pause estimated from spoken calls. A codes dashboard tracks them across
+  mock codes.
+- **Second listen.** The whole recording is transcribed again with AssemblyAI async
+  Universal-3.5 Pro. Every live event is confirmed, or flagged for review when the two
+  transcriptions disagree.
+- **Spoken debrief.** A hands-free Voice Agent conversation walks the team through a short
+  Gather–Analyze–Summarize debrief. It quotes facts from the record through a tool call and saves
+  the team's lessons, in their own words, to the Code Record.
+
+![The Code Record after a mock code: quality against AHA targets, the second listen and the team's spoken debrief](docs/img/after-code.png)
+*The Code Record of the tour code. The quality panel, the second-listen result and the debrief
+notes are real output. In this debrief a synthetic voice played the team leader
+(`scripts/e2e_debrief.py`) and CodeLoop ran the conversation live on the Voice Agent API.*
 
 ## How it uses AssemblyAI
 
@@ -74,11 +95,16 @@ Each AssemblyAI feature below guards against a specific failure. We measured mos
 | **Hindi–English code-switching** | Indian teams' real talk is lost | Devanagari output is mapped back through a cross-script phonetic layer |
 | **Voice Agent API** | A talking bot talks over the team leader | Fixed lines speak in about **0.8 s**; semantic barge-in stops them mid-word |
 | **Tight turn detection** (`min/max_turn_silence`) | Answers and nudges come too late | Latency cut about 3× (4.4 s → 1.4 s) with no loss of loop outcomes |
+| **Async Universal-3.5 Pro** (second listen) | A live mishearing goes into the record unchecked | Full-recording pass confirmed **13 of 13** live events on the tour code, and flagged a false ROSC on an older capture |
+| **Voice Agent tool calling** (debrief) | A debrief bot invents numbers | Facts come only from `get_code_facts`, built deterministically from the record; lessons are saved with `save_debrief_note` |
 
-The two AssemblyAI connections do different jobs. The **streaming ears** hear the room. The
-**Voice Agent** is CodeLoop's voice. The Voice Agent never hears room chatter: in testing it tried
+During the code, two AssemblyAI connections do different jobs. The **streaming ears** hear the
+room. The **Voice Agent** is CodeLoop's voice. The Voice Agent never hears room chatter: in testing it tried
 to answer unaddressed speech out loud. It receives room audio only while it is speaking, so
 clinicians can interrupt it. See [docs/spike-findings.md](docs/spike-findings.md).
+After the code, **async Universal-3.5 Pro** checks the record and the **Voice Agent** runs the
+debrief as a real two-way conversation with tools. That is the one place CodeLoop's model
+talks freely, and it can only quote facts, never compute them.
 
 ## Architecture
 
@@ -122,6 +148,30 @@ flowchart TB
     class STT,VA aai
     class TURNS,GRAM,ENG,ANS,SCHED,AUDIT,REC core
     class TEAM,TAB,SCREEN room
+```
+
+**After the code**, the same audit log feeds three checks. None of them can change what was
+logged live; they add review flags and the team's own words.
+
+```mermaid
+flowchart LR
+    WAV[("Room recording<br/>retention-limited")] --> ASYNC["AssemblyAI async<br/>Universal-3.5 Pro<br/>second listen"]
+    ASYNC --> RECON["Reconciler<br/>confirmed · mismatch<br/>live-only · second-only"]
+    LOG[("Hash-chained<br/>audit log")] --> QUAL["Quality metrics<br/>vs AHA targets"]
+    LOG --> FACTS["Debrief facts<br/>deterministic sentences"]
+    FACTS -- "get_code_facts" --> DEB["AssemblyAI Voice Agent<br/>spoken debrief"]
+    TEAM(["Team leader"]) <-- "two-way voice,<br/>barge-in" --> DEB
+    RECON -- "needs review" --> REC["Code Record"]
+    QUAL --> REC
+    DEB -- "save_debrief_note<br/>end_debrief" --> LOG
+    LOG --> REC
+
+    classDef aai fill:#16243a,stroke:#6aa9ff,color:#e8eef4
+    classDef core fill:#10241f,stroke:#35d0b5,color:#e8eef4
+    classDef room fill:#1c2835,stroke:#8d9cad,color:#e8eef4
+    class ASYNC,DEB aai
+    class WAV,RECON,LOG,QUAL,FACTS,REC core
+    class TEAM room
 ```
 
 **How a dose conflict is caught, end to end:**
@@ -192,9 +242,9 @@ Protocol, per-scenario numbers and the AssemblyAI A/B: [eval/RESULTS.md](eval/RE
 
 | Real | Simulated |
 |---|---|
-| Live AssemblyAI streaming, diarization, Medical Mode, keyterms, Voice Agent API | The patient, monitor and defibrillator (there are no device integrations) |
+| Live AssemblyAI streaming, diarization, Medical Mode, keyterms, Voice Agent API (fixed lines and the tool-calling debrief), async second listen | The patient, monitor and defibrillator (there are no device integrations) |
 | Grammar, resolver, ACLS engine, prompt scheduler, echo guard | Mock-code audio in replay mode is TTS voices, not real clinicians |
-| Hash-chained audit log, Code Record, web UI, microphone capture | No EHR or registry connection yet |
+| Hash-chained audit log, Code Record, quality metrics, web UI, microphone capture | No EHR or registry connection yet. CPR fraction is estimated from spoken calls, not a CPR sensor |
 | Every number in this README, measured with the scripts in `eval/` | |
 
 ## Run it
@@ -208,9 +258,11 @@ cd backend && uv sync && uv run python -m codeloop     # API on :8000
 cd frontend && pnpm install && pnpm dev                 # UI on :5173 (proxies to :8000)
 ```
 
-Open http://localhost:5173. **Replay a mock code** streams a recorded mock code through the
-live pipeline. **Start live code** uses your microphone. Say "Code blue, starting CPR", then
-try "Give one milligram of epinephrine" and stay silent.
+Open http://localhost:5173. **Start here: 90-second tour** replays a guided mock code with
+captions. **Replay a mock code** streams a recorded mock code through the live pipeline. **Start live code** uses your microphone. Say "Code blue, starting CPR", then
+try "Give one milligram of epinephrine" and stay silent. When a code ends, open its Code
+Record for the quality metrics and second listen, and press **Spoken debrief** to talk it
+through (headphones help).
 
 **Single-origin production build:** run `cd frontend && pnpm build`, then start the backend. It
 serves the UI at http://localhost:8000.
@@ -236,14 +288,17 @@ secret. It is used only to download dependencies and is never copied into the im
 | `MAX_CODE_MINUTES` | `60` | Capture stops after this long |
 | `DATABASE_PATH` | `data/codeloop.db` | Audit log (put it on a volume) |
 | `MIN_TURN_SILENCE_MS` / `MAX_TURN_SILENCE_MS` | `160` / `640` | Turn detection (measured trade-off) |
+| `STORE_AUDIO` / `SECOND_LISTEN` | `true` / `true` | Keep the room recording and re-check the record after the code |
+| `AUDIO_RETENTION_DAYS` | `30` | Recordings older than this are deleted at startup |
 
 **Tests and evaluation:**
 
 ```bash
-cd backend && uv run pytest -q                                  # 131 tests
+cd backend && uv run pytest -q                                  # 141 tests
 uv run --project backend python eval/run_text_eval.py           # perfect-transcript scores
 uv run --project backend python eval/capture.py eval/audio/*.ward.wav   # live captures (needs key)
 uv run --project backend python eval/run_eval.py spikes/results/streaming.*.product.raw.json
+uv run --project backend python scripts/e2e_debrief.py <ended code id>  # live spoken debrief
 ```
 
 ## Repository map
@@ -252,8 +307,10 @@ uv run --project backend python eval/run_eval.py spikes/results/streaming.*.prod
 backend/src/codeloop/
   aai/          AssemblyAI clients: streaming ears, voice agent, turn splitting
   extract/      grammar, numbers, phonetic cross-script matching, resolver
-  engine/       ACLS engine + loop ledger, spoken-number rendering, answers
-  session.py    per-code orchestration (scheduling, echo guard, controls, replay)
+  engine/       ACLS engine + loop ledger, spoken-number rendering, answers, quality metrics
+  session.py    per-code orchestration (scheduling, echo guard, controls, replay, recording)
+  reconcile.py  second listen: live record vs async re-transcription
+  debrief.py    spoken debrief on the Voice Agent API, with tools
   store.py      hash-chained audit log      record.py   Code Record
   api/app.py    REST + WebSocket API
 frontend/src/   crash-cart UI (React + TypeScript)
@@ -265,12 +322,14 @@ docs/           architecture, safety case, spike findings, research
 ## Cost
 
 About **$2.66 of AssemblyAI usage per 30-minute code** at list prices: streaming with Medical Mode,
-speaker labels and Voice Focus, plus a Voice Agent session. See
-[docs/architecture.md](docs/architecture.md).
+speaker labels and Voice Focus, plus a Voice Agent session. The second listen adds an async
+Universal-3.5 Pro pass ($0.21/h base), and a five-minute spoken debrief is about $0.38 of Voice
+Agent time. See [docs/architecture.md](docs/architecture.md).
 
 ## Roadmap
 
-1. **Simulation centres.** Recorded mock codes with real clinicians, and debrief timelines. This is
+1. **Simulation centres.** Recorded mock codes with real clinicians, quality dashboards and
+   spoken debriefs. This is
    also where accuracy on real voices gets measured.
 2. **Documentation assist.** Recorder-nurse sign-off, FHIR export and GWTG-Resuscitation registry
    fields.

@@ -48,8 +48,12 @@ flowchart TB
 | `engine/engine.py` | Closed-loop ledger and ACLS clock; no I/O, fully deterministic |
 | `engine/answers.py` | Deterministic answers to "CodeLoop, …" questions |
 | `engine/speech.py` | Numbers, doses and durations as unambiguous spoken English |
+| `engine/metrics.py` | Resuscitation quality against AHA targets (first shock, first epinephrine, intervals, read-back rate and time, estimated CPR fraction and longest pause) |
 | `aai/voice.py` | Voice Agent API client: only speaks given lines, mutes unsolicited replies, barge-in, session resume |
-| `session.py` | Per-code orchestration: prompt scheduling, echo guard, controls, replay, broadcast, audit |
+| `session.py` | Per-code orchestration: prompt scheduling, echo guard, controls, replay, broadcast, audit, room recording, second listen after the code |
+| `aai/async_stt.py` | AssemblyAI async Universal-3.5 Pro over the whole recording (Medical Mode, speaker labels, the same keyterms) |
+| `reconcile.py` | Second listen: classifies each clinical event as confirmed, value mismatch, live-only or second-only |
+| `debrief.py` | Spoken debrief on the Voice Agent API: `get_code_facts` (deterministic sentences), `save_debrief_note`, `end_debrief` |
 | `store.py` | Append-only SHA-256 hash-chained audit log |
 | `record.py` | Code Record from the audit log, with integrity status |
 | `api/app.py` | REST + WebSocket API, access token, limits, SPA hosting |
@@ -68,6 +72,11 @@ See the header of `backend/src/codeloop/api/app.py` for message types. Binary fr
 `0x01` + PCM16 16 kHz room audio (replays), `0x02` + PCM16 24 kHz CodeLoop voice. Browser → server
 binary frames are microphone PCM16 16 kHz.
 
+The spoken debrief uses its own socket, `/ws/debrief/{code_id}`, and is open only for ended codes.
+The browser sends microphone PCM16 16 kHz; the server resamples to 24 kHz for the Voice Agent and
+returns `0x02` voice frames plus `debrief_ready` / `debrief_user` / `debrief_agent` /
+`debrief_tool` / `debrief_note` / `debrief_done` messages. Tool results are sent after `reply.done`.
+
 ## Cost per code (AssemblyAI list prices, Sept 2026)
 
 | Item | Rate |
@@ -78,3 +87,5 @@ binary frames are microphone PCM16 16 kHz.
 | Voice Focus | + $0.10 / h |
 | Voice Agent API (session time) | $4.50 / h |
 | **30-minute code** | **≈ $2.66** |
+| Second listen (async U3.5 Pro, optional) | $0.21 / h base, plus Medical Mode and speaker-label add-ons |
+| Spoken debrief (Voice Agent, optional) | ≈ $0.38 for five minutes |

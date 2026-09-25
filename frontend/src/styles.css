@@ -62,6 +62,7 @@ a { color: var(--blue); }
 }
 .btn:hover { background: var(--panel-3); border-color: #33465a; }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+a.btn { text-decoration: none; }
 .btn.primary { background: var(--teal); color: #04241e; border-color: transparent; }
 .btn.primary:hover { background: #4be0c6; }
 .btn.danger { background: var(--red-bg); border-color: rgba(255, 93, 93, 0.5); color: #ffd4d4; }

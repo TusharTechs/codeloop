@@ -32,6 +32,13 @@ timer and spoken number. Low-confidence doses are marked for confirmation, and a
 cannot end a code. Every entry goes into a SHA-256 hash-chained audit log, and the Code Record is
 rebuilt from that log.
 
+After the code, CodeLoop closes the learning loop. The Code Record shows quality against AHA
+targets (time to first shock and epinephrine, read-back rate and time, estimated CPR fraction). A
+"second listen" transcribes the whole recording again with AssemblyAI async Universal-3.5 Pro and
+confirms each live event or flags it for review. Then the team leader can hold a hands-free spoken
+debrief: a Voice Agent conversation with tool calls that quotes facts from the record, never
+computing them, and saves the team's lessons in their own words.
+
 We measured it honestly on synthetic mock codes. On two held-out sets, committed before they
 were measured, the first live scores were precision 0.97 / recall 0.71 and 0.82 / 0.56. After
 general fixes: 0.96 / 0.88, with 16 of 17 loop outcomes correct. Medical Mode plus keyterms raised
