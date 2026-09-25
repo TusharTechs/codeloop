@@ -1,0 +1,20 @@
+# Render Blueprint: one Docker web service on the Free plan.
+# Tested at Free-plan limits (0.1 CPU, 512 MB): the 80-second tour kept p50 event latency at
+# 1.2 s and the second listen completed. One code at a time keeps it within that CPU budget.
+# The Free plan has no persistent disk, so codes and recordings reset when the service sleeps.
+services:
+  - type: web
+    name: codeloop
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: ASSEMBLYAI_API_KEY
+        sync: false
+      - key: ACCESS_TOKEN
+        sync: false
+      - key: MAX_CONCURRENT_CODES
+        value: "1"

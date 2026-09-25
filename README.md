@@ -267,6 +267,11 @@ through (headphones help).
 **Single-origin production build:** run `cd frontend && pnpm build`, then start the backend. It
 serves the UI at http://localhost:8000.
 
+**Render (free):** `render.yaml` deploys the Docker image on Render's Free plan. Create a
+Blueprint from this repository and enter `ASSEMBLYAI_API_KEY` and an `ACCESS_TOKEN` when asked.
+It was tested at Free-plan limits (0.1 CPU, 512 MB). The Free plan sleeps after 15 idle minutes,
+wakes in about a minute, and has no disk, so codes reset when it sleeps.
+
 **Docker:**
 
 ```bash
