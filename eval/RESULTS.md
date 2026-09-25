@@ -38,6 +38,29 @@ honest measurement.
 Precision held at 0.93 or above on every live capture. When CodeLoop is unsure, it misses an event
 rather than inventing one, which is the right failure mode for a medical record.
 
+## Held-out v2 (written after the v1 fixes, committed before measurement)
+
+UK Resuscitation Council phrasing, lidocaine with a dose-less repeat order and an ignored shock,
+and colloquial Hinglish with Hindi verbs and numbers.
+
+| Held-out v2 | Precision | Recall | Loop outcomes |
+|---|---|---|---|
+| Text, first measurement | 0.81 | 0.71 | 7 / 9 |
+| **Live AssemblyAI, first measurement** | **0.82** | **0.56** | **7 / 9** |
+| Text, after general fixes (no longer held-out) | 0.98 | 0.98 | 9 / 9 |
+| Live, after general fixes (no longer held-out) | 0.94 | 0.83 | 8 / 9 |
+
+What the v2 set caught:
+- **A safety bug introduced by the v1 fixes.** "Shock at one hundred and fifty joules" was
+  split into two shock orders, 100 J and 50 J. Action splitting now never splits inside a
+  number, and a unit alone is not an action. It has a regression test.
+- "Going in" was read as "given". Hindi perfective and progressive verbs ("push kar diya",
+  "charge ho raha hai") were not recognised. First-person leader statements and "check the
+  rhythm" phrasing were also missed.
+- **Remaining live misses are recognition errors.** "Two hundred joules" was heard as "100 joules",
+  "Shock one fifty do" as "Drop 152", and "teen sau" as "team sorted". The grammar does not guess
+  these. In a real code, the read-back loop is what catches a misheard energy.
+
 ## Live results, all captures (current grammar)
 
 | Capture | Config | P | R | Outcomes | Event latency p50 / p90 |
@@ -49,6 +72,9 @@ rather than inventing one, which is the right failure mode for a medical record.
 | Held-out Hinglish, natural | production | 1.00 | 1.00 | 3/3 | 1.5 s / 2.1 s |
 | Held-out PEA | production | 1.00 | 0.92 | 2/2 | 1.3 s / 1.4 s |
 | Held-out pulseless VT | production | 0.93 | 0.87 | 3/3 | 1.2 s / 1.5 s |
+| Held-out v2 UK phrasing | production | 1.00 | 0.94 | 3/3 | 1.4 s / 3.6 s |
+| Held-out v2 lidocaine | production | 0.91 | 0.83 | 2/3 | 1.3 s / 1.4 s |
+| Held-out v2 colloquial Hinglish | production | 0.90 | 0.69 | 3/3 | 1.5 s / 2.0 s |
 
 **AssemblyAI A/B:** on identical audio, critical entities (drug names, doses, energies, rhythms)
 were transcribed correctly 96% of the time with Medical Mode + ACLS keyterms + context prompt,

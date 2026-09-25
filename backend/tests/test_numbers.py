@@ -34,3 +34,16 @@ def vals(text: str) -> list[float]:
 )
 def test_parse_numbers(text: str, expected: list[float]) -> None:
     assert vals(text) == expected
+
+
+def test_one_hundred_and_fifty_joules_is_one_shock_not_two() -> None:
+    # Regression (held-out v2): the "several actions" split once turned this into 100 J and 50 J.
+    from codeloop.domain.formulary import default_formulary
+    from codeloop.domain.models import Utterance
+    from codeloop.extract.grammar import Grammar
+
+    g = Grammar(default_formulary())
+    for text in ("Shock at one hundred and fifty joules.", "Charge to two hundred and give amio three hundred."):
+        cands = g.extract(Utterance(id="u", turn_order=0, text=text, start_s=0, end_s=2))
+        shocks = [c.energy_j for c in cands if c.action == "shock"]
+        assert shocks in ([150.0], [200.0]), (text, shocks)

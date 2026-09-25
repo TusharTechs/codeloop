@@ -94,11 +94,15 @@ room reverb. Held-out scenarios were committed before they were measured.
 
 | | Precision | Recall | Loop outcomes |
 |---|---|---|---|
-| Held-out scenarios, first measurement, live AssemblyAI | 0.97 | 0.71 | 5 / 8 |
-| Same scenarios after general grammar fixes (no longer held-out), live | 0.97 | 0.93 | 8 / 8 |
+| Held-out set 1, first measurement, live AssemblyAI | 0.97 | 0.71 | 5 / 8 |
+| Held-out set 2, first measurement, live AssemblyAI | 0.82 | 0.56 | 7 / 9 |
+| Both sets after general grammar fixes (no longer held-out), live | 0.96 | 0.88 | 16 / 17 |
 | VF demo scenario, live, production settings | 0.97 | 0.91 | 3 / 3 |
 
-Precision stays high. When CodeLoop is unsure, it misses an event rather than inventing one.
+Each fresh held-out set found real gaps. Set 2 caught a bug where "one hundred and fifty
+joules" became two shocks, and that now has a regression test. The fixes are general rules,
+never copied test sentences. The remaining live misses are mostly recognition errors (for example
+"two hundred" heard as "100"), which the read-back loop exists to catch.
 Protocol, per-scenario numbers and the AssemblyAI A/B: [eval/RESULTS.md](eval/RESULTS.md).
 
 ## What is real and what is simulated
@@ -153,7 +157,7 @@ secret. It is used only to download dependencies and is never copied into the im
 **Tests and evaluation:**
 
 ```bash
-cd backend && uv run pytest -q                                  # 130 tests
+cd backend && uv run pytest -q                                  # 131 tests
 uv run --project backend python eval/run_text_eval.py           # perfect-transcript scores
 uv run --project backend python eval/capture.py eval/audio/*.ward.wav   # live captures (needs key)
 uv run --project backend python eval/run_eval.py spikes/results/streaming.*.product.raw.json

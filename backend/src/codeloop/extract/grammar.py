@@ -82,6 +82,11 @@ DONE_CUES = [
     "done",
     "shocking",
     "shocking now",
+    "kar diya",
+    "kar di",
+    "ho gayi",
+    "lag gaya",
+    "de di",
     "delivering",
     "shock given",
     "हो गया",
@@ -90,6 +95,14 @@ DONE_CUES = [
     "in",
 ]
 ACK_CUES = [
+    "raha hai",
+    "rahi hai",
+    "raha hoon",
+    "rahi hoon",
+    "ho raha",
+    "kar raha",
+    "kar rahi",
+    "going in",
     "drawing up",
     "pushing",
     "going in",
@@ -386,9 +399,12 @@ VALUE_FILLER = {
     "the",
 }
 NEGATIONS = {"not", "nahi", "instead"}
-CPR_NOUNS = {"cpr", "compressions", "compression", "chest"}
+CPR_NOUNS = {"cpr", "compressions", "compression", "chest", "compressing"}
+FIRST_PERSON = {"i'm", "im", "i", "i'll", "main", "mai"}
+SECOND_PERSON = {"you", "you're", "youre", "aap", "tum"}
+LEAD_WORDS = {"lead", "leading", "leader", "running"}
 CPR_START_WORDS = {"start", "starting", "begin", "beginning", "going", "shuru", "initiate", "commence", "started"}
-CPR_RESUME_WORDS = {"resume", "resuming", "continue", "continuing", "restart", "back", "jari"}
+CPR_RESUME_WORDS = {"resume", "resuming", "continue", "continuing", "restart", "back", "jari", "keep"}
 CPR_PAUSE_WORDS = {"pause", "pausing", "hold", "holding", "stop", "stopping", "off"}
 CONJUNCTIONS = {"and", "aur", "then", "plus", "also"}
 KEEP_CONTRACTIONS = {"let's", "lets"}
@@ -455,6 +471,7 @@ HINDI_LEXICON = {
     "पल्स": "pulse",
     "पॉज": "pause",
     "नेक्स्ट": "next",
+    "वीटी": "vt",
     "ड्यू": "due",
     "दूँ": "due",
     "लास्ट": "last",
@@ -565,6 +582,13 @@ class Grammar:
             if not has_devanagari(w) and w not in PHONETIC_DENYLIST and len(phonetic_key(w).replace("V", "")) >= 2
         )
 
+    def _meaning(self, word: str) -> str:
+        drug = self.f.drug_for(word)
+        if drug is not None:
+            return f"drug:{drug.key}"
+        rhythm = self.f.rhythm_for(word)
+        return f"rhythm:{rhythm.value}" if rhythm is not None else word
+
     def canonical(self, token: str) -> str:
         """Map a Devanagari token to the English/romanized vocabulary word it renders."""
         if not has_devanagari(token):
@@ -574,7 +598,10 @@ class Grammar:
         k = phonetic_key(token)
         exact = [w for w in self._vocab if phonetic_key(w) == k]
         if exact:
-            return exact[0] if len(exact) == 1 else token  # ambiguous: leave it alone
+            # Ambiguous only if the candidates mean different things: "adrenaline" and
+            # "adrenalin" are both epinephrine.
+            meanings = {self._meaning(w) for w in exact}
+            return exact[0] if len(meanings) == 1 else token
         fuzzy = [w for w in self._vocab if token_matches(token, w)]
         return fuzzy[0] if len(fuzzy) == 1 else token
 
@@ -617,8 +644,9 @@ class Grammar:
     # -------------------------------------------------------------- pieces
 
     def _has_action(self, toks: list[Tok]) -> bool:
+        """A drug, or a shock verb. A unit ("joules") alone is not a separate action."""
         norms = [t.norm for t in toks]
-        return bool(self._drugs(norms)) or any(n in SHOCK_WORDS for n in norms)
+        return bool(self._drugs(norms)) or any(n in SHOCK_WORDS and n not in UNIT_WORDS for n in norms)
 
     def _split_actions(self, ctoks: list[Tok]) -> list[list[Tok]]:
         """Split "Charge to one fifty and give amiodarone three hundred" into one clause per
@@ -627,7 +655,15 @@ class Grammar:
         i = 1
         while i < len(parts[-1]) - 1:
             cur = parts[-1]
-            if cur[i].norm in CONJUNCTIONS and self._has_action(cur[:i]) and self._has_action(cur[i + 1 :]):
+            inside_number = bool(parse_numbers([cur[i - 1].norm, "and", cur[i + 1].norm])) and any(
+                n.start < 1 < n.end for n in parse_numbers([cur[i - 1].norm, "and", cur[i + 1].norm])
+            )
+            if (
+                cur[i].norm in CONJUNCTIONS
+                and not inside_number  # "one hundred and fifty joules" is one value
+                and self._has_action(cur[:i])
+                and self._has_action(cur[i + 1 :])
+            ):
                 parts[-1:] = [cur[:i], cur[i + 1 :]]
                 i = 1
             else:
@@ -662,8 +698,15 @@ class Grammar:
             norms, ["don't pause", "no pause"]
         ):
             out.append(cand(EventKind.CPR_PAUSE))
-        if _has(norms, RHYTHM_CHECK_CUES) or norms in (["rhythm"], ["pulse"], ["rhythm", "check"]):
+        is_check = (
+            _has(norms, RHYTHM_CHECK_CUES)
+            or norms in (["rhythm"], ["pulse"], ["rhythm", "check"])
+            or (words & {"check", "checking", "dekho", "dekhte"} and words & {"rhythm", "pulse"})
+        )
+        if is_check:
             out.append(cand(EventKind.RHYTHM_CHECK))
+            if words & {"stop", "pause", "hold", "hands"} and not any(c.kind == EventKind.CPR_PAUSE for c in out):
+                out.append(cand(EventKind.CPR_PAUSE))  # "Stop for a rhythm check"
         rhythm = self._rhythm(norms)
         if rhythm is not None:
             out.append(cand(EventKind.RHYTHM, rhythm=rhythm))
@@ -683,7 +726,8 @@ class Grammar:
 
     def _roles(self, norms: list[str], ctoks: list[Tok], cand) -> list[Candidate]:
         out: list[Candidate] = []
-        if _has(norms, SELF_LEAD_CUES):
+        words = set(norms)
+        if _has(norms, SELF_LEAD_CUES) or (words & FIRST_PERSON and words & LEAD_WORDS and not words & SECOND_PERSON):
             out.append(cand(EventKind.ROLE, role=Role.LEADER))
             return out
         # "On compressions." (self) / "Priya on meds." / "Priya, you're on meds." / "Karan, compressions."
@@ -789,7 +833,7 @@ class Grammar:
                 continue
             if cue == Cue.DONE and norms[span[0] : span[1]] == ["in"]:
                 # a bare "in" only means "administered" at the end of a clause ("... amio in")
-                if span[1] != len(norms):
+                if span[1] != len(norms) or (span[0] > 0 and norms[span[0] - 1] in ("going", "coming", "put")):
                     continue
             if cue == Cue.ORDER and norms[span[0] : span[1]] == ["do"]:
                 if span[0] == 0 or norms[span[0] - 1] != "de":
