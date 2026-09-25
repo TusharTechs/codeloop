@@ -6,13 +6,13 @@ version: "aha-2025-adult-v1"
 
 drugs:
   epinephrine:
-    aliases: [epi, epinephrine, adrenaline, adrenalin, "एपि", "एपिनेफ्रिन"]
+    aliases: [epi, epinephrine, adrenaline, adrenalin, "एपि", "एपी", "ईपी", "एपिनेफ्रिन", "एपिनेफ्रीन", "एड्रेनालाईन"]
     unit: mg
     usual: [1]
     bounds: [0.01, 1.0]
     interval_s: [180, 300]   # ACLS: every 3-5 minutes
   amiodarone:
-    aliases: [amio, amiodarone, "एमियो", "एमियोडेरोन"]
+    aliases: [amio, amiodarone, "एमियो", "अमियो", "एमियोडेरोन", "एमियोडरोन", "अमियोडेरोन", "एमियोडारोन"]
     unit: mg
     usual: [300, 150]
     bounds: [50, 450]
@@ -64,10 +64,10 @@ shock:
   usual: [120, 150, 200, 300, 360]
 
 rhythms:
-  VF: { shockable: true, aliases: [vf, v fib, v-fib, vfib, ventricular fibrillation] }
+  VF: { shockable: true, aliases: [vf, v fib, v-fib, vfib, ventricular fibrillation, "वी फिब", "वीफिब"] }
   PVT: { shockable: true, aliases: [pulseless vt, pulseless v tach, v tach, vt, ventricular tachycardia] }
   PEA: { shockable: false, aliases: [pea, pulseless electrical activity] }
-  ASYSTOLE: { shockable: false, aliases: [asystole, flatline, flat line] }
+  ASYSTOLE: { shockable: false, aliases: [asystole, flatline, flat line, "एसिस्टोल", "असिस्टोल"] }
   SINUS: { shockable: false, aliases: [sinus, sinus rhythm, organized rhythm] }
 
 timers:

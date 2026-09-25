@@ -87,6 +87,9 @@ class CodeEngine:
         self.started_at_s: float | None = None
         self.ended_at_s: float | None = None
         self.outcome: str | None = None
+        # ROSC / termination heard but not yet confirmed by a human: one mis-heard word must
+        # never end a resuscitation, so the code only ends through confirm_end()/end_code().
+        self.pending_end: tuple[str, float] | None = None
         self.cpr_running = False
         self.cpr_segments: list[list[float | None]] = []
         self.cycle_started_at_s: float | None = None
@@ -125,9 +128,36 @@ class CodeEngine:
         if not self.active:
             return out
         out.extend(self._check_loops(now_s))
-        out.extend(self._check_cycle(now_s))
-        out.extend(self._check_epinephrine(now_s))
+        if self.pending_end is None:
+            out.extend(self._check_cycle(now_s))
+            out.extend(self._check_epinephrine(now_s))
         return out
+
+    def confirm_end(self, at_s: float | None = None) -> EngineOutput:
+        """A human confirmed the ROSC / termination that was heard."""
+        if self.pending_end is None:
+            return EngineOutput()
+        outcome, heard_at = self.pending_end
+        return self.end_code(heard_at if at_s is None else at_s, outcome)
+
+    def reject_end(self) -> EngineOutput:
+        """A human rejected a heard ROSC / termination (mis-heard, or re-arrest)."""
+        self.pending_end = None
+        return EngineOutput(state_changed=True)
+
+    def end_code(self, at_s: float, outcome: str) -> EngineOutput:
+        if self.ended_at_s is not None:
+            return EngineOutput()
+        if self.cpr_running:
+            self.cpr_running = False
+            self.cpr_segments[-1][1] = at_s
+            self.cycle_started_at_s = None
+        self.pending_end = None
+        self.ended_at_s = at_s
+        self.outcome = outcome
+        if outcome == "rosc":
+            self.rhythm_history.append((at_s, Rhythm.SINUS))
+        return EngineOutput(state_changed=True)
 
     def apply(self, ev: Event) -> EngineOutput:
         """Apply one validated event. Advances time to the event first."""
@@ -190,7 +220,7 @@ class CodeEngine:
                 "total_doses": sum(1 for x in self.given if x.drug == drug),
             }
         return {
-            "status": "not_started" if self.started_at_s is None else ("ended" if self.ended_at_s else "active"),
+            "status": self._status(),
             "outcome": self.outcome,
             "clock_s": round(self.clock_s(now), 1),
             "cpr": {"running": self.cpr_running, "cycle": cycle, "cycles_completed": self.cycle_index},
@@ -221,6 +251,15 @@ class CodeEngine:
             ],
             "roles": {k: v.value for k, v in self.roles.items()},
         }
+
+    def _status(self) -> str:
+        if self.started_at_s is None:
+            return "not_started"
+        if self.ended_at_s is not None:
+            return "ended"
+        if self.pending_end is not None:
+            return f"{self.pending_end[0]}_pending_confirmation"
+        return "active"
 
     # ------------------------------------------------------------------ helpers
 
@@ -298,7 +337,7 @@ class CodeEngine:
             return lp
         return None
 
-    def _find_generic_ack_target(self, ev: Event) -> Loop | None:
+    def generic_ack_target(self, ev: Event) -> Loop | None:
         for lp in reversed(list(self.loops.values())):
             if (
                 lp.state in (LoopState.ORDERED, LoopState.UNACKNOWLEDGED)
@@ -354,6 +393,18 @@ class CodeEngine:
         out = EngineOutput()
         if self.cpr_running or not self.active:
             return out
+        if self.pending_end is not None:
+            # CPR restarted after ROSC was called: re-arrest, or the ROSC was mis-heard.
+            for fl in self.flags.values():
+                if fl.rule.endswith("_NEEDS_CONFIRMATION") and fl.resolved_at_s is None:
+                    fl.resolved_at_s = ev.at_s
+                    out.resolved_flags.append(fl)
+            out.flags.append(
+                self._flag(
+                    "CPR_RESUMED_AFTER_ROSC", FlagSeverity.WARNING, "CPR resumed after ROSC was called", ev.at_s, ev=ev
+                )
+            )
+            self.pending_end = None
         self.cpr_running = True
         self.cpr_segments.append([ev.at_s, None])
         self.cycle_started_at_s = ev.at_s
@@ -431,7 +482,7 @@ class CodeEngine:
 
     def _on_ack(self, ev: Event) -> EngineOutput:
         out = EngineOutput(state_changed=True)
-        lp = self._find_open(ev) if ev.action else self._find_generic_ack_target(ev)
+        lp = self._find_open(ev) if ev.action else self.generic_ack_target(ev)
         if lp is None:
             if ev.action is None:
                 return EngineOutput()
@@ -544,13 +595,22 @@ class CodeEngine:
     def _on_end(self, ev: Event) -> EngineOutput:
         if self.ended_at_s is not None:
             return EngineOutput()
+        out = EngineOutput(state_changed=True)
         if self.cpr_running:
             self._on_cpr_pause(ev)
-        self.ended_at_s = ev.at_s
-        self.outcome = "rosc" if ev.kind == EventKind.ROSC else "terminated"
-        if ev.kind == EventKind.ROSC:
-            self.rhythm_history.append((ev.at_s, Rhythm.SINUS))
-        return EngineOutput(state_changed=True)
+        outcome = "rosc" if ev.kind == EventKind.ROSC else "terminated"
+        self.pending_end = (outcome, ev.at_s)
+        what = "ROSC" if outcome == "rosc" else "Termination"
+        out.flags.append(
+            self._flag(
+                f"{what.upper()}_NEEDS_CONFIRMATION",
+                FlagSeverity.WARNING,
+                f"{what} heard: confirm to end the code",
+                ev.at_s,
+                ev=ev,
+            )
+        )
+        return out
 
     def _on_role(self, ev: Event) -> EngineOutput:
         if ev.role is None:

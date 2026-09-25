@@ -288,7 +288,72 @@ NOT_NAMES = {
     "right",
     "codeloop",
 }
-WAKE_WORDS = ["codeloop", "code loop", "kodloop", "code lope", "कोडलूप"]
+WAKE_WORDS = [
+    "codeloop",
+    "code loop",
+    "kodloop",
+    "code lope",
+    "codelope",
+    "cardioloop",
+    "kodlu",
+    "कोडलूप",
+    "कोड लूप",
+    "कादलू",
+    "कोडलू",
+    "कोडलुप",
+]
+QUESTION_WORDS = {
+    "is",
+    "are",
+    "was",
+    "were",
+    "do",
+    "does",
+    "did",
+    "can",
+    "could",
+    "should",
+    "will",
+    "would",
+    "what",
+    "when",
+    "where",
+    "who",
+    "why",
+    "how",
+    "which",
+    "have",
+    "has",
+    "any",
+    "anyone",
+    "kya",
+    "kab",
+    "kaun",
+    "kahan",
+    "kitna",
+    "kyun",
+    "क्या",
+    "कब",
+    "कौन",
+    "कहाँ",
+    "कितना",
+}
+GENERIC_ACK_CUES = [
+    "got it",
+    "copy",
+    "roger",
+    "on it",
+    "pushing",
+    "pushing now",
+    "drawing up",
+    "drawing it up",
+    "charging",
+    "going in",
+    "giving now",
+    "doing it",
+    "de rahi hoon",
+    "de raha hoon",
+]
 
 
 def tokenize(text: str) -> list[Tok]:
@@ -342,10 +407,12 @@ class Grammar:
             idx0 = tokens.index(ctoks[0])
             clause_text = text[ctoks[0].start : ctoks[-1].end]
             end_char = ctoks[-1].end
-            if text[end_char : c_end + 1].strip().startswith("?"):
-                continue  # questions between clinicians are not events
-            at_s = times[idx0 + len(ctoks) - 1] if times else utt.end_s
             norms = [t.norm for t in ctoks]
+            if text[end_char : c_end + 1].strip().startswith("?") and norms[0] in QUESTION_WORDS:
+                # "Is IV access in yet?" is a question; "Amio 150, pushing?" is a read-back
+                # with rising intonation and must still be scored.
+                continue
+            at_s = times[idx0 + len(ctoks) - 1] if times else utt.end_s
             cand = partial(Candidate, quote=clause_text, at_s=at_s, char_span=(ctoks[0].start, ctoks[-1].end))
             out += self._structural(norms, ctoks, cand)
             out += self._clinical(norms, ctoks, idx0, conf, cand)
@@ -483,8 +550,8 @@ class Grammar:
                     value_confidence=min_conf([(num.start, num.end)]),
                 )
             )
-        elif cue in (Cue.ACK,) and _has(norms, ["got it", "copy", "roger", "on it"]):
-            out.append(cand(Cue.ACK))  # generic acknowledgement of the latest order
+        elif cue == Cue.ACK and _has(norms, GENERIC_ACK_CUES) and len(norms) <= 5:
+            out.append(cand(Cue.ACK))  # "Pushing now." acknowledges the latest open order
         return out
 
     def _cue(self, norms: list[str]) -> Cue | None:

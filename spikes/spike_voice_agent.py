@@ -84,6 +84,7 @@ class Session:
         self.audio: bytearray = bytearray()
         self.pending_results: dict[str, str] = {}
         self.audio_replies: set[str | None] = set()
+        self.sending_speech = False
         self.ready = asyncio.Event()
 
     def now(self) -> float:
@@ -98,6 +99,7 @@ class Session:
         while True:
             if len(buf) < FRAME_BYTES and not self.speech.empty():
                 buf += self.speech.get_nowait()
+            self.sending_speech = bool(buf) or not self.speech.empty()
             if buf:
                 frame, buf = buf[:FRAME_BYTES], buf[FRAME_BYTES:]
                 frame = frame.ljust(FRAME_BYTES, b"\x00")
@@ -157,9 +159,14 @@ class Session:
         return None
 
     async def settle(self, quiet_s: float = 2.0, limit_s: float = 25.0) -> None:
-        """Wait until no reply is in progress and nothing has arrived for quiet_s."""
+        """Wait until queued speech has streamed, no reply is in progress, and nothing has
+        arrived for quiet_s."""
+        await asyncio.sleep(0.2)
         end = time.perf_counter() + limit_s
         while time.perf_counter() < end:
+            if self.sending_speech or not self.speech.empty():
+                await asyncio.sleep(0.1)
+                continue
             last = self.events[-1]["_t"] if self.events else 0
             open_replies = {e.get("reply_id") for e in self.events if e.get("type") == "reply.started"}
             done = {e.get("reply_id") for e in self.events if e.get("type") == "reply.done"}
@@ -225,7 +232,7 @@ async def main() -> None:
             before_audio = len(s.audio)
             t = s.now()
             await action()
-            await s.settle()
+            await s.settle(quiet_s=3.0)
             results[name] = summarize(s.since(t), t)
             write_pcm16(RESULTS / f"agent_{name}.wav", bytes(s.audio[before_audio:]), SR)
             print(name, json.dumps(results[name], ensure_ascii=False))

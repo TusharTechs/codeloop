@@ -88,12 +88,26 @@ def test_early_epinephrine_is_an_info_flag_not_a_prompt(engine: CodeEngine) -> N
     assert not out.prompts
 
 
-def test_rosc_stops_the_clock_and_all_timers(engine: CodeEngine) -> None:
+def test_heard_rosc_pauses_timers_but_only_a_human_ends_the_code(engine: CodeEngine) -> None:
     engine.apply(done_drug(10, "epinephrine", 1))
-    engine.apply(ev(EventKind.ROSC, 60))
+    out = engine.apply(ev(EventKind.ROSC, 60))
+    assert [f.rule for f in out.flags] == ["ROSC_NEEDS_CONFIRMATION"]
+    assert engine.snapshot(61)["status"] == "rosc_pending_confirmation"
+    assert not engine.cpr_running
+    assert not prompts_between(engine, 60, 400, step=5)  # no epi / cycle prompts while pending
+    engine.confirm_end()
     assert engine.snapshot(500)["status"] == "ended"
+    assert engine.outcome == "rosc"
     assert engine.clock_s(500) == 60
-    assert not prompts_between(engine, 60, 500, step=5)
+
+
+def test_cpr_resuming_after_rosc_reactivates_the_code(engine: CodeEngine) -> None:
+    engine.apply(ev(EventKind.ROSC, 60))  # e.g. a mis-heard word
+    out = engine.apply(ev(EventKind.CPR_RESUME, 70))
+    assert "CPR_RESUMED_AFTER_ROSC" in [f.rule for f in out.flags]
+    assert engine.snapshot(71)["status"] == "active"
+    assert engine.cpr_running
+    assert [p.rule for p in prompts_between(engine, 70, 191)] == ["CPR_CYCLE_WARN", "CPR_CYCLE_DUE"]
 
 
 def test_timers_only_policy_speaks_timers_not_loops() -> None:

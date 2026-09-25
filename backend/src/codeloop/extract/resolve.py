@@ -61,6 +61,9 @@ class Resolver:
         if kind == Cue.VALUE:
             return self._value(c, engine, speaker, base, event_id)
         if kind == Cue.MENTION:
+            if c.action == Action.DRUG and c.dose is None:
+                self._drop(c, "drug named with no dose and no verb")
+                return []
             kind = self._mention_kind(c, engine, speaker)
         elif isinstance(kind, Cue):
             kind = EventKind(kind.value)
@@ -95,6 +98,15 @@ class Resolver:
             rhythm=c.rhythm,
             **base,
         )
+        if kind == EventKind.ACK and ev.action is None:
+            # "Pushing now." — record what it acknowledges.
+            lp = engine.generic_ack_target(ev)
+            if lp is not None:
+                ev.action, ev.drug = lp.action, lp.drug
+                if lp.action == Action.SHOCK:
+                    ev.energy_j = lp.ordered_value
+                else:
+                    ev.dose, ev.unit = lp.ordered_value, lp.unit
         if kind in (EventKind.ACK, EventKind.DONE) and ev.action and ev.value() is None:
             lp = self._open_loop(engine, ev.action, ev.drug)
             if lp is not None and lp.ordered_value is not None:
@@ -110,7 +122,9 @@ class Resolver:
         lp = self._open_loop(engine, c.action, c.drug)
         role = engine.role_of(speaker)
         if lp is None:
-            return EventKind.ACK if role in (Role.MEDS, Role.COMPRESSOR) else EventKind.ORDER
+            # With nothing open, a stated drug + dose is an order. Diarization mistakes make
+            # the speaker's role an unreliable reason to call it a read-back.
+            return EventKind.ORDER
         if speaker is not None and speaker == lp.ordered_by:
             return EventKind.ORDER
         if role == Role.LEADER:
