@@ -15,6 +15,12 @@ export function Debrief({ codeId, player }: { codeId: string; player: PcmPlayer 
   const [summary, setSummary] = useState<string | null>(null)
   const ws = useRef<WebSocket | null>(null)
   const mic = useRef<MicCapture | null>(null)
+  const end = useRef<HTMLDivElement | null>(null)
+
+  // Hands-free: keep the newest line in view without anyone touching the screen.
+  useEffect(() => {
+    end.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+  }, [lines.length, summary])
 
   const stop = () => {
     mic.current?.stop()
@@ -136,6 +142,7 @@ export function Debrief({ codeId, player }: { codeId: string; player: PcmPlayer 
             ),
           )}
           {summary && <div className="notice" style={{ background: 'var(--teal-bg)', color: 'var(--teal)' }}><b>Summary.</b> {summary}</div>}
+          <div ref={end} />
         </section>
         <section className="panel">
           <h3>Facts CodeLoop may quote</h3>
