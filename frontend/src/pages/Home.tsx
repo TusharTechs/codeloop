@@ -34,6 +34,8 @@ export function Home({ player }: { player: PcmPlayer }) {
     void load()
   }, [])
 
+  const tour = scenarios.find((s) => s.id.startsWith('demo_tour'))
+
   const start = async (mode: 'live' | 'replay', scenario?: string) => {
     setBusy(scenario ?? mode)
     setError(null)
@@ -75,6 +77,14 @@ export function Home({ player }: { player: PcmPlayer }) {
           shock and rhythm with the exact words it heard, runs the ACLS clock out loud, and speaks up when an order was
           never confirmed back.
         </p>
+        {!needToken && tour && (
+          <div className="hero-cta">
+            <button className="btn primary big" onClick={() => start('replay', tour.id)} disabled={!!busy || !health?.assemblyai_key}>
+              {busy === tour.id ? 'Starting…' : `Start here · ${Math.round(tour.duration_s / 10) * 10}-second guided tour`}
+            </button>
+            <span className="faint">A mock code through live AssemblyAI, with captions. Turn your sound on.</span>
+          </div>
+        )}
         <div className="stat-strip">
           <span>
             In filmed resuscitations only <b>26%</b> of spoken orders were closed-loop; those were done <b>3.6×</b> sooner.
@@ -111,8 +121,8 @@ export function Home({ player }: { player: PcmPlayer }) {
           <div className="card">
             <h2>Run a live code</h2>
             <p>
-              Put this tablet on the crash cart and start. CodeLoop listens through the microphone. Say “Code blue, starting
-              CPR” to start the clock; say “CodeLoop, last epi?” to ask it anything.
+              Put this tablet on the crash cart and start. CodeLoop listens through the microphone. Trying it alone? The live
+              screen shows six lines to say, and ticks each one off as CodeLoop reacts.
             </p>
             <button className="btn primary big" onClick={() => start('live')} disabled={!!busy || !health?.assemblyai_key}>
               {busy === 'live' ? 'Starting…' : 'Start live code'}

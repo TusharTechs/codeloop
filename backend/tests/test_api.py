@@ -106,3 +106,5 @@ def test_index_is_never_cached_but_hashed_assets_are(tmp_path) -> None:
         assert c.get("/").headers["cache-control"] == "no-cache"
         assert c.get("/some/route").headers["cache-control"] == "no-cache"
         assert "immutable" in c.get("/assets/index-abc123.js").headers["cache-control"]
+        assert c.head("/").status_code == 200  # uptime monitors often probe with HEAD
+        assert c.head("/api/health").status_code == 200

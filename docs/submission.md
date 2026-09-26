@@ -44,7 +44,11 @@ were measured, the first live scores were precision 0.97 / recall 0.71 and 0.82 
 general fixes: 0.96 / 0.88, with 16 of 17 loop outcomes correct. Medical Mode plus keyterms raised
 critical-entity accuracy from 78% to 96%. Event latency is about 1.2 s.
 An AssemblyAI bill of about $2.66 covers a 30-minute code. First market: simulation centres and
-mock-code debriefs.
+mock-code debriefs. Over 290,000 adult in-hospital cardiac arrests happen each year in the US across
+6,100 hospitals; at an assumed $500 per hospital per month that is about $37M a year in the US alone.
+
+Try it: open the live demo, enter the access code and press "Start here · 80-second guided tour". With
+a microphone, "Start live code" shows six lines to say and ticks each one off as CodeLoop reacts.
 
 ## Tags
 
@@ -52,7 +56,7 @@ AssemblyAI · Voice Agent · Speech Recognition · Healthcare · Patient Safety 
 
 ## Links (fill in before submitting)
 
-- Live demo: (deployment URL)
+- Live demo: https://codeloop-1il8.onrender.com (access code: give it in the submission's judge notes)
 - GitHub: https://github.com/TusharTechs/codeloop (make public before submitting)
 - Video: (upload URL)
 - Slides: `docs/CodeLoop-deck.pdf`

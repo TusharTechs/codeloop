@@ -18,3 +18,5 @@ services:
         sync: false
       - key: MAX_CONCURRENT_CODES
         value: "1"
+      - key: MAX_CODE_MINUTES
+        value: "20"

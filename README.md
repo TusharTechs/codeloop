@@ -21,6 +21,26 @@ confirmation and said "Check dose…" out loud.*
 > CodeLoop records and keeps time. It never recommends treatment. It is not a medical device,
 > and it is intended first for simulation and training.
 
+### Try it in two minutes
+
+**Live demo: https://codeloop-1il8.onrender.com** (the access code is in the hackathon submission;
+the free server can take up to a minute to wake).
+
+1. Press **Start here · 80-second guided tour**. A mock code streams through live AssemblyAI with
+   captions. Turn your sound on and watch for the amber card at about 0:35 and the red dose
+   conflict at about 0:55.
+2. When it ends, open the **Code Record**: quality against AHA targets, the second listen, and the
+   quoted timeline.
+3. Have a microphone? Press **Start live code**. The screen shows six lines to say and ticks each
+   one off as CodeLoop reacts. One voice is enough.
+
+| Criterion | Where to look |
+|---|---|
+| Application of technology | [How it uses AssemblyAI](#how-it-uses-assemblyai): four AssemblyAI roles, each measured |
+| Presentation | The live demo, [the deck](docs/CodeLoop-deck.pdf) and the [architecture](#architecture) |
+| Business value | [The problem](#the-problem) and [Business](#business) |
+| Originality | Closed-loop verification of spoken orders, a deterministic core, and [honest evaluation](#evaluation) |
+
 ---
 
 ## The problem
@@ -258,7 +278,7 @@ cd backend && uv sync && uv run python -m codeloop     # API on :8000
 cd frontend && pnpm install && pnpm dev                 # UI on :5173 (proxies to :8000)
 ```
 
-Open http://localhost:5173. **Start here: 90-second tour** replays a guided mock code with
+Open http://localhost:5173. **Start here · 80-second guided tour** replays a guided mock code with
 captions. **Replay a mock code** streams a recorded mock code through the live pipeline. **Start live code** uses your microphone. Say "Code blue, starting CPR", then
 try "Give one milligram of epinephrine" and stay silent. When a code ends, open its Code
 Record for the quality metrics and second listen, and press **Spoken debrief** to talk it
@@ -318,6 +338,22 @@ eval/           scenario scripts, audio synthesis, capture, scoring, RESULTS.md
 demo/scenarios/ replayable mock codes
 docs/           architecture, safety case, spike findings, research
 ```
+
+## Business
+
+- **Who pays first:** simulation centres and hospital resuscitation committees. Every hospital runs
+  mock codes and must review its real ones. CodeLoop gives them the record, the quality metrics and
+  the debrief, with no patient data and no clinical reliance.
+- **Market:** over **290,000** adult in-hospital cardiac arrests happen each year in the US
+  ([Andersen et al., JAMA 2019](https://pubmed.ncbi.nlm.nih.gov/30912843/)), across **6,100** US
+  hospitals ([AHA Fast Facts 2026](https://www.aha.org/statistics/fast-facts-us-hospitals)). At an
+  assumed $500 per hospital per month, that is about **$37M a year** in the US alone, before India
+  and EMS.
+- **Unit economics:** about 48 arrests per hospital a year (290,000 ÷ 6,100) cost about $130 of
+  AssemblyAI usage to record.
+- **Why it needs AI:** a noisy room, overlapping speakers, drug names and doses, and Hindi–English
+  code-switching. Without accurate medical speech recognition and speaker labels there is nothing
+  to verify.
 
 ## Cost
 

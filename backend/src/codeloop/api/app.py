@@ -162,7 +162,8 @@ def create_app(settings: Settings | None = None, store: Store | None = None, fac
 
     Auth = Depends(auth)
 
-    @app.get("/api/health")
+    # HEAD too, so uptime monitors that probe with HEAD see the service as up.
+    @app.api_route("/api/health", methods=["GET", "HEAD"])
     async def health() -> dict:
         return {
             "ok": True,
@@ -287,7 +288,7 @@ def create_app(settings: Settings | None = None, store: Store | None = None, fac
     if dist.exists():
         app.mount("/assets", ImmutableStaticFiles(directory=dist / "assets"), name="assets")
 
-        @app.get("/{path:path}", include_in_schema=False)
+        @app.api_route("/{path:path}", methods=["GET", "HEAD"], include_in_schema=False)
         async def spa(path: str):
             f = dist / path
             if path and f.is_file() and dist in f.resolve().parents:

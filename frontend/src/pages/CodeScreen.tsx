@@ -8,6 +8,7 @@ import { Guide } from '../components/Guide'
 import { CprRing, EpiWindow, Vitals } from '../components/Protocol'
 import { QuickLog } from '../components/QuickLog'
 import { QualityList } from '../components/Quality'
+import { TryLive } from '../components/TryLive'
 import { loopTitle, mmss, num } from '../format'
 import type { CodeEvent, Loop } from '../types'
 import { useCodeSocket } from '../useCodeSocket'
@@ -218,6 +219,7 @@ export function CodeScreen({ codeId, player }: { codeId: string; player: PcmPlay
       </div>
 
       {showGuide && <Guide items={view.guide} dismiss={dismiss} />}
+      {isLive && state.status !== 'ended' && <TryLive view={view} />}
 
       <main className="grid">
         <section className="col" aria-label="Protocol">

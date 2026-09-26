@@ -57,6 +57,11 @@ table.tight td { padding: 12px 18px; font-size: 25px; }
 .box.aai { border-color: rgba(106,169,255,.6); }
 .box.core { border-color: rgba(53,208,181,.6); }
 ul { margin: 0; padding-left: 32px; display: grid; gap: 14px; }
+.safety { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 28px; }
+.safety div { font-size: 25px; line-height: 1.35; color: var(--muted); border-left: 4px solid var(--teal); padding: 6px 0 6px 16px; }
+.biz { gap: 26px; }
+.biz .stat { padding: 24px 30px; gap: 8px; align-content: start; }
+.biz .stat .d { font-size: 26px; }
 .big-quote { font-size: 54px; line-height: 1.2; color: var(--text); font-weight: 700; max-width: 1500px; }
 .ecg { position: absolute; right: -40px; top: 160px; opacity: .10; }
 </style>
@@ -150,38 +155,24 @@ ul { margin: 0; padding-left: 32px; display: grid; gap: 14px; }
   <div class="foot"><span>CodeLoop</span><span>6</span></div>
 </section>
 
-<!-- 6 · Architecture -->
+<!-- 7 · How it works + safety -->
 <section class="slide">
-  <div class="kicker">How it works</div>
+  <div class="kicker">How it works · safety by design</div>
   <h2>Models understand speech. <em>Deterministic code decides.</em></h2>
   <div class="arch">
     <div class="box aai"><span class="pill pb">AssemblyAI · ears</span><h3>U3.5 Pro Streaming</h3><p>Room audio from a crash-cart tablet. Speaker labels, Medical Mode, ACLS keyterms, far-field Voice Focus, English + Hindi.</p></div>
     <div class="box core"><span class="pill pt">CodeLoop core</span><h3>Grammar → resolver → ACLS engine</h3><p>Every event quotes the exact words it came from. Loops, timers, flags and every spoken number come from unit-tested, replayable code. <b>The model never picks a dose.</b></p></div>
     <div class="box aai"><span class="pill pv">AssemblyAI · voice</span><h3>Voice Agent API</h3><p>Speaks fixed lines only, waits for a gap in the room, stops when a clinician talks over it. Never hears the room's chatter.</p></div>
   </div>
-  <p>Every utterance, event, loop, flag and spoken line → a <b>SHA-256 hash-chained audit log</b>. The Code Record is rebuilt from it, so the screen and the record cannot disagree.</p>
-  <div class="foot"><span>CodeLoop</span><span>7</span></div>
-</section>
-
-<!-- 7 · Safety -->
-<section class="slide">
-  <div class="kicker">Safety by design</div>
-  <h2>Built so that being wrong is <em>visible</em>, not silent.</h2>
-  <div class="grid2">
-    <ul>
-      <li><b>Low ASR confidence</b> on a dose → UNCONFIRMED, never a fact</li>
-      <li><b>Read-back differs</b> → red card, one-tap confirm, spoken check</li>
-      <li><b>A misheard “ROSC”</b> only pauses timers; a human ends the code</li>
-      <li><b>CodeLoop's own voice</b> is recognised and never logged as the team</li>
-    </ul>
-    <ul>
-      <li><b>Never recommends treatment</b>: it reminds timing, never what to give</li>
-      <li><b>Answers come from the record</b>: a managed LLM chose the wrong fact in testing, so answers are composed deterministically</li>
-      <li><b>Tamper-evident record</b> with integrity check and head hash</li>
-      <li>Screen-only / timers-only / mute: the team decides how chatty it is</li>
-    </ul>
+  <div class="safety">
+    <div><b>Low ASR confidence</b> on a dose → UNCONFIRMED, never a fact</div>
+    <div><b>A misheard “ROSC”</b> only pauses timers; a human ends the code</div>
+    <div><b>Never recommends treatment</b>: it keeps time, the leader decides</div>
+    <div><b>Its own voice</b> is recognised and never logged as the team</div>
+    <div><b>Answers come from the record</b>, composed deterministically</div>
+    <div><b>Hash-chained audit log</b>; the record is rebuilt from it</div>
   </div>
-  <div class="foot"><span>Full safety case: docs/safety.md</span><span>8</span></div>
+  <div class="foot"><span>Full safety case: docs/safety.md</span><span>7</span></div>
 </section>
 
 <!-- 8 · Evidence -->
@@ -203,11 +194,11 @@ ul { margin: 0; padding-left: 32px; display: grid; gap: 14px; }
       <li>Limitation: synthetic TTS voices so far. Real-voice testing in a sim centre is milestone one.</li>
     </ul>
   </div>
-  <div class="foot"><span>Protocol and every number: eval/RESULTS.md · 141 automated tests</span><span>9</span></div>
+  <div class="foot"><span>Protocol and every number: eval/RESULTS.md · 141 automated tests</span><span>8</span></div>
 </section>
 
 <!-- 9 · Business -->
-<section class="slide">
+<section class="slide biz">
   <div class="kicker">Business</div>
   <h2>Start where every hospital already practises: <em>mock codes</em>.</h2>
   <div class="grid3">
@@ -215,11 +206,12 @@ ul { margin: 0; padding-left: 32px; display: grid; gap: 14px; }
     <div class="stat"><span class="n" style="font-size:46px;font-family:Atkinson">2 · Documentation</span><span class="d">Live codes, silent or timers-only. The recorder nurse reviews and signs; FHIR and GWTG-Resuscitation registry export.</span></div>
     <div class="stat"><span class="n" style="font-size:46px;font-family:Atkinson">3 · Real-time assist</span><span class="d">Spoken loop nudges during live codes, after clinical validation and a SaMD regulatory pathway.</span></div>
   </div>
-  <div class="grid2">
-    <p><b>≈ $2.66</b> of AssemblyAI usage per 30-minute code (streaming + Medical Mode + diarization + Voice Focus + Voice Agent), at list prices.</p>
-    <p>Per-site subscription for simulation; per-bed for clinical documentation. Expands to trauma, pediatric and neonatal resuscitation, and EMS.</p>
+  <div class="grid3">
+    <div class="stat"><span class="n" style="font-size:64px">290,000+</span><span class="d">adult in-hospital cardiac arrests a year in the US, each one run by voice.</span><span class="s">Andersen et al., JAMA 2019</span></div>
+    <div class="stat"><span class="n" style="font-size:64px">≈ $37M/yr</span><span class="d">6,100 US hospitals × an assumed $500 per hospital per month. India and EMS come next.</span><span class="s">AHA Fast Facts 2026 · pricing is our assumption</span></div>
+    <div class="stat"><span class="n" style="font-size:64px">≈ $2.66</span><span class="d">AssemblyAI cost per 30-minute code. About 48 arrests per hospital a year cost ≈ $130 to record.</span><span class="s">List prices; 290,000 ÷ 6,100 hospitals</span></div>
   </div>
-  <div class="foot"><span>CodeLoop</span><span>10</span></div>
+  <div class="foot"><span>CodeLoop</span><span>9</span></div>
 </section>
 
 <!-- 10 · Close -->
